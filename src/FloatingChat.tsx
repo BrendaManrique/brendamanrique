@@ -22,6 +22,15 @@ import { getSectionLabels, getPageTitles } from './articles/registry';
 import { useVoiceMode } from './useVoiceMode';
 import VoiceOrb from './VoiceOrb';
 
+// Voice mode is opt-in and OFF unless VITE_VOICE_ENABLED is exactly 'true'.
+// Any other value, including unset, keeps it off. The same variable gates
+// api/voice-token.js server-side — Vite inlines it into the bundle at build
+// time, and Vercel also exposes it to the serverless function at runtime — so
+// flipping the one variable moves the UI and the endpoint together. Without the
+// server half, hand-crafted POSTs could still mint Realtime tokens and bill the
+// OpenAI account.
+const VOICE_ENABLED = import.meta.env.VITE_VOICE_ENABLED === 'true';
+
 interface RagSource {
   article_id: string;
   section_id: string;
@@ -356,7 +365,7 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
   };
 
   // Can toggle to voice?
-  const canStartVoice = !isLoading && !isStreaming && voiceMode.isSupported;
+  const canStartVoice = VOICE_ENABLED && !isLoading && !isStreaming && voiceMode.isSupported;
 
   const sendMessage = async (messageText?: string) => {
     const text = messageText || input.trim();

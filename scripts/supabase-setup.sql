@@ -48,3 +48,33 @@ create index if not exists documents_embedding_idx on documents
   using ivfflat (embedding vector_cosine_ops) with (lists = 10);
 create index if not exists documents_fts_idx on documents using gin (fts);
 create index if not exists documents_metadata_idx on documents using gin (metadata);
+
+-- 6. Ingest hash cache
+-- `npm run rag:sync` compares content hashes to skip unchanged articles.
+-- Reads/writes are wrapped in try/catch, so a missing table is not fatal —
+-- it just means every build re-embeds the entire corpus (slower, and billed).
+create table if not exists public.rag_hashes (
+  article_id text primary key,
+  hash text not null,
+  updated_at timestamptz default now()
+);
+
+-- 7. Voice session rate limiting
+-- api/voice-token.js caps Realtime sessions per IP per 24h. It fails OPEN if
+-- this table is absent, so without it voice minting is uncapped — and Realtime
+-- audio is the most expensive call on the site. `ip` must be the primary key:
+-- the endpoint upserts with Prefer: resolution=merge-duplicates.
+create table if not exists public.voice_rate_limits (
+  ip text primary key,
+  count int not null default 1,
+  window_start timestamptz not null default now()
+);
+
+-- 8. Row Level Security
+-- Every read and write happens server-side with the service_role key, which
+-- bypasses RLS. Enabling it with no policies therefore changes nothing for the
+-- app while closing anon/authenticated access — so a leaked anon key cannot
+-- read the corpus or forge rate-limit rows.
+alter table public.documents enable row level security;
+alter table public.rag_hashes enable row level security;
+alter table public.voice_rate_limits enable row level security;

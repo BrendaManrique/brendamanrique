@@ -58,3 +58,4 @@ scripts/chunks/
 # Old site + migration scratch — local only, not part of the deployed app
 brendamanriqueTest/
 _brenda-migration/
+.env*

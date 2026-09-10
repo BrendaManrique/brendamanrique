@@ -200,6 +200,18 @@ export default async function handler(req) {
     return new Response('Method not allowed', { status: 405 })
   }
 
+  // Voice is opt-in and OFF unless VITE_VOICE_ENABLED is exactly 'true'.
+  // This must be enforced here, not only by hiding the mic button: minting a
+  // Realtime token is the most expensive call on the site, and the endpoint is
+  // public. Checked before the OPENAI_API_KEY branch so a disabled deployment
+  // reports "disabled" rather than leaking whether a key is configured.
+  if (process.env.VITE_VOICE_ENABLED !== 'true') {
+    return new Response(JSON.stringify({ error: 'Voice mode disabled' }), {
+      status: 403,
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+
   if (!process.env.OPENAI_API_KEY) {
     return new Response(JSON.stringify({ error: 'Voice mode not configured' }), {
       status: 503,
