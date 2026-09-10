@@ -1,0 +1,30 @@
+# Most bots crawl. The best ones read llms.txt → /llms.txt
+#
+# Built by Brenda Manrique — linkedin.com/in/brendastephanie
+# Stack: React 19 · Claude API · Vercel · hybrid RAG · CI-gated evals
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /ops
+
+# AI crawlers (GEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://brendamanrique.com/sitemap.xml

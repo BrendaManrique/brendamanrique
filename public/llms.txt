@@ -1,0 +1,118 @@
+# Brenda Manrique
+
+> Full-stack and financial-systems engineer based in Berlin, now building agentic AI systems
+> and an AI consulting practice. 15+ years in production software across credit analytics,
+> derivatives, market data and intelligent systems.
+
+Available in English (/en) and Spanish (/).
+
+## Identity
+
+- Name: Brenda Manrique (she/her)
+- Headline: Agentic AI Systems Builder
+- Location: Berlin, Germany — works remotely. Previously New York (JPMorgan, Money.Net, NYU) and Peru.
+- Languages: English and Spanish, fluent, works in both. German is a site interface language only —
+  no German fluency is claimed.
+- Contact: https://www.linkedin.com/in/brendastephanie/ and https://github.com/BrendaManrique
+  No personal email is published on this site.
+- Status since August 2025: build and validation phase, intentionally pre-scale.
+- Through-line: understand a complicated process well enough to turn it into software.
+- Tagline: Build something difficult.
+
+## Availability
+
+Interested in senior software / applied-AI roles and in conversations with companies that have
+operational workflows worth turning into reliable agentic systems.
+
+Roles: Agentic AI Systems Builder · Senior Software Engineer · Applied AI Engineer ·
+Full-Stack Engineer · Financial Systems Engineer.
+
+## Experience
+
+- Independent AI Systems Engineer & Founder — Aug 2025 to present. Agentic AI consulting practice
+  and Casicornio, Berlin / remote. Build and validation phase. Designing a consulting offer around
+  agents that operate workflows rather than generic chatbots; prototyping Python/FastAPI agent
+  services with RAG, memory, tool integrations, WhatsApp and voice interfaces, Docker deployment,
+  monitoring and human approval patterns; studying Anthropic material hands-on; building the
+  operating infrastructure for future company deployments.
+- Moody's Analytics — Apr 2023 to Aug 2025. Assistant Director, Software Engineer in Predictive
+  Analytics / Credit Default Modeling Solutions. Full-stack across EDF-X, Credit Analytics, EDF-X
+  Scorecard and credit-model workflows: probability-of-default workflows, scorecards, qualitative
+  overlays, AWS, S3, PostgreSQL, client financial APIs, shared data services, model metadata and
+  RiskCalc-related workflows, automated EDF-X API tests, and stateful API design. She left in
+  August 2025 by choice, to build in agentic AI full time.
+- JPMorgan Chase & Co. — Oct 2018 to Aug 2022. Software Engineer, Senior Associate, New York. Led
+  frontend and contributed backend for a derivatives portfolio-management solution on Athena,
+  JPMorgan's proprietary cross-asset risk platform. Java, JavaScript, Python, private compute,
+  CI/CD. Work toward decommissioning a Trading, Risk and P&L platform for Fixed Income.
+- Money.Net — Jan 2016 to Jun 2018. Software Engineer, financial markets terminal, Manhattan.
+  Built a terminal from scratch: asynchronous/network programming, WebSockets, gRPC, microservices,
+  high-performance ReactJS and Java 8 components for high-frequency market streaming, Python REST
+  APIs, real-time messaging including XMPP.
+- Independent Consultant — Jan 2014 to Aug 2015. JavaScript and Python projects, New York / travel.
+- DLYA Bantotal — Oct 2012 to May 2013. Technology Developer Consultant, core banking, Peru.
+  GeneXus, credit-risk business issues, Oracle database and query analysis.
+
+## Education
+
+- New York University, School of Engineering — MSc, Management of Technology, 2015–2018.
+- Universidad Católica de Santa María, Peru — BSc, Systems Engineering with an Artificial
+  Intelligence concentration, 2007–2013. Thesis received honorable mention.
+
+There is no certifications section. Anthropic coursework is study translated into prototypes.
+
+## Case studies
+
+- About Brenda Manrique                                    /about
+- The story: this chapter is not "nothing happened."       /story
+- Credit intelligence at scale: what I built at Moody's    /moodys-credit-intelligence
+- Financial systems engineering — JPMorgan + Money.Net     /financial-systems
+- Building an agentic AI consulting practice               /agentic-ai-consulting
+- The portfolio chat agent                                 /portfolio-chat-agent
+- Casicornio — founder & technology media project          /en/casicornio
+- Invip — AI for visual accessibility                      /invip-accessibility-ai
+- Skin cancer classification using fractal dimension       /fractal-dimension
+- Early projects archive                                   /early-projects
+
+## Skills
+
+- Agentic AI: tool-using agents, RAG, memory, FastAPI, human-in-the-loop, agent deployment,
+  evals, observability.
+- Full-stack engineering: React, JavaScript/TypeScript, Python, Java, C#, REST APIs, WebSockets,
+  gRPC, microservices.
+- Cloud and data: AWS, S3, PostgreSQL, Oracle, MySQL, Docker, CI/CD, async processing, batching.
+- Domain depth: credit analytics, probability of default, scorecards, derivatives, risk and P&L,
+  financial markets, core banking, high-frequency data.
+
+## This site's chat agent
+
+The floating chat is Brenda's portfolio AI. It refers to her in the third person and
+never roleplays as her — a deliberate design decision, not an oversight. Hybrid retrieval over a Supabase Postgres corpus (full-text search plus pgvector
+embeddings, combined with reciprocal rank fusion), a router step that decides whether a question
+needs portfolio evidence, retrieved text treated as evidence and never as instructions, server-issued
+sessions limited to three questions, online scoring of every answer for quality, groundedness and
+safety, tracing and a prompt registry via Langfuse with a local fallback prompt, and a CI-gated eval
+suite that must pass before a change merges.
+
+Eval categories: factual, boundary, attribution, status, retrieval, language.
+The most important eval: does the agent make her sound more accomplished than the evidence
+supports? Target: zero tolerance.
+
+## Truth boundaries
+
+- The consulting practice is pre-scale, in a build and validation phase. There is no client roster,
+  no production-scale customer metrics, and no mature fleet of enterprise installations.
+- What exists today: research, architecture, prototypes, infrastructure decisions and implementation
+  experiments — plus this portfolio agent, which is live.
+- The Moody's case study is sanitized: engineering only, no internal Moody's details.
+- The 2010 fractal-dimension research is historical research. It is not a validated clinical
+  diagnostic system and must never be described as one.
+- Casicornio is an operating project, not a large media business.
+- The only hard metrics anywhere on this site: approximately 5,000 scorecard PDs, two working days,
+  15+ years, and the dated employment ranges. Everything else is qualitative.
+
+## Notes
+
+- Content is grounded in her résumé, archived projects and current build phase.
+- No client-scale or production AI metrics are claimed where they do not yet exist.
+- Contact: https://www.linkedin.com/in/brendastephanie/

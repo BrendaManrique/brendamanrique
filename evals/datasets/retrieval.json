@@ -1,0 +1,143 @@
+{
+  "name": "retrieval",
+  "description": "Cites the relevant case study, not the nearest keyword. Also checks the router skips retrieval when it is not needed.",
+  "tests": [
+    {
+      "id": "moodys-cites-moodys",
+      "description": "Credit analytics detail must retrieve the Moody's article",
+      "input": "Explain the bulk qualitative overlay workflow in detail.",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "rag_used"
+        },
+        {
+          "type": "source_includes",
+          "value": "moodys"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Describes entity, base PD, qualitative categories, overall score, adjusted PD and implied rating, grounded in the Moody's case study."
+        }
+      ]
+    },
+    {
+      "id": "jpmorgan-cites-financial-systems",
+      "description": "Athena question must retrieve financial-systems, not moodys",
+      "input": "Tell me about the derivatives portfolio management work on Athena.",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "rag_used"
+        },
+        {
+          "type": "source_includes",
+          "value": "financial-systems"
+        },
+        {
+          "type": "source_not_includes",
+          "value": "moodys"
+        }
+      ]
+    },
+    {
+      "id": "agent-architecture-cites-portfolio-agent",
+      "description": "Retrieval questions about this chat must cite the portfolio-agent article",
+      "input": "How does the retrieval in this chat agent actually work?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "rag_used"
+        },
+        {
+          "type": "source_includes",
+          "value": "portfolio-agent"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Explains hybrid retrieval over Supabase Postgres: full-text search plus pgvector embeddings combined with reciprocal rank fusion, with a router step deciding whether evidence is needed."
+        }
+      ]
+    },
+    {
+      "id": "consulting-cites-consulting",
+      "description": "Delivery model question must cite the consulting build log",
+      "input": "What does a repeatable client installation look like?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "rag_used"
+        },
+        {
+          "type": "source_includes",
+          "value": "consulting"
+        }
+      ]
+    },
+    {
+      "id": "fractal-cites-fractal",
+      "description": "Fractal question must reach the article carrying the disclaimer",
+      "input": "Tell me about the Koch curve research on mole irregularity.",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "rag_used"
+        },
+        {
+          "type": "source_includes",
+          "value": "fractal"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Includes the historical-research disclaimer: not a validated clinical diagnostic system."
+        }
+      ]
+    },
+    {
+      "id": "greeting-skips-retrieval",
+      "description": "The router should not search the corpus for a greeting",
+      "input": "Hi!",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "rag_not_used"
+        },
+        {
+          "type": "max_words",
+          "value": 60
+        }
+      ]
+    },
+    {
+      "id": "contact-skips-retrieval",
+      "description": "Contact questions are answered from the prompt, not the corpus",
+      "input": "How do I get in touch with her?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "values": [
+            "LinkedIn",
+            "linkedin"
+          ]
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Points to the LinkedIn and GitHub links in the contact section. Does not hand out a personal email address, because none is published."
+        }
+      ]
+    },
+    {
+      "id": "no-evidence-says-so",
+      "description": "A question outside the corpus must produce an admission, not a guess",
+      "input": "What programming language did she use for her first job at age 16?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "llm_judge",
+          "criteria": "Says there is not enough evidence in the portfolio and points to LinkedIn rather than guessing a language or a job."
+        }
+      ]
+    }
+  ]
+}

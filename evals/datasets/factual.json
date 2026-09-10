@@ -1,0 +1,174 @@
+{
+  "name": "factual",
+  "description": "Dates, titles, companies. Every claim must match the portfolio evidence exactly.",
+  "tests": [
+    {
+      "id": "years-of-experience",
+      "description": "15+ years is a permitted hard metric; anything larger is inflation",
+      "input": "How many years of experience does Brenda have?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "values": [
+            "15+",
+            "15 ",
+            "fifteen",
+            "more than 15"
+          ]
+        },
+        {
+          "type": "not_contains",
+          "value": "20 years"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "States 15+ years in production software. Does not inflate the number or invent a start year that contradicts it."
+        }
+      ]
+    },
+    {
+      "id": "moodys-title-and-dates",
+      "description": "Assistant Director — Software Engineer, Apr 2023 to Aug 2025",
+      "input": "What was her job title at Moody's and when did she work there?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Assistant Director"
+        },
+        {
+          "type": "contains",
+          "value": "2023"
+        },
+        {
+          "type": "contains",
+          "value": "2025"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Says Assistant Director — Software Engineer at Moody's Analytics from April 2023 to August 2025, in Predictive Analytics / Credit Default Modeling Solutions. No invented title or date."
+        }
+      ]
+    },
+    {
+      "id": "jpmorgan-role",
+      "description": "Senior Associate on derivatives / Athena, 2018-2022",
+      "input": "What did she do at JPMorgan?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "values": [
+            "Athena",
+            "derivatives"
+          ]
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Describes a Software Engineer Senior Associate role (Oct 2018 - Aug 2022) leading frontend and contributing backend for a derivatives portfolio-management solution on Athena, JPMorgan's proprietary cross-asset risk platform."
+        }
+      ]
+    },
+    {
+      "id": "moodys-hard-metrics",
+      "description": "The only two Moody's numbers: approximately 5,000 scorecard PDs, two working days",
+      "input": "What results did the bulk qualitative overlay achieve at Moody's?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "values": [
+            "5,000",
+            "5000",
+            "5.000"
+          ]
+        },
+        {
+          "type": "contains_any",
+          "values": [
+            "two working days",
+            "2 working days",
+            "two days"
+          ]
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Cites roughly 5,000 scorecard-generated PDs compared and the portfolio returned with the overlay applied in two working days. Invents no other metric, percentage, revenue figure or client name."
+        }
+      ]
+    },
+    {
+      "id": "education",
+      "description": "NYU MSc and UCSM BSc with AI concentration",
+      "input": "What did Brenda study?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "New York University"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Names the NYU MSc in Management of Technology (2015-2018) and the BSc in Systems Engineering with an Artificial Intelligence concentration at Universidad Católica de Santa María (2007-2013). Mentions no degree she does not hold."
+        }
+      ]
+    },
+    {
+      "id": "location",
+      "description": "Berlin, remote; previously New York and Peru",
+      "input": "Where is Brenda based?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Berlin"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Says Berlin, Germany and that she works remotely. May mention previous locations New York and Peru. Does not invent a different city."
+        }
+      ]
+    },
+    {
+      "id": "money-net",
+      "description": "Terminal from scratch: WebSockets, gRPC, microservices, React, Java 8, XMPP",
+      "input": "What did she build at Money.Net?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "values": [
+            "terminal",
+            "WebSocket",
+            "gRPC"
+          ]
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Describes building a financial markets terminal from scratch (Jan 2016 - Jun 2018) with asynchronous/network programming, WebSockets, gRPC, microservices, ReactJS and Java 8 components, Python REST APIs and XMPP. No throughput or latency numbers are invented."
+        }
+      ]
+    },
+    {
+      "id": "invip-role",
+      "description": "CTO / co-founder, 2015-2018, NYU",
+      "input": "What was her role at Invip?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "values": [
+            "CTO",
+            "co-founder",
+            "cofounder"
+          ]
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Says CTO and co-founder of Invip, an NYU award-winning project and U.S.-incorporated company built 2015-2018. Does not present it as a currently running product."
+        }
+      ]
+    }
+  ]
+}

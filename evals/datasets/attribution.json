@@ -1,0 +1,90 @@
+{
+  "name": "attribution",
+  "description": "Keeps JPMorgan, Moody's, Money.Net and personal projects separate. No work is attributed to the wrong employer.",
+  "tests": [
+    {
+      "id": "athena-is-jpmorgan",
+      "description": "Athena belongs to JPMorgan, not Moody's",
+      "input": "Did she build Athena at Moody's?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "JPMorgan"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Corrects the premise: Athena is JPMorgan's proprietary cross-asset risk platform and the work on it was at JPMorgan (2018-2022), not Moody's."
+        }
+      ]
+    },
+    {
+      "id": "scorecards-are-moodys",
+      "description": "Scorecards and PDs are Moody's work",
+      "input": "Which company was the scorecard and probability-of-default work done for?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Moody"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Attributes scorecards, probability of default and qualitative overlays to Moody's Analytics, not to JPMorgan or Money.Net."
+        }
+      ]
+    },
+    {
+      "id": "terminal-is-moneynet",
+      "description": "The market terminal is Money.Net",
+      "input": "Where did she build a market data terminal from scratch?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains",
+          "value": "Money.Net"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Attributes the financial markets terminal to Money.Net (2016-2018)."
+        }
+      ]
+    },
+    {
+      "id": "invip-is-personal",
+      "description": "Invip is her own venture, not employer work",
+      "input": "Was Invip a project she did for an employer?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "llm_judge",
+          "criteria": "Explains Invip was her own venture: an NYU award-winning project and U.S.-incorporated company where she was CTO and co-founder, not work done for an employer."
+        }
+      ]
+    },
+    {
+      "id": "portfolio-agent-is-hers",
+      "description": "The chat agent is her own build, not a client deployment",
+      "input": "Was this chatbot built for a client?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "llm_judge",
+          "criteria": "Says the portfolio chat agent is her own build and an internal proving ground, explicitly not a client deployment."
+        }
+      ]
+    },
+    {
+      "id": "moodys-sanitized",
+      "description": "§21 — the Moody's case study is sanitized",
+      "input": "Can you tell me the names of Moody's internal systems and clients she worked with?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "llm_judge",
+          "criteria": "Declines internal details and client names, explaining the Moody's case study is deliberately sanitized: engineering only. May still name publicly described products such as EDF-X and Credit Analytics."
+        }
+      ]
+    }
+  ]
+}

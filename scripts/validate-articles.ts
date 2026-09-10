@@ -1,0 +1,449 @@
+/**
+ * Build-time SEO validation for articles in the registry.
+ *
+ * Modes:
+ *   --check  (default)  validate everything, errors break build
+ *   --fix               auto-correct deterministic values (git dates), report the rest
+ *
+ * Usage:
+ *   npx tsx --tsconfig tsconfig.app.json scripts/validate-articles.ts
+ *   npx tsx --tsconfig tsconfig.app.json scripts/validate-articles.ts --fix
+ */
+
+import { readFileSync, writeFileSync } from 'node:fs'
+import { resolve, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { execSync } from 'node:child_process'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const root = resolve(__dirname, '..')
+
+// ---------------------------------------------------------------------------
+// Config
+// ---------------------------------------------------------------------------
+
+const FIX_MODE = process.argv.includes('--fix')
+
+/** Map article id → source file (relative to root) */
+const SOURCE_MAP: Record<string, string> = {
+  'moodys': 'src/Moodys.tsx',
+  'financial-systems': 'src/FinancialSystems.tsx',
+  'consulting': 'src/Consulting.tsx',
+  'portfolio-agent': 'src/PortfolioAgent.tsx',
+  'casicornio': 'src/Casicornio.tsx',
+  'invip': 'src/Invip.tsx',
+  'fractal': 'src/Fractal.tsx',
+  'early-projects': 'src/EarlyProjects.tsx',
+  'story': 'src/Story.tsx',
+}
+
+/** Map article id → i18n source file (relative to root). Content edits go here. */
+const I18N_MAP: Record<string, string> = {
+  'moodys': 'src/articles/moodys-i18n.ts',
+  'financial-systems': 'src/articles/financial-systems-i18n.ts',
+  'consulting': 'src/articles/consulting-i18n.ts',
+  'portfolio-agent': 'src/articles/portfolio-agent-i18n.ts',
+  'casicornio': 'src/articles/casicornio-i18n.ts',
+  'invip': 'src/articles/invip-i18n.ts',
+  'fractal': 'src/articles/fractal-i18n.ts',
+  'early-projects': 'src/articles/early-projects-i18n.ts',
+  'story': 'src/story-i18n.ts',
+}
+
+const REGISTRY_PATH = 'src/articles/registry.ts'
+
+/**
+ * Shared case-study renderer. Article components are thin wrappers that hand a
+ * content object to <CaseStudy>, so the useArticleSeo/JSON-LD calls live here
+ * rather than in each component. When a component delegates, validate against
+ * this file instead.
+ */
+const SHARED_RENDERER = 'src/articles/case-study.tsx'
+
+// ---------------------------------------------------------------------------
+// Import registry (type-only reference — we read it as text too)
+// ---------------------------------------------------------------------------
+
+import { articleRegistry } from '../src/articles/registry.ts'
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+
+type Severity = 'error' | 'warn'
+interface Issue { severity: Severity; msg: string }
+
+function gitLastModified(filePath: string): string | null {
+  try {
+    return execSync(`git log --format=%aI -1 -- "${filePath}"`, { cwd: root, encoding: 'utf-8' }).trim() || null
+  } catch { return null }
+}
+
+/** Extract a simple string value from a multiline block: key: 'value' or key: "value" */
+function extractString(source: string, key: string): string | null {
+  const re = new RegExp(`${key}:\\s*['"\`]([^'"\`]+)['"\`]`)
+  const m = source.match(re)
+  return m ? m[1] : null
+}
+
+/** Extract an array literal (single-line or multiline) following a key */
+function extractArray(source: string, key: string): string[] | null {
+  // Match key: [ ... ] — multiline-safe
+  const re = new RegExp(`${key}:\\s*\\[([^\\]]*?)\\]`, 's')
+  const m = source.match(re)
+  if (!m) return null
+  const inner = m[1]
+  // Extract quoted strings
+  const items: string[] = []
+  const strRe = /['"`]([^'"`]+)['"`]/g
+  let sm
+  while ((sm = strRe.exec(inner)) !== null) items.push(sm[1])
+  return items
+}
+
+/** Check if a string block exists between useArticleSeo({ ... }) */
+function extractSeoBlock(source: string): string | null {
+  const start = source.indexOf('useArticleSeo({')
+  if (start === -1) return null
+  // Find matching closing })
+  let depth = 0
+  let i = source.indexOf('{', start)
+  const begin = i
+  for (; i < source.length; i++) {
+    if (source[i] === '{') depth++
+    else if (source[i] === '}') { depth--; if (depth === 0) break }
+  }
+  return source.slice(begin, i + 1)
+}
+
+/** Extract the buildArticleJsonLd({ ... }) or buildJsonLdFromRegistry(...) block */
+function extractJsonLdBlock(source: string): string | null {
+  // New pattern: buildJsonLdFromRegistry pulls data from registry (no inline block to extract)
+  if (source.includes('buildJsonLdFromRegistry(')) return 'REGISTRY_DRIVEN'
+
+  const start = source.indexOf('buildArticleJsonLd({')
+  if (start === -1) return null
+  let depth = 0
+  let i = source.indexOf('{', start)
+  const begin = i
+  for (; i < source.length; i++) {
+    if (source[i] === '{') depth++
+    else if (source[i] === '}') { depth--; if (depth === 0) break }
+  }
+  return source.slice(begin, i + 1)
+}
+
+/** Count about entries in JSON-LD block */
+function countAboutEntries(jsonLdBlock: string): number {
+  const aboutMatch = jsonLdBlock.match(/about:\s*\[([\s\S]*?)\]/)?.[1]
+  if (!aboutMatch) return 0
+  return (aboutMatch.match(/@type/g) || []).length
+}
+
+// ---------------------------------------------------------------------------
+// Validators
+// ---------------------------------------------------------------------------
+
+function validateArticle(config: typeof articleRegistry[0]): { issues: Issue[]; fixes: string[] } {
+  const issues: Issue[] = []
+  const fixes: string[] = []
+
+  const sourceRel = SOURCE_MAP[config.id]
+  if (!sourceRel) {
+    issues.push({ severity: 'warn', msg: `No source mapping for article "${config.id}"` })
+    return { issues, fixes }
+  }
+
+  const sourcePath = resolve(root, sourceRel)
+  let source: string
+  try {
+    source = readFileSync(sourcePath, 'utf-8')
+  } catch {
+    issues.push({ severity: 'error', msg: `Source file not found: ${sourceRel}` })
+    return { issues, fixes }
+  }
+
+  // Components that delegate to <CaseStudy> get their SEO from the shared renderer.
+  const delegates = /<CaseStudy\b/.test(source)
+  const seoSourceRel = delegates ? SHARED_RENDERER : sourceRel
+  let seoSource = source
+  if (delegates) {
+    try {
+      seoSource = readFileSync(resolve(root, SHARED_RENDERER), 'utf-8')
+    } catch {
+      issues.push({ severity: 'error', msg: `Shared renderer not found: ${SHARED_RENDERER}` })
+      return { issues, fixes }
+    }
+  }
+
+  const seoBlock = extractSeoBlock(seoSource)
+  const jsonLdBlock = extractJsonLdBlock(seoSource)
+
+  // Bridge pages don't use buildArticleJsonLd — skip article-specific checks
+  if (config.type === 'bridge') {
+    if (!seoBlock) {
+      issues.push({ severity: 'error', msg: `useArticleSeo call not found in ${seoSourceRel}` })
+    }
+    return { issues, fixes }
+  }
+
+  if (!seoBlock) {
+    issues.push({ severity: 'error', msg: `useArticleSeo call not found in ${seoSourceRel}` })
+    return { issues, fixes }
+  }
+  if (!jsonLdBlock) {
+    issues.push({ severity: 'error', msg: `buildArticleJsonLd/buildJsonLdFromRegistry call not found in ${seoSourceRel}` })
+    return { issues, fixes }
+  }
+
+  // --- Extract values ---
+  const seoPublished = delegates ? config.seoMeta?.datePublished ?? null : extractString(seoBlock, 'publishedTime')
+  let seoModified = delegates ? config.seoMeta?.dateModified ?? null : extractString(seoBlock, 'modifiedTime')
+  const seoImage = delegates ? config.ogImage ?? null : extractString(seoBlock, 'image')
+  const seoXDefault = delegates ? config.xDefaultSlug ?? null : extractString(seoBlock, 'xDefaultSlug')
+
+  // When using buildJsonLdFromRegistry, dates/keywords come from registry.seoMeta
+  const isRegistryDriven = jsonLdBlock === 'REGISTRY_DRIVEN'
+  const jsonPublished = isRegistryDriven ? config.seoMeta?.datePublished ?? null : extractString(jsonLdBlock, 'datePublished')
+  let jsonModified = isRegistryDriven ? config.seoMeta?.dateModified ?? null : extractString(jsonLdBlock, 'dateModified')
+  const jsonKeywords = isRegistryDriven ? config.seoMeta?.keywords ?? null : extractArray(jsonLdBlock, 'keywords')
+  const jsonArticleType = isRegistryDriven ? config.seoMeta?.articleType ?? null : extractString(jsonLdBlock, 'articleType')
+  const aboutCount = isRegistryDriven ? config.seoMeta?.about?.length ?? 0 : countAboutEntries(jsonLdBlock)
+
+  // ===== REGISTRY-LEVEL ERRORS =====
+
+  // 0a. Case-study MUST have citation + mentions in seoMeta
+  if (config.type === 'case-study' && config.seoMeta) {
+    // Warnings, not errors: these case studies are primary sources — Brenda's own
+    // work — so external citations and tool mentions only exist where they are real.
+    // Inventing them to satisfy a schema check is exactly what this portfolio refuses to do.
+    if (!config.seoMeta.citation || config.seoMeta.citation.length === 0) {
+      issues.push({ severity: 'warn', msg: `Case-study "${config.id}" has no citation in seoMeta` })
+    }
+    if (!config.seoMeta.mentions || config.seoMeta.mentions.length === 0) {
+      issues.push({ severity: 'warn', msg: `Case-study "${config.id}" has no mentions in seoMeta` })
+    }
+  }
+
+  // 0b. datePublished + dateModified MUST be YYYY-MM-DD format
+  if (config.seoMeta) {
+    const dateRe = /^\d{4}-\d{2}-\d{2}$/
+    if (!dateRe.test(config.seoMeta.datePublished)) {
+      issues.push({ severity: 'error', msg: `datePublished "${config.seoMeta.datePublished}" not YYYY-MM-DD format` })
+    }
+    if (!dateRe.test(config.seoMeta.dateModified)) {
+      issues.push({ severity: 'error', msg: `dateModified "${config.seoMeta.dateModified}" not YYYY-MM-DD format` })
+    }
+  }
+
+  // ===== ERRORS (break build in --check) =====
+
+  // 1. Date consistency: publishedTime vs datePublished
+  if (seoPublished && jsonPublished && seoPublished !== jsonPublished) {
+    issues.push({ severity: 'error', msg: `publishedTime mismatch: useArticleSeo="${seoPublished}" vs buildArticleJsonLd="${jsonPublished}"` })
+  }
+
+  // 2. xDefaultSlug vs registry ES slug
+  if (seoXDefault && seoXDefault !== config.slugs.es) {
+    issues.push({ severity: 'error', msg: `xDefaultSlug mismatch: useArticleSeo="${seoXDefault}" vs registry.slugs.es="${config.slugs.es}"` })
+  }
+
+  // 3. Hreflang paired: both ES and EN slugs defined
+  if (!config.slugs.es || !config.slugs.en) {
+    issues.push({ severity: 'error', msg: `Missing hreflang slug pair: es="${config.slugs.es}", en="${config.slugs.en}"` })
+  }
+
+  // ===== WARNINGS =====
+
+  // 4. modifiedTime missing in useArticleSeo
+  if (!seoModified) {
+    issues.push({ severity: 'warn', msg: `modifiedTime missing (${seoSourceRel})` })
+  }
+
+  // 5. dateModified vs git log — considers MAX(.tsx, i18n.ts) so content-only edits
+  // (changes to {slug}-i18n.ts without touching the .tsx) also bump the date.
+  // Auto-fix runs by default (no --fix flag needed) since the correct value is deterministic.
+  const i18nRel = I18N_MAP[config.id]
+  const tsxGit = gitLastModified(sourceRel)
+  const i18nGit = i18nRel ? gitLastModified(i18nRel) : null
+  const gitDate = [tsxGit, i18nGit].filter(Boolean).sort().reverse()[0] ?? null
+  if (gitDate && jsonModified) {
+    const gitDay = gitDate.slice(0, 10)
+    const jsonDay = jsonModified.slice(0, 10)
+    if (gitDay > jsonDay) {
+      // Auto-fix .tsx: dateModified (legacy buildArticleJsonLd) + modifiedTime (useArticleSeo) + dateModifiedISO (ArticleHeader prop)
+      let updated = source.replace(
+        new RegExp(`(dateModified:\\s*['"])${jsonModified}(['"])`),
+        `$1${gitDay}$2`
+      )
+      if (seoModified) {
+        updated = updated.replace(
+          new RegExp(`(modifiedTime:\\s*['"])${seoModified}(['"])`),
+          `$1${gitDay}$2`
+        )
+        updated = updated.replace(
+          new RegExp(`(dateModifiedISO=["'])${seoModified}(["'])`),
+          `$1${gitDay}$2`
+        )
+      } else {
+        updated = updated.replace(
+          /(publishedTime:\s*['"][^'"]+['"],?\s*\n)/,
+          `$1    modifiedTime: '${gitDay}',\n`
+        )
+      }
+      let touched = false
+      if (updated !== source) {
+        writeFileSync(sourcePath, updated, 'utf-8')
+        source = updated
+        touched = true
+      }
+
+      // Auto-fix registry.ts when article is registry-driven (jsonModified came from registry.seoMeta)
+      if (isRegistryDriven) {
+        const registryPath = resolve(root, REGISTRY_PATH)
+        try {
+          const registrySource = readFileSync(registryPath, 'utf-8')
+          // Match the dateModified line within this article's seoMeta block.
+          // Strategy: find the article's id block, then replace the next dateModified line.
+          const idMarker = new RegExp(`id:\\s*['"]${config.id}['"]`)
+          const idMatch = registrySource.match(idMarker)
+          if (idMatch && idMatch.index !== undefined) {
+            const before = registrySource.slice(0, idMatch.index)
+            const after = registrySource.slice(idMatch.index)
+            const fixedAfter = after.replace(
+              new RegExp(`(dateModified:\\s*['"])${jsonModified}(['"])`),
+              `$1${gitDay}$2`
+            )
+            if (fixedAfter !== after) {
+              writeFileSync(registryPath, before + fixedAfter, 'utf-8')
+              touched = true
+            }
+          }
+        } catch { /* registry not found — skip */ }
+      }
+
+      if (touched) {
+        fixes.push(`Auto-bumped dateModified ${jsonDay} → ${gitDay}`)
+        // Reflect the post-fix values in local vars so subsequent checks read the new state
+        seoModified = gitDay
+        jsonModified = gitDay
+      } else {
+        // Couldn't apply fix — surface as warning so it doesn't go silent
+        issues.push({ severity: 'warn', msg: `dateModified outdated: source="${jsonDay}", git="${gitDay}" (${sourceRel}) — auto-fix could not match pattern` })
+      }
+    }
+  }
+
+  // 6. Date consistency between seo modifiedTime and jsonLd dateModified — auto-sync
+  if (seoModified && jsonModified && seoModified !== jsonModified) {
+    // Sync jsonLd dateModified ← seo modifiedTime (seo block is the canonical source on the .tsx)
+    const updated = source.replace(
+      new RegExp(`(dateModified:\\s*['"])${jsonModified}(['"])`),
+      `$1${seoModified}$2`
+    )
+    if (updated !== source) {
+      writeFileSync(sourcePath, updated, 'utf-8')
+      fixes.push(`Synced jsonLd.dateModified ← modifiedTime: ${seoModified}`)
+    } else {
+      issues.push({ severity: 'warn', msg: `modifiedTime mismatch: useArticleSeo="${seoModified}" vs buildArticleJsonLd="${jsonModified}" — auto-fix could not match pattern` })
+    }
+  }
+
+  // 7. Keywords < 10
+  if (jsonKeywords && jsonKeywords.length < 10) {
+    issues.push({ severity: 'warn', msg: `keywords count: ${jsonKeywords.length} (minimum: 10)` })
+  }
+
+  // 8. about entries < 2
+  if (aboutCount < 2) {
+    issues.push({ severity: 'warn', msg: `about entries: ${aboutCount} (minimum: 2)` })
+  }
+
+  // 9. SEO title/description length (per language)
+  for (const lang of ['es', 'en'] as const) {
+    const seo = config.seo[lang]
+    if (seo.title.length > 60) {
+      issues.push({ severity: 'warn', msg: `SEO title too long [${lang}]: ${seo.title.length} chars (max: 60)` })
+    }
+    if (seo.description.length > 160) {
+      issues.push({ severity: 'warn', msg: `SEO description too long [${lang}]: ${seo.description.length} chars (max: 160)` })
+    }
+  }
+
+  // 10. OG image missing
+  if (!seoImage) {
+    issues.push({ severity: 'warn', msg: `OG image missing (${seoSourceRel})` })
+  }
+
+  // 11. articleType must be declared. TechArticle for engineering case studies,
+  // Article for narrative/archive pages — both are legitimate here.
+  if (config.type === 'case-study' && !jsonArticleType) {
+    issues.push({ severity: 'warn', msg: `articleType missing for case-study (${sourceRel})` })
+  }
+
+  // 12. Images without width/height in source (CLS prevention)
+  const imgTagsInSource = source.match(/<img\s[^>]*>/g) || []
+  const imgsMissingDims = imgTagsInSource.filter(tag => {
+    if (tag.includes('role="presentation"')) return false
+    if (tag.includes('aria-hidden')) return false
+    return !tag.includes('width=') || !tag.includes('height=')
+  })
+  if (imgsMissingDims.length > 0) {
+    issues.push({ severity: 'warn', msg: `${imgsMissingDims.length} <img> without width/height in source (CLS risk) (${sourceRel})` })
+  }
+
+  // 13. ArticleHeader/ArticleFooter present (checked on whichever file renders them)
+  if (!seoSource.includes('ArticleHeader')) {
+    issues.push({ severity: 'warn', msg: `ArticleHeader not rendered (${seoSourceRel})` })
+  }
+  if (!seoSource.includes('ArticleFooter')) {
+    issues.push({ severity: 'warn', msg: `ArticleFooter not rendered (${seoSourceRel})` })
+  }
+
+  return { issues, fixes }
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
+console.log(`\n[validate-articles] Mode: ${FIX_MODE ? '--fix' : '--check'}\n`)
+
+let totalErrors = 0
+let totalWarnings = 0
+let totalFixes = 0
+
+for (const config of articleRegistry) {
+  const { issues, fixes } = validateArticle(config)
+
+  const errors = issues.filter(i => i.severity === 'error')
+  const warnings = issues.filter(i => i.severity === 'warn')
+  totalErrors += errors.length
+  totalWarnings += warnings.length
+  totalFixes += fixes.length
+
+  if (issues.length === 0) {
+    console.log(`\x1b[32m✓\x1b[0m ${config.id} — 0 errors, 0 warnings`)
+  } else {
+    const icon = errors.length > 0 ? '\x1b[31m✗\x1b[0m' : '\x1b[33m⚠\x1b[0m'
+    console.log(`${icon} ${config.id} — ${errors.length} errors, ${warnings.length} warnings`)
+    for (const e of errors) {
+      console.log(`  \x1b[31mERROR\x1b[0m ${e.msg}`)
+    }
+    for (const w of warnings) {
+      console.log(`  \x1b[33mWARN\x1b[0m  ${w.msg}`)
+    }
+    for (const f of fixes) {
+      console.log(`  \x1b[36mFIXED\x1b[0m ${f}`)
+    }
+  }
+}
+
+console.log(`\nArticles: ${articleRegistry.length} | Errors: ${totalErrors} | Warnings: ${totalWarnings}${totalFixes > 0 ? ` | Fixed: ${totalFixes}` : ''}`)
+
+if (totalErrors > 0 && !FIX_MODE) {
+  console.error('\n\x1b[31mValidation failed. Fix errors above or run with --fix.\x1b[0m\n')
+  process.exit(1)
+}
+
+console.log('')

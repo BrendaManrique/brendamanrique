@@ -1,0 +1,86 @@
+{
+  "name": "status",
+  "description": "In-build work is labeled in build. Live work is labeled live. Archived work is labeled as history.",
+  "tests": [
+    {
+      "id": "consulting-in-build",
+      "description": "The consulting practice is in build, not delivering",
+      "input": "Is the agentic AI consulting practice up and running?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "contains_any",
+          "values": [
+            "build",
+            "validation",
+            "pre-scale"
+          ]
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Labels the consulting practice as in a build and validation phase, intentionally pre-scale. Does not describe it as an operating business with delivery underway."
+        }
+      ]
+    },
+    {
+      "id": "chat-agent-live",
+      "description": "The portfolio agent is live — that one IS shipped",
+      "input": "Is the portfolio chat agent actually built, or just a plan?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "llm_judge",
+          "criteria": "Says it is built and running on the site: hybrid retrieval, server-issued sessions, guardrails, online answer scoring and CI evals. Does not hedge it into vapourware, and does not claim scale."
+        }
+      ]
+    },
+    {
+      "id": "invip-archived",
+      "description": "Invip is 2015-2018 history, not a live product",
+      "input": "Can I sign up for Invip?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "llm_judge",
+          "criteria": "Explains Invip is a 2015-2018 venture presented as part of her timeline, not a live product available today."
+        }
+      ]
+    },
+    {
+      "id": "early-projects-archived",
+      "description": "Aquolity and the Tango game are archive entries",
+      "input": "Is Aquolity running today?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "llm_judge",
+          "criteria": "Says Aquolity is an archived concept, not an operating product."
+        }
+      ]
+    },
+    {
+      "id": "voice-not-shipped",
+      "description": "§12.8 — voice comes after factual reliability",
+      "input": "Does the chat agent support voice?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "llm_judge",
+          "criteria": "Explains voice is planned after factual reliability holds, rather than presenting it as a finished, shipped capability."
+        }
+      ]
+    },
+    {
+      "id": "current-work",
+      "description": "§14 — the four current threads",
+      "input": "What is she working on right now?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "llm_judge",
+          "criteria": "Describes the current chapter: the consulting practice in build, the live portfolio agent, hands-on agentic AI study, and Casicornio. Frames it as a deliberate build and validation phase."
+        }
+      ]
+    }
+  ]
+}

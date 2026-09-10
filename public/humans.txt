@@ -1,0 +1,29 @@
+/* TEAM */
+Builder: Brenda Manrique
+Role: Agentic AI Systems Builder · Full-stack and financial-systems engineer
+Contact: https://www.linkedin.com/in/brendastephanie/
+Site: https://brendamanrique.com
+Location: Berlin, Germany (remote)
+LinkedIn: https://www.linkedin.com/in/brendastephanie/
+GitHub: https://github.com/BrendaManrique
+
+/* THANKS */
+AI Pair: Claude Code (Anthropic)
+
+/* SITE */
+Stack: React 19, TypeScript, Vite, Tailwind CSS, Motion
+AI: Claude API (claude-sonnet-4-6), streaming via Vercel serverless
+Retrieval: Supabase Postgres full-text + pgvector, reciprocal rank fusion
+Quality: CI-gated eval suite, guardrails, online answer scoring, Langfuse observability
+Hosting: Vercel
+Standards: llms.txt, security.txt, JSON-LD, Open Graph
+
+/* CRAFT */
+Performance: Pre-rendered SSR, critical CSS inlining
+Security: CSP, input sanitization, prompt injection defense, rate limiting
+Accessibility: Semantic HTML, ARIA labels, keyboard navigation
+SEO: Programmatic meta tags, structured data, sitemap, hreflang
+
+/* BOUNDARY */
+The consulting practice is pre-scale, in a build and validation phase.
+No client-scale or production AI metrics are claimed anywhere on this site.

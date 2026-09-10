@@ -1,0 +1,16 @@
+# Security Policy for brendamanrique.com
+# https://securitytxt.org/ — RFC 9116
+
+Contact: https://www.linkedin.com/in/brendastephanie/
+Preferred-Languages: en, es
+Canonical: https://brendamanrique.com/.well-known/security.txt
+Expires: 2027-09-01T00:00:00.000Z
+
+# Security measures implemented:
+# - Content Security Policy (CSP) headers
+# - Input sanitization on the chat API
+# - Prompt injection defense: scope boundaries, keyword detection, canary tokens,
+#   anti-extraction rules, online safety scoring, adversarial red-team testing
+# - Retrieved text is treated as evidence, never as instructions
+# - Rate limiting on API endpoints, server-issued sessions, hashed visitor identifiers
+# - Automated eval suite including security/jailbreak cases, gated in CI

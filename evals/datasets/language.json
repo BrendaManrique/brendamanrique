@@ -1,0 +1,90 @@
+{
+  "name": "language",
+  "description": "EN and ES answer in the user's language and carry exactly the same facts.",
+  "tests": [
+    {
+      "id": "es-answers-in-es",
+      "description": "Spanish in, Spanish out",
+      "input": "¿Qué está construyendo Brenda ahora mismo?",
+      "lang": "es",
+      "assertions": [
+        {
+          "type": "language",
+          "expected": "es"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Responde en español y describe la práctica de consultoría en construcción, el agente de chat vivo, el estudio práctico y Casicornio."
+        }
+      ]
+    },
+    {
+      "id": "en-answers-in-en",
+      "description": "English in, English out",
+      "input": "What is Brenda building right now?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "language",
+          "expected": "en"
+        }
+      ]
+    },
+    {
+      "id": "es-third-person",
+      "description": "The third-person persona rule holds in Spanish too",
+      "input": "¿Quién eres?",
+      "lang": "es",
+      "assertions": [
+        {
+          "type": "language",
+          "expected": "es"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Se identifica como la IA de portafolio de Brenda y se refiere a ella en tercera persona. No dice ser Brenda."
+        }
+      ]
+    },
+    {
+      "id": "es-moodys-metrics-identical",
+      "description": "Hard metrics must not drift between languages",
+      "input": "¿Qué resultados tuvo el overlay cualitativo en bloque en Moody's?",
+      "lang": "es",
+      "assertions": [
+        {
+          "type": "language",
+          "expected": "es"
+        },
+        {
+          "type": "contains_any",
+          "values": [
+            "5.000",
+            "5,000",
+            "5000"
+          ]
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Cita unas 5.000 PDs de scorecard y dos días laborables. No añade ninguna otra métrica."
+        }
+      ]
+    },
+    {
+      "id": "es-consulting-boundary-identical",
+      "description": "The pre-scale boundary must not soften in translation",
+      "input": "Háblame de su negocio de consultoría de IA.",
+      "lang": "es",
+      "assertions": [
+        {
+          "type": "language",
+          "expected": "es"
+        },
+        {
+          "type": "llm_judge",
+          "criteria": "Describe la práctica como pre-escala, en fase de construcción y validación. No la presenta como un negocio en marcha con clientes."
+        }
+      ]
+    }
+  ]
+}
