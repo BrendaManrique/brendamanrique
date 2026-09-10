@@ -230,34 +230,41 @@ export default async function handler(req) {
     const instructions = `${VOICE_BASE_PROMPT}\n\n${voiceAffect}`
 
     // Request ephemeral token from OpenAI Realtime API
-    const response = await fetch('https://api.openai.com/v1/realtime/sessions', {
+    const response = await fetch('https://api.openai.com/v1/realtime/client_secrets', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-realtime-2025-08-28',
-        voice: 'cedar',
-        modalities: ['audio', 'text'],
-        instructions,
-        input_audio_transcription: { model: 'whisper-1' },
-        turn_detection: { type: 'server_vad' },
-        tools: [{
-          type: 'function',
-          name: 'search_portfolio',
-          description: 'Search your own published case studies for project details, architectures, metrics, and technical decisions.',
-          parameters: {
-            type: 'object',
-            properties: {
-              query: {
-                type: 'string',
-                description: 'The search query to find relevant portfolio content',
-              },
+        session: {
+          type: 'realtime',
+          model: 'gpt-realtime-2025-08-28',
+          instructions,
+          output_modalities: ['audio'],
+          audio: {
+            input: {
+              transcription: { model: 'whisper-1' },
+              turn_detection: { type: 'server_vad' },
             },
-            required: ['query'],
+            output: { voice: 'cedar' },
           },
-        }],
+          tools: [{
+            type: 'function',
+            name: 'search_portfolio',
+            description: 'Search your own published case studies for project details, architectures, metrics, and technical decisions.',
+            parameters: {
+              type: 'object',
+              properties: {
+                query: {
+                  type: 'string',
+                  description: 'The search query to find relevant portfolio content',
+                },
+              },
+              required: ['query'],
+            },
+          }],
+        },
       }),
     })
 
@@ -287,9 +294,9 @@ export default async function handler(req) {
     }
 
     return new Response(JSON.stringify({
-      token: data.client_secret?.value,
+      token: data.value,
       traceId,
-      expiresAt: data.client_secret?.expires_at,
+      expiresAt: data.expires_at,
     }), {
       headers: { 'Content-Type': 'application/json' },
     })

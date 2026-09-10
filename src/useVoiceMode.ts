@@ -359,12 +359,13 @@ export function useVoiceMode() {
       outputAnalyser.connect(outAnalyserNode);
 
       // 5. Connect WebSocket to OpenAI Realtime API
-      // Note: OpenAI responds with 'realtime' as the selected subprotocol —
-      // it MUST be in the client's list or the browser rejects the handshake.
+      // GA API: subprotocols are 'realtime' + the ephemeral key. Adding
+      // 'openai-beta.realtime-v1' pins the retired Beta API, which rejects
+      // session.update. OpenAI selects 'realtime', so it must stay listed.
       addDebug('Connecting WS to OpenAI...');
       const ws = new WebSocket(
         'wss://api.openai.com/v1/realtime?model=gpt-realtime-2025-08-28',
-        ['realtime', `openai-insecure-api-key.${token}`, 'openai-beta.realtime-v1'],
+        ['realtime', `openai-insecure-api-key.${token}`],
       );
       wsRef.current = ws;
 
@@ -375,16 +376,21 @@ export function useVoiceMode() {
         ws.send(JSON.stringify({
           type: 'session.update',
           session: {
-            turn_detection: {
-              type: 'server_vad',
-              threshold: 0.5,
-              prefix_padding_ms: 300,
-              silence_duration_ms: 500,
-              create_response: true,
-              interrupt_response: true,
+            type: 'realtime',
+            audio: {
+              input: {
+                format: { type: 'audio/pcm', rate: 24000 },
+                transcription: { model: 'whisper-1' },
+                turn_detection: {
+                  type: 'server_vad',
+                  threshold: 0.5,
+                  prefix_padding_ms: 300,
+                  silence_duration_ms: 500,
+                  create_response: true,
+                  interrupt_response: true,
+                },
+              },
             },
-            input_audio_format: 'pcm16',
-            input_audio_transcription: { model: 'whisper-1' },
           },
         }));
 
@@ -593,7 +599,7 @@ export function useVoiceMode() {
         break;
       }
 
-      case 'response.audio.delta': {
+      case 'response.output_audio.delta': {
         stopThinkingSound();
         setStatus('speaking');
         setIsSearching(false);
@@ -619,13 +625,13 @@ export function useVoiceMode() {
         break;
       }
 
-      case 'response.audio_transcript.delta': {
+      case 'response.output_audio_transcript.delta': {
         // Accumulate transcript text — subtitle loop reads from ref to pace display
         currentTranscriptRef.current += (data.delta as string) || '';
         break;
       }
 
-      case 'response.audio_transcript.done': {
+      case 'response.output_audio_transcript.done': {
         const text = (data.transcript as string) || currentTranscriptRef.current;
         if (text?.trim()) {
           setTranscript(prev => [...prev, { role: 'assistant', text: text.trim() }]);
