@@ -487,6 +487,15 @@ function streamResponse({
           trace?.update({
             tags: [...intentTags, ragUsed ? 'rag:yes' : 'rag:no'],
             metadata: {
+              // Repeated from trace creation: this update replaces the
+              // metadata object rather than merging into it, and dropping
+              // lastUserMessage makes api/cron/evaluate.js skip the trace
+              // (it reads metadata.lastUserMessage for the evaluator prompt).
+              // currentPage is not a streamResponse parameter, so it is not
+              // restored here and remains absent on completed traces.
+              lang,
+              messageCount: messages.length,
+              lastUserMessage: lastUserMessage.slice(0, 200),
               ragUsed,
               promptVersion,
               chunksRetrieved: ragSources.length,
