@@ -308,8 +308,12 @@ function streamResponse({
   let leakDetected = false
   let generationCost = 0
 
-  const generationSpan = trace?.span({
+  // A generation, not a span: api/cron/evaluate.js selects the assistant's
+  // answer with type === 'GENERATION' and reads its `output`. Recorded as a
+  // span with no output, the daily evaluator skips every trace.
+  const generationSpan = trace?.generation({
     name: 'generation',
+    model: 'claude-sonnet-4-6',
     metadata: { ragUsed, streaming: !precomputedResponse },
   })
 
@@ -376,6 +380,7 @@ function streamResponse({
           const pcOut = precomputedResponse.usage?.output_tokens || 0
           generationCost = calcCost('claude-sonnet-4-6', pcIn, pcOut)
           generationSpan?.end({
+            output: fullOutput,
             metadata: {
               outputTokens: pcOut,
               inputTokens: pcIn,
@@ -433,6 +438,7 @@ function streamResponse({
                 const genOut = finalMessage.usage?.output_tokens || 0
                 generationCost = calcCost('claude-sonnet-4-6', genIn, genOut)
                 generationSpan?.end({
+                  output: fullOutput,
                   metadata: {
                     outputTokens: genOut,
                     inputTokens: genIn,
