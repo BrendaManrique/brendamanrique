@@ -49,7 +49,7 @@ export default async function handler(req) {
   let trace = null
 
   try {
-    const { messages, lang, sessionId, currentPage } = await req.json()
+    const { messages, lang = 'es', sessionId, currentPage } = await req.json()
 
     // Input length validation
     const bodySize = JSON.stringify({ messages, lang, sessionId, currentPage }).length
@@ -100,7 +100,10 @@ export default async function handler(req) {
       trace = langfuse.trace({
         name: 'chat',
         sessionId: sessionId || undefined,
-        tags: [lang, ...intentTags],
+        // filter(Boolean): Langfuse rejects a null tag with a 400, and the
+        // SDK batches events, so one bad tag fails the whole flush (207) and
+        // silently drops the trace, its observations and any scores with it.
+        tags: [lang, ...intentTags].filter(Boolean),
         metadata: {
           lang,
           messageCount: messages.length,
