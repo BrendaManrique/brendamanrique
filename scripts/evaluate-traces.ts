@@ -315,8 +315,12 @@ async function main() {
     const lowQualityTraces = []
     for (const trace of recentTraces) {
       try {
-        const scores = await langfuse.fetchScores({ traceId: trace.id })
-        const qualityScore = scores.data.find(s => s.name === 'quality')
+        // fetchScores() does not exist on the Langfuse SDK (3.38.6); the
+        // trace detail carries scores. Without this the catch below swallowed
+        // a TypeError and every trace silently looked non-low-quality.
+        const traceDetail = await langfuse.fetchTrace(trace.id)
+        const scores = traceDetail?.data?.scores || []
+        const qualityScore = scores.find(s => s.name === 'quality')
         if (qualityScore && typeof qualityScore.value === 'number' && qualityScore.value < 0.7) {
           lowQualityTraces.push(trace)
         }

@@ -117,9 +117,14 @@ export default async function handler(req, res) {
         const assistantResponse = generation?.output
         if (!assistantResponse) continue
 
-        const scores = await langfuse.fetchScores({ traceId: trace.id })
-        // Skip traces already scored by batch OR online scoring
-        if (scores.data.some(s => s.name === 'intent_category' || s.name === 'quality')) continue
+        // Skip traces already scored by batch OR online scoring.
+        // Read scores off the trace detail: the Langfuse SDK (3.38.6) has no
+        // fetchScores(), and calling it threw a TypeError that this loop's
+        // catch swallowed into results.errors — so every trace errored and
+        // none were ever evaluated.
+        const traceDetail = await langfuse.fetchTrace(trace.id)
+        const existingScores = traceDetail?.data?.scores || []
+        if (existingScores.some(s => s.name === 'intent_category' || s.name === 'quality')) continue
 
         const prompt = EVALUATOR_PROMPT
           .replace('{user_message}', userMessage)
@@ -181,8 +186,10 @@ export default async function handler(req, res) {
     let lowQualityCount = 0
     for (const trace of recentTraces) {
       try {
-        const traceScores = await langfuse.fetchScores({ traceId: trace.id })
-        const qualityScore = traceScores.data.find(s => s.name === 'quality' || s.name === 'response_quality')
+        // Same reason as above: fetchScores() does not exist on this SDK.
+        const traceDetail = await langfuse.fetchTrace(trace.id)
+        const traceScores = traceDetail?.data?.scores || []
+        const qualityScore = traceScores.find(s => s.name === 'quality' || s.name === 'response_quality')
         if (qualityScore && typeof qualityScore.value === 'number' && qualityScore.value < 0.7) {
           lowQualityCount++
         }
