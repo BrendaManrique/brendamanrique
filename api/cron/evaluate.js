@@ -142,7 +142,10 @@ export default async function handler(req, res) {
 
         const result = JSON.parse(jsonMatch[0])
 
-        langfuse.score({ traceId: trace.id, name: 'intent_category', value: result.intent_category })
+        // dataType CATEGORICAL: the value is a label ("experience", "projects",
+        // …), and Langfuse defaults a score to NUMERIC, which coerced every
+        // category to 0 and lost the classification.
+        langfuse.score({ traceId: trace.id, name: 'intent_category', value: result.intent_category, dataType: 'CATEGORICAL' })
         langfuse.score({ traceId: trace.id, name: 'response_quality', value: result.response_quality })
         langfuse.score({ traceId: trace.id, name: 'safety_score', value: result.safety_score })
 
