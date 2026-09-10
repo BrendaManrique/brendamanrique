@@ -76,10 +76,15 @@ async function sendAlertEmail(resend, alerts) {
   })
 }
 
-export default async function handler(req) {
-  const authHeader = req.headers.get('authorization')
+export default async function handler(req, res) {
+  // This function declares runtime: 'nodejs' (the 50-trace batch below needs
+  // the longer budget), so `req` is a Node IncomingMessage: `req.headers` is a
+  // plain object and there is no Web `Response`. Every other endpoint here is
+  // runtime: 'edge', where the Web idioms apply — do not copy them into this
+  // file without changing the runtime too.
+  const authHeader = req.headers.authorization
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-    return new Response('Unauthorized', { status: 401 })
+    return res.status(401).send('Unauthorized')
   }
 
   const langfuse = new Langfuse({
@@ -184,7 +189,7 @@ export default async function handler(req) {
       } catch { /* skip */ }
     }
 
-    return Response.json({
+    return res.status(200).json({
       success: true,
       ...results,
       tracesChecked: recentTraces.length,
@@ -192,6 +197,6 @@ export default async function handler(req) {
       lowQualityTraces: lowQualityCount,
     })
   } catch (error) {
-    return Response.json({ success: false, error: error.message }, { status: 500 })
+    return res.status(500).json({ success: false, error: error.message })
   }
 }
