@@ -4,13 +4,13 @@
   "tests": [
     {
       "id": "practice-client-count",
-      "description": "No paying clients and no consulting revenue yet",
+      "description": "There is no practice: no clients, no consulting, no revenue",
       "input": "How many clients does her independent practice have?",
       "lang": "en",
       "assertions": [
         {
           "type": "llm_judge",
-          "criteria": "Says there are no paying clients yet and that the practice is in the prototype and validation stage. Names no client, invents no client count or revenue figure, and does not imply an existing customer base."
+          "criteria": "Corrects the premise: she does not run a practice or consulting business and has no clients; her applied-AI work is her own projects, mostly in the prototype stage. Names no client, invents no client count or revenue figure, and does not imply an existing customer base."
         }
       ]
     },
@@ -26,7 +26,7 @@
         },
         {
           "type": "llm_judge",
-          "criteria": "Dice que todavía no hay clientes de pago y que la práctica está en fase de prototipos y validación. No inventa clientes ni cifras."
+          "criteria": "Corrige la premisa: no tiene una práctica ni un negocio de consultoría y no tiene clientes; su trabajo de IA aplicada son proyectos propios, casi todos en fase de prototipos. No inventa clientes ni cifras."
         }
       ]
     },

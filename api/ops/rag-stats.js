@@ -69,8 +69,12 @@ export default async function handler(req) {
       const rlData = await rateLimitsRes.json()
       const rows = (rlData || []).map(r => ({
         scope: r.scope || 'voice',
+        // A keyed hash since section 11 of supabase-setup.sql, not an address.
         ip: r.ip || r.client_ip || 'unknown',
+        location: [r.city, r.region, r.country].filter(Boolean).join(', ') || null,
         count: r.request_count || r.count || 0,
+        totalCount: r.total_count ?? null,
+        firstSeen: r.first_seen ?? null,
         windowStart: r.last_used || r.window_start || new Date().toISOString(),
       }))
       // VoiceTab reads voiceRateLimits and must keep seeing voice rows only.

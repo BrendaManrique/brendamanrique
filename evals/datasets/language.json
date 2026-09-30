@@ -78,7 +78,7 @@
         },
         {
           "type": "llm_judge",
-          "criteria": "Describe la práctica como en fase de prototipos y validación, sin clientes de pago. No la presenta como un negocio en marcha con clientes."
+          "criteria": "Aclara que no es una práctica ni un negocio de consultoría: son proyectos propios de IA aplicada, casi todos en fase de prototipos, sin clientes. No lo presenta como un negocio en marcha con clientes."
         }
       ]
     }

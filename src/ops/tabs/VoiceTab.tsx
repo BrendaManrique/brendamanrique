@@ -266,16 +266,20 @@ export default function VoiceTab({ stats, loading }: TabProps) {
           <div className="overflow-x-auto"><table className="w-full text-sm">
             <thead>
               <tr className="border-b border-white/10">
-                <th className="text-left text-muted-foreground py-2 px-2 font-medium">IP</th>
-                <th className="text-right text-muted-foreground py-2 px-2 font-medium">Requests</th>
+                <th className="text-left text-muted-foreground py-2 px-2 font-medium">Visitor</th>
+                <th className="text-left text-muted-foreground py-2 px-2 font-medium">Location</th>
+                <th className="text-right text-muted-foreground py-2 px-2 font-medium">Today</th>
+                <th className="text-right text-muted-foreground py-2 px-2 font-medium">All time</th>
                 <th className="text-right text-muted-foreground py-2 px-2 font-medium">Window Start</th>
               </tr>
             </thead>
             <tbody>
               {rateLimits.map((rl, i) => (
                 <tr key={i} className="border-b border-white/[0.06] hover:bg-white/[0.03]">
-                  <td className="py-1.5 px-2 text-foreground font-mono text-xs">{rl.ip}</td>
+                  <td className="py-1.5 px-2 text-foreground font-mono text-xs" title={rl.ip}>{rl.ip.slice(0, 8)}</td>
+                  <td className="py-1.5 px-2 text-muted-foreground text-xs">{rl.location ?? '—'}</td>
                   <td className="py-1.5 px-2 text-right text-foreground">{rl.count}</td>
+                  <td className="py-1.5 px-2 text-right text-foreground">{rl.totalCount ?? '—'}</td>
                   <td className="py-1.5 px-2 text-right text-muted-foreground">
                     {new Date(rl.windowStart).toLocaleString('en-GB', {
                       month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit',

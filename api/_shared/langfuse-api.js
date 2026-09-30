@@ -31,6 +31,18 @@ const EXPAND_METADATA = [
   'jailbreakDetected', 'leakDetected', 'chunksRetrieved',
 ].join(',')
 
+/**
+ * `isRootObservation=true` can also return observations that have a parent:
+ * on Langfuse Cloud, chat.js's online_scoring evaluator (started in
+ * waitUntil(), after the root has ended) comes back flagged as a root with its
+ * parentObservationId set. A trace is its one parentless observation, so
+ * anything with a parent is dropped rather than listed as a second,
+ * output-less conversation.
+ */
+export function isTraceRoot(observation) {
+  return !observation.parentObservationId
+}
+
 function authHeaders() {
   const auth = langfuseAuth()
   return auth ? { Authorization: auth } : null
@@ -115,7 +127,7 @@ export async function fetchRootObservations({ from, to, limit = 50, cursor, name
   if (!res.ok) return { error: `Langfuse observations error: ${res.status}`, status: 502 }
 
   const body = await res.json()
-  return { data: body.data || [], cursor: body.meta?.cursor || null }
+  return { data: (body.data || []).filter(isTraceRoot), cursor: body.meta?.cursor || null }
 }
 
 /** Every observation of one trace, ordered as returned. */

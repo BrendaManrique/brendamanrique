@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { ExternalLink, Briefcase, Bot, FolderGit2, Github, FlaskConical, ChevronRight, List, SkipForward, Mail, ArrowRight, CalendarDays } from 'lucide-react'
 import { translations, seo, type Lang } from './i18n'
 import { useHomeSeo } from './articles/use-article-seo'
+import { openPrivacyChoices } from './privacy-consent'
 import { AVATAR, AVATAR_ALT, AVATAR_SM, BOOKING_URL, GITHUB_URL, LANG_REDIRECT_KEY, LINKEDIN_URL } from './site'
 
 
@@ -1332,14 +1333,14 @@ function App() {
               >
                 <img
                   src={AVATAR_SM}
-                  srcSet={`${AVATAR_SM} 96w, ${AVATAR} 227w`}
+                  srcSet={`${AVATAR_SM} 128w, ${AVATAR} 400w`}
                   sizes="(max-width: 900px) 140px, 172px"
                   alt={AVATAR_ALT}
                   width={172}
                   height={172}
                   fetchPriority="high"
                 />
-                {/* AI presence badge, anchored to the portrait box so nothing below can move it. */}
+                {/* AI presence badge, anchored to the portrait box so nothing below can move it. 
                 <motion.button
                   type="button"
                   onClick={openChat}
@@ -1349,9 +1350,9 @@ function App() {
                   className="hero-ai-status"
                   aria-label={t.agentCard.cta}
                 >
-                  <span className="status-live-dot" aria-hidden="true" />
-                  {t.aiOnline}
-                </motion.button>
+                  <pan className="status-live-dot" aria-hidden="true" />
+                  <sBot className="hero-ai-status-icon" aria-hidden="true" />
+                </motion.button>*/}
               </motion.div>
 
               <motion.div
@@ -1386,7 +1387,7 @@ function App() {
 
                 <div className="hero-actions">
                   <button onClick={openChat} className="hero-primary-cta">
-                    <span className="status-live-dot" aria-hidden="true" />
+                    <Bot className="w-4 h-4" />
                     {t.agentCard.cta}
                     <ArrowRight className="hero-primary-cta-arrow w-[18px] h-[18px]" aria-hidden="true" />
                   </button>
@@ -1701,6 +1702,10 @@ function App() {
                 <Link to={lang === 'es' ? '/privacidad' : '/privacy'} className="hover:text-primary transition-colors">
                   {lang === 'es' ? 'Privacidad' : 'Privacy'}
                 </Link>
+                <span className="text-border">|</span>
+                <button type="button" onClick={openPrivacyChoices} className="hover:text-primary transition-colors">
+                  {lang === 'es' ? 'Preferencias de privacidad' : 'Privacy choices'}
+                </button>
                 <span className="text-border">|</span>
                 <Link to={lang === 'es' ? '/sobre-mi' : '/about'} className="hover:text-primary transition-colors inline-flex items-center gap-1">
                   {lang === 'es' ? 'Sobre mí' : 'About'}

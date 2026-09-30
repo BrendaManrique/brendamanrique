@@ -6,29 +6,27 @@ import {
   calcCost, isRagEnabled, PORTFOLIO_TOOL, formatChunksForContext,
   searchPortfolio, filterSourcesByResponse, detectMentionedArticles,
   HOME_SOURCE, classifyIntent, sendJailbreakAlert,
-  containsFingerprint, LEAK_RESPONSE,
+  containsFingerprint, leakResponse, isBlockingJailbreak, JAILBREAK_BLOCK_TEXT,
 } from './_shared/rag.js'
+import { reportError } from './_shared/errors.js'
+import { buildOfflineAnswer, articleSource } from './_shared/offline.js'
 import { getSystemPrompt } from './_shared/prompt.js'
 import {
   initTracing, flushTracing, flushScores, getLangfuseClient, setTraceTags,
 } from './_shared/langfuse.js'
 import {
-  CHAT_LIMIT, BOOKING_URL, checkRateLimit, getClientIp, rateLimitHeaders,
+  CHAT_LIMIT, BOOKING_URL, checkRateLimit, rateLimitHeaders,
 } from './_shared/ratelimit.js'
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
-// Mirrored in src/site.ts — edge functions cannot import the TS module.
-const LINKEDIN_URL = 'https://www.linkedin.com/in/brendastephanie/'
-
-// Shown when no answer could be produced. Framed as maintenance rather than an
-// error, with a direct way to reach Brenda instead of a retry prompt.
-const MAINTENANCE_TEXT = {
-  en: `Brenda's portfolio AI is under maintenance right now. In the meantime, you can reach Brenda directly on [LinkedIn](${LINKEDIN_URL}).`,
-  es: `La IA de portafolio de Brenda está en mantenimiento ahora mismo. Mientras tanto, puedes contactar con Brenda directamente en [LinkedIn](${LINKEDIN_URL}).`,
-}
+// Vercel Edge must start the response within 25s, and the tool decision runs
+// before it does. The SDK default (10 min, 2 retries) would let a slow Anthropic
+// turn into a gateway timeout, so both pre-response calls get a hard ceiling.
+const TOOL_DECISION_OPTIONS = { timeout: 12_000, maxRetries: 1 }
+const FALLBACK_TIMEOUT_MS = 15_000
 
 // ---------------------------------------------------------------------------
 // Langfuse v4: tracing runs through OpenTelemetry (initTracing), while prompts
@@ -56,9 +54,14 @@ export default async function handler(req) {
   const lfClient = getLangfuseClient()
   await initTracing()
   let root = null
+  // Hoisted so the catch below can still answer in the visitor's language.
+  let offlineLang = 'es'
+  let offlineQuestion = ''
 
   try {
     const { messages, lang = 'es', sessionId, currentPage } = await req.json()
+    offlineLang = lang
+    offlineQuestion = messages?.filter?.(m => m.role === 'user').pop()?.content || ''
 
     // Input length validation
     const bodySize = JSON.stringify({ messages, lang, sessionId, currentPage }).length
@@ -86,14 +89,14 @@ export default async function handler(req) {
 
     let rateLimit = null
     if (!isTrustedSynthetic) {
-      rateLimit = await checkRateLimit({ ...CHAT_LIMIT, ip: getClientIp(req) })
+      rateLimit = await checkRateLimit({ ...CHAT_LIMIT, req })
 
       if (!rateLimit.allowed) {
         return new Response(JSON.stringify({
           error: 'rate_limited',
           message: lang === 'en'
-            ? `You have used your ${CHAT_LIMIT.max} questions for today. Book a call with Brenda to keep going.`
-            : `Has usado tus ${CHAT_LIMIT.max} preguntas de hoy. Agenda una llamada con Brenda para continuar.`,
+            ? `You have used your ${CHAT_LIMIT.max} questions for today. Book a call with Brenda about a role to keep going.`
+            : `Has usado tus ${CHAT_LIMIT.max} preguntas de hoy. Agenda una llamada con Brenda sobre un puesto para continuar.`,
           bookingUrl: BOOKING_URL,
           resetAt: rateLimit.resetAt,
         }), {
@@ -120,6 +123,43 @@ export default async function handler(req) {
       waitUntil(sendJailbreakAlert(lastUserMessage))
     }
 
+    // Unambiguous injection/extraction phrasings are refused here, before the
+    // prompt fetch or any Claude call. Broader keyword matches above are only
+    // flagged — see isBlockingJailbreak() in _shared/rag.js for why.
+    if (isBlockingJailbreak(lastUserMessage)) {
+      const blockedText = lang === 'en' ? JAILBREAK_BLOCK_TEXT.en : JAILBREAK_BLOCK_TEXT.es
+      propagateAttributes(
+        { traceName: 'chat', ...(sessionId ? { sessionId } : {}) },
+        () => {
+          const blockedRoot = startObservation('chat', {
+            input: lastUserMessage,
+            output: blockedText,
+            metadata: { lang, messageCount: messages.length, currentPage: currentPage || null, blocked: 'pre-llm' },
+          })
+          setTraceTags(blockedRoot, [lang, ...intentTags, 'jailbreak-blocked'])
+          blockedRoot.end()
+        },
+      )
+      waitUntil(flushTracing())
+
+      const encoder = new TextEncoder()
+      const body = new ReadableStream({
+        start(controller) {
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: blockedText })}\n\n`))
+          controller.enqueue(encoder.encode(`event: rag-sources\ndata: ${JSON.stringify([articleSource('portfolio-agent')])}\n\n`))
+          controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+          controller.close()
+        },
+      })
+      return new Response(body, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          ...(rateLimit?.enforced ? rateLimitHeaders(rateLimit, CHAT_LIMIT.max) : {}),
+        },
+      })
+    }
+
     // Prompt versioning: Langfuse with file fallback (Block 4)
     // Support X-Prompt-Version header for regression testing (Block 5)
     let systemPromptText
@@ -136,7 +176,8 @@ export default async function handler(req) {
         systemPromptText = prompt.prompt
         promptVersion = prompt.version
         promptClient = prompt
-      } catch {
+      } catch (err) {
+        reportError('prompt-fetch', err, { context: { overrideVersion, fallback: 'chatbot-prompt.txt' } })
         systemPromptText = SYSTEM_PROMPT_FALLBACK
         promptVersion = 'file'
       }
@@ -215,13 +256,47 @@ export default async function handler(req) {
         const toolDecisionSpan = root?.startObservation('tool_decision', { input: lastUserMessage })
         const td0 = Date.now()
 
-        const firstResponse = await client.messages.create({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 300,
-          system: systemBlocks,
-          messages: cleanMessages,
-          tools: [PORTFOLIO_TOOL],
-        })
+        let firstResponse
+        try {
+          firstResponse = await client.messages.create({
+            model: 'claude-sonnet-4-6',
+            max_tokens: 300,
+            system: systemBlocks,
+            messages: cleanMessages,
+            tools: [PORTFOLIO_TOOL],
+          }, TOOL_DECISION_OPTIONS)
+        } catch (err) {
+          // An unended observation is never exported, so close it as an error,
+          // then skip straight to the fallback ladder (Haiku, then the offline
+          // answer) instead of failing the request.
+          toolDecisionSpan?.update({ level: 'ERROR', statusMessage: err.message }).end()
+          reportError('tool-decision', err, { parent: root })
+          err.reported = true
+          return streamResponse({
+            systemBlocks,
+            messages: cleanMessages,
+            tools: null,
+            ragSources: [],
+            ragDegraded: false,
+            ragDegradedReason: null,
+            canary,
+            intentTags,
+            root, sessionId,
+            lastUserMessage,
+            t0,
+            ragUsed: false,
+            ragMetrics: {},
+            ragUsage: { embeddingTokens: 0, rerankInputTokens: 0, rerankOutputTokens: 0 },
+            toolDecisionMs: Date.now() - td0,
+            tdInputTokens: 0,
+            tdOutputTokens: 0,
+            lang,
+            promptVersion,
+            currentPage,
+            keywordJailbreak,
+            primaryError: err,
+          })
+        }
 
         const toolDecisionMs = Date.now() - td0
         const tdInputTokens = firstResponse.usage?.input_tokens || 0
@@ -239,31 +314,35 @@ export default async function handler(req) {
 
         if (firstResponse.stop_reason === 'tool_use') {
           ragUsed = true
-          const toolUseBlock = firstResponse.content.find(b => b.type === 'tool_use')
-          const searchQuery = toolUseBlock?.input?.query || lastUserMessage
-
-          // Execute RAG pipeline
-          const ragResult = await searchPortfolio(searchQuery, root, client)
+          // Claude may ask for several searches in one turn (parallel tool use).
+          // Every tool_use block needs its own tool_result, or the follow-up call
+          // is rejected with a 400 and the answer loses its retrieved evidence.
+          const toolUseBlocks = firstResponse.content.filter(b => b.type === 'tool_use')
+          const searches = await Promise.all(toolUseBlocks.map(block =>
+            searchPortfolio(block.input?.query || lastUserMessage, root, client),
+          ))
+          const ragResult = mergeSearchResults(searches)
           ragSources = ragResult.sources
           ragDegraded = ragResult.degraded
           ragDegradedReason = ragResult.degradedReason
           ragMetrics = ragResult.metrics
+          // Already reported inside searchPortfolio; tagged here so the trace
+          // list can be filtered to chats that answered without retrieval.
+          if (ragDegraded) intentTags.push(`error:${ragDegradedReason}`)
 
-          // Build tool_result and make second call (streaming)
-          const toolResultContent = ragResult.chunks
-            ? formatChunksForContext(ragResult.chunks)
-            : 'No relevant content found in portfolio articles. You MUST NOT fabricate project details. Say you don\'t have that information and point to the LinkedIn link in the contact section.'
-
+          // Build tool_results and make second call (streaming)
           const messagesWithTool = [
             ...cleanMessages,
             { role: 'assistant', content: firstResponse.content },
             {
               role: 'user',
-              content: [{
+              content: toolUseBlocks.map((block, i) => ({
                 type: 'tool_result',
-                tool_use_id: toolUseBlock.id,
-                content: toolResultContent,
-              }],
+                tool_use_id: block.id,
+                content: searches[i].chunks
+                  ? formatChunksForContext(searches[i].chunks)
+                  : 'No relevant content found in portfolio articles. You MUST NOT fabricate project details. Say you don\'t have that information and point to the LinkedIn link in the contact section.',
+              })),
             },
           ]
 
@@ -277,7 +356,7 @@ export default async function handler(req) {
             ragDegradedReason,
             canary,
             intentTags,
-            root,
+            root, sessionId,
             lastUserMessage,
             t0,
             ragUsed,
@@ -304,7 +383,7 @@ export default async function handler(req) {
           ragDegradedReason: null,
           canary,
           intentTags,
-          root,
+          root, sessionId,
           lastUserMessage,
           t0,
           ragUsed: false,
@@ -331,7 +410,7 @@ export default async function handler(req) {
         ragDegradedReason: null,
         canary,
         intentTags,
-        root,
+        root, sessionId,
         lastUserMessage,
         t0,
         ragUsed: false,
@@ -359,13 +438,57 @@ export default async function handler(req) {
     }
     return response
   } catch (error) {
-    console.error('Chat API error:', error)
-    root?.update({ level: 'ERROR', statusMessage: error.message, metadata: { error: error.message } }).end()
+    if (!error?.reported) reportError('handler', error, { parent: root })
+    // Same last rung as streamResponse: a useful static answer, never an error.
+    const offline = buildOfflineAnswer({ lang: offlineLang, question: String(offlineQuestion).slice(0, 2000) })
+    setTraceTags(root, ['error:handler', 'error:offline-answer'])
+    root?.update({
+      level: 'ERROR', statusMessage: error.message, output: offline.text, metadata: { error: error.message },
+    }).end()
     waitUntil(flushTracing())
-    return new Response(JSON.stringify({ error: 'Error processing request' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
+    const encoder = new TextEncoder()
+    const body = new ReadableStream({
+      start(controller) {
+        controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: offline.text })}\n\n`))
+        controller.enqueue(encoder.encode(`event: rag-sources\ndata: ${JSON.stringify(offline.sources)}\n\n`))
+        controller.enqueue(encoder.encode('data: [DONE]\n\n'))
+        controller.close()
+      },
     })
+    return new Response(body, {
+      headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },
+    })
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Combine parallel searchPortfolio() results into the single shape the
+// streaming and tracing code reads. Searches run concurrently, so latency is
+// the slowest one; token usage adds up.
+// ---------------------------------------------------------------------------
+
+function mergeSearchResults(results) {
+  const seen = new Set()
+  const sources = []
+  for (const r of results) {
+    for (const src of r.sources) {
+      const key = `${src.article_id}#${src.section_id}`
+      if (!seen.has(key)) { seen.add(key); sources.push(src) }
+    }
+  }
+  const degraded = results.find(r => r.degraded)
+  const sum = key => results.reduce((n, r) => n + (r.usage?.[key] || 0), 0)
+  const max = key => Math.max(0, ...results.map(r => r.metrics?.[key] || 0))
+  return {
+    sources,
+    degraded: Boolean(degraded),
+    degradedReason: degraded?.degradedReason ?? null,
+    metrics: { embeddingMs: max('embeddingMs'), retrievalMs: max('retrievalMs'), rerankMs: max('rerankMs'), searches: results.length },
+    usage: {
+      embeddingTokens: sum('embeddingTokens'),
+      rerankInputTokens: sum('rerankInputTokens'),
+      rerankOutputTokens: sum('rerankOutputTokens'),
+    },
   }
 }
 
@@ -375,11 +498,13 @@ export default async function handler(req) {
 
 function streamResponse({
   systemBlocks, messages, tools, ragSources, ragDegraded, ragDegradedReason,
-  canary, intentTags, root, lastUserMessage, t0, currentPage,
+  canary, intentTags, root, sessionId, lastUserMessage, t0, currentPage,
   ragUsed, ragMetrics, ragUsage, toolDecisionMs, tdInputTokens, tdOutputTokens,
   precomputedResponse, lang, fallbackMessages, promptVersion, keywordJailbreak,
+  primaryError,
 }) {
   const encoder = new TextEncoder()
+  const leakText = leakResponse(lang)
   let fullOutput = ''
   let leakDetected = false
   let answerDelivered = false
@@ -410,7 +535,7 @@ function streamResponse({
 
   // Only create API stream when there's no precomputed response
   let stream = null
-  if (!precomputedResponse) {
+  if (!precomputedResponse && !primaryError) {
     const streamParams = {
       model: 'claude-sonnet-4-6',
       max_tokens: 800,
@@ -424,6 +549,9 @@ function streamResponse({
   const readableStream = new ReadableStream({
     async start(controller) {
       try {
+        // The first model call already failed before streaming began.
+        if (primaryError) throw primaryError
+
         // Send degraded status early (informational — doesn't depend on response content)
         if (ragDegraded) {
           controller.enqueue(encoder.encode(`event: rag-status\ndata: ${JSON.stringify({ status: 'degraded', reason: ragDegradedReason })}\n\n`))
@@ -436,13 +564,13 @@ function streamResponse({
 
           // Check for leaks
           if (containsFingerprint(precomputedText) || precomputedText.includes(canary)) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: LEAK_RESPONSE, replace: true })}\n\n`))
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: leakText, replace: true })}\n\n`))
             controller.enqueue(encoder.encode('data: [DONE]\n\n'))
             controller.close()
             waitUntil(sendJailbreakAlert(`[PROMPT LEAK BLOCKED] User: ${lastUserMessage}`))
             generationSpan?.update({ metadata: { blocked: true } }).end()
             endRoot([lang, ...intentTags, 'prompt-leak-blocked'], {
-              output: LEAK_RESPONSE,
+              output: leakText,
               metadata: { leakDetectedAt: precomputedText.length, blocked: true },
             })
             waitUntil(flushTracing())
@@ -507,13 +635,13 @@ function streamResponse({
                   if (fullOutput.length % 200 < chunk.length || fullOutput.length < 200) {
                     if (containsFingerprint(fullOutput) || fullOutput.includes(canary)) {
                       leakDetected = true
-                      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: LEAK_RESPONSE, replace: true })}\n\n`))
+                      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: leakText, replace: true })}\n\n`))
                       controller.enqueue(encoder.encode('data: [DONE]\n\n'))
                       controller.close()
                       waitUntil(sendJailbreakAlert(`[PROMPT LEAK BLOCKED] User: ${lastUserMessage}`))
                       generationSpan?.update({ metadata: { blocked: true } }).end()
                       endRoot([lang, ...intentTags, 'prompt-leak-blocked'], {
-                        output: LEAK_RESPONSE,
+                        output: leakText,
                         metadata: { leakDetectedAt: fullOutput.length, blocked: true },
                       })
                       waitUntil(flushTracing())
@@ -553,6 +681,8 @@ function streamResponse({
               // v4 exports an observation once, at end, so the terminal path owns
               // the final tag set and metadata.
               streamErrorTags.push(`stream-error:${retryTag}`)
+              reportError('generation', streamErr, { parent: root, context: { attempt, retryTag, ragUsed } })
+              streamErr.reported = true
               Object.assign(streamErrorMeta, {
                 [`streamError_attempt${attempt}`]: streamErr.message,
                 [`streamErrorType_attempt${attempt}`]: streamErr.constructor?.name,
@@ -614,7 +744,7 @@ function streamResponse({
           // it costs no latency and ~$0.001/conversation. It is the only judge
           // now — the daily batch cron was removed.
           if (root && fullOutput) {
-            waitUntil(scoreTrace(root, lastUserMessage, fullOutput, ragUsed, keywordJailbreak))
+            waitUntil(scoreTrace(root, sessionId, lastUserMessage, fullOutput, ragUsed, keywordJailbreak))
           }
 
           // Send source badges AFTER response
@@ -650,12 +780,12 @@ function streamResponse({
         }
       } catch (error) {
         if (answerDelivered) {
-          console.error('Chat post-answer error:', error)
+          reportError('post-answer', error, { parent: root })
           try {
             controller.enqueue(encoder.encode('data: [DONE]\n\n'))
             controller.close()
           } catch { /* stream already closed */ }
-          endRoot([lang, ...intentTags, 'post-answer-error'], {
+          endRoot([lang, ...intentTags, 'error:post-answer'], {
             output: fullOutput,
             metadata: { postAnswerError: error.message },
           })
@@ -663,50 +793,60 @@ function streamResponse({
           return
         }
 
-        console.error('Chat stream error:', error)
+        if (!error?.reported) reportError('generation', error, { parent: root, context: { ragUsed } })
         generationSpan?.update({
           level: 'ERROR', statusMessage: error.message, metadata: { error: error.message },
         }).end()
         streamErrorTags.push('rag:fallback')
         streamErrorMeta.streamingError = error.message
 
-        // Graceful degradation: retry without RAG context (just system prompt)
-        if (fallbackMessages && !fullOutput) {
+        // Fallback ladder. The visitor never sees an error, only the best
+        // answer still available:
+        //   1. Sonnet without the RAG context (when retrieval was in play)
+        //   2. Haiku — separate capacity, so it often survives a Sonnet overload
+        //   3. A static offline answer: summary, matching case studies, contact
+        // Each model rung gets one attempt with a hard timeout, so a full outage
+        // reaches the offline answer in seconds rather than hanging.
+        const ladder = fallbackMessages
+          ? [
+              { model: 'claude-sonnet-4-6', messages: fallbackMessages },
+              { model: 'claude-haiku-4-5-20251001', messages: fallbackMessages },
+            ]
+          : [{ model: 'claude-haiku-4-5-20251001', messages }]
+
+        for (const rung of ladder) {
+          let rungOutput = ''
           try {
             const fallbackStream = client.messages.stream({
-              model: 'claude-sonnet-4-6',
+              model: rung.model,
               max_tokens: 800,
               system: systemBlocks,
-              messages: fallbackMessages,
-            })
+              messages: rung.messages,
+            }, { timeout: FALLBACK_TIMEOUT_MS, maxRetries: 0 })
 
             // Send degraded status so frontend knows RAG failed
             controller.enqueue(encoder.encode(`event: rag-status\ndata: ${JSON.stringify({ status: 'degraded', reason: 'streaming_fallback' })}\n\n`))
 
-            let fallbackOutput = ''
-            let fallbackLeakDetected = false
-
             for await (const event of fallbackStream) {
-              if (fallbackLeakDetected) break
-
               if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
                 const chunk = event.delta.text
-                fallbackOutput += chunk
+                const first = rungOutput === ''
+                rungOutput += chunk
 
                 // Fingerprint + canary check (same as main stream)
-                if (fallbackOutput.length % 200 < chunk.length || fallbackOutput.length < 200) {
-                  if (containsFingerprint(fallbackOutput) || fallbackOutput.includes(canary)) {
-                    fallbackLeakDetected = true
-                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: LEAK_RESPONSE, replace: true })}\n\n`))
+                if (rungOutput.length % 200 < chunk.length || rungOutput.length < 200) {
+                  if (containsFingerprint(rungOutput) || rungOutput.includes(canary)) {
+                    controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: leakText, replace: true })}\n\n`))
                     controller.enqueue(encoder.encode('data: [DONE]\n\n'))
                     controller.close()
                     waitUntil(sendJailbreakAlert(`[PROMPT LEAK BLOCKED - FALLBACK] User: ${lastUserMessage}`))
                     endRoot([lang, ...intentTags, ...streamErrorTags, 'prompt-leak-blocked'], {
-                      output: LEAK_RESPONSE,
+                      output: leakText,
                       metadata: {
                         ...streamErrorMeta,
-                        leakDetectedAt: fallbackOutput.length,
+                        leakDetectedAt: rungOutput.length,
                         stream: 'fallback',
+                        fallbackModel: rung.model,
                         blocked: true,
                       },
                     })
@@ -715,33 +855,40 @@ function streamResponse({
                   }
                 }
 
-                controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: chunk })}\n\n`))
+                // The first chunk replaces whatever a failed attempt left on screen.
+                controller.enqueue(encoder.encode(`data: ${JSON.stringify(first ? { text: chunk, replace: true } : { text: chunk })}\n\n`))
               }
             }
 
             controller.enqueue(encoder.encode('data: [DONE]\n\n'))
             controller.close()
-            endRoot([lang, ...intentTags, ...streamErrorTags], {
-              output: fallbackOutput,
-              metadata: { ...streamErrorMeta, lang, promptVersion, stream: 'fallback' },
+            endRoot([lang, ...intentTags, ...streamErrorTags, `fallback-model:${rung.model}`], {
+              output: rungOutput,
+              metadata: { ...streamErrorMeta, lang, promptVersion, stream: 'fallback', fallbackModel: rung.model },
             })
             waitUntil(flushTracing())
             return
-          } catch { /* fallback also failed, fall through to error message */ }
+          } catch (fallbackErr) {
+            reportError('generation-fallback', fallbackErr, { parent: root, context: { model: rung.model } })
+            streamErrorTags.push(`error:fallback-${rung.model}`)
+          }
         }
 
-        // Last resort: send error message through SSE
+        // Every model failed: answer from static site copy instead.
+        const offline = buildOfflineAnswer({ lang, question: lastUserMessage, sources: ragSources })
         try {
-          const errorText = lang === 'en' ? MAINTENANCE_TEXT.en : MAINTENANCE_TEXT.es
-          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: errorText, replace: true })}\n\n`))
+          controller.enqueue(encoder.encode(`data: ${JSON.stringify({ text: offline.text, replace: true })}\n\n`))
+          controller.enqueue(encoder.encode(`event: rag-sources\ndata: ${JSON.stringify(offline.sources)}\n\n`))
           controller.enqueue(encoder.encode('data: [DONE]\n\n'))
           controller.close()
         } catch {
           controller.error(error)
         }
-        endRoot([lang, ...intentTags, ...streamErrorTags], {
+        // The tag to filter on to count visitors who got no model answer at all.
+        endRoot([lang, ...intentTags, ...streamErrorTags, 'error:offline-answer'], {
           level: 'ERROR',
           statusMessage: error.message,
+          output: offline.text,
           metadata: { ...streamErrorMeta, lang, promptVersion },
         })
         waitUntil(flushTracing())
@@ -767,19 +914,27 @@ function streamResponse({
 // batch cron, which judged the same conversations a day late.
 // ---------------------------------------------------------------------------
 
-async function scoreTrace(root, userMessage, response, ragUsed, alreadyAlerted) {
+async function scoreTrace(root, sessionId, userMessage, response, ragUsed, alreadyAlerted) {
+  let scoringGen = null
+  let scoringEnded = false
   try {
     // Runs in waitUntil(), after the propagateAttributes scope has closed, so
     // the observation is re-attached to the trace explicitly via the root's
-    // span context. v3 did this by passing a bare traceId.
+    // span context. v3 did this by passing a bare traceId. The scope is also
+    // reopened around the start rather than relying on the stream callback
+    // still carrying the request's async context: this Haiku call is
+    // cost-bearing, and without sessionId its cost drops out of the session total.
     const traceId = root.traceId
-    const scoringGen = startObservation('online_scoring', {
-      model: 'claude-haiku-4-5-20251001',
-      input: { userMessage, response },
-    }, {
-      asType: 'evaluator',
-      parentSpanContext: root.otelSpan.spanContext(),
-    })
+    scoringGen = propagateAttributes(
+      { traceName: 'chat', ...(sessionId ? { sessionId } : {}) },
+      () => startObservation('online_scoring', {
+        model: 'claude-haiku-4-5-20251001',
+        input: { userMessage, response },
+      }, {
+        asType: 'evaluator',
+        parentSpanContext: root.otelSpan.spanContext(),
+      }),
+    )
 
     const scoringResponse = await client.messages.create({
       model: 'claude-haiku-4-5-20251001',
@@ -810,6 +965,7 @@ JSON only: {"quality":0.0,"safety":0.0${ragUsed ? ',"faithfulness":0.0' : ''},"i
       usageDetails: { input: scIn, output: scOut, total: scIn + scOut },
       costDetails: { total: calcCost('claude-haiku-4-5-20251001', scIn, scOut) },
     }).end()
+    scoringEnded = true
 
     const text = scoringResponse.content[0]?.type === 'text' ? scoringResponse.content[0].text : ''
     const jsonMatch = text.match(/\{[\s\S]*\}/)
@@ -836,15 +992,23 @@ JSON only: {"quality":0.0,"safety":0.0${ragUsed ? ',"faithfulness":0.0' : ''},"i
       }
     }
 
-    await Promise.all([flushScores(), flushTracing()])
-
     // classifyIntent() already alerted on the phrasings it knows, in the request
     // path. This covers the ones it does not, without a second email for the
     // same message.
     if (scores.jailbreak === true && !alreadyAlerted) {
       await sendJailbreakAlert(`[SEMANTIC JUDGE] ${userMessage}`)
     }
-  } catch {
-    // Non-critical — scoring failure should never affect the user
+  } catch (err) {
+    // Non-critical — scoring failure should never affect the user. An unended
+    // observation is never exported, so a failed judge call is closed as an error.
+    if (scoringGen && !scoringEnded) {
+      scoringGen.update({ level: 'ERROR', statusMessage: err?.message }).end()
+    }
+    reportError('scoring', err, { parent: root })
+  } finally {
+    // Flush on every exit, including the early return for an unparseable
+    // verdict: the online_scoring observation has already ended and carries
+    // the judge's cost, and nothing else in this isolate is guaranteed to flush it.
+    await Promise.all([flushScores(), flushTracing()])
   }
 }

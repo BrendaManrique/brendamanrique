@@ -25,8 +25,9 @@ En este proyecto la pregunta más importante no es si la respuesta suena bien:
 
 ### Límites de verdad que los evals protegen
 
-- La práctica independiente está en **fase de prototipos y validación**. No hay clientes
-  de pago ni ingresos, y el agente no puede inventarlos.
+- No hay práctica ni negocio de consultoría: el trabajo de IA aplicada son **proyectos
+  propios**, casi todos en fase de prototipos. No hay clientes ni ingresos, y el agente no
+  puede inventarlos.
 - El trabajo en Moody's fue en gran parte de equipo: «contribuyó a», «construyó partes de».
   El agente no puede convertirlo en propiedad individual ni describir arquitectura interna
   de un empleador.

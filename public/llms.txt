@@ -14,7 +14,7 @@ Available in English (/en) and Spanish (/).
 - Languages: English and Spanish, fluent, works in both. German is A2 and still being learned;
   she does not work in German. This site is published in Spanish and English only.
 - Contact: https://www.linkedin.com/in/brendastephanie/ and https://github.com/BrendaManrique
-  Book a call: https://cal.com/brendamanrique
+  Book a call about a role: https://cal.com/brendamanrique
   No personal email is published on this site.
 - Status since August 2025: independent software and AI projects in Berlin, and open to new roles.
 - Through-line: understand a complicated process well enough to turn it into software.
@@ -35,9 +35,9 @@ Applied AI Engineer.
   began focusing more deeply on applied AI and independent software projects:
   small applied-AI systems in Python, FastAPI, Postgres/Supabase, with retrieval, tool
   integrations, MCP-style typed tool boundaries, human approval flows, WhatsApp interfaces and
-  observable Docker/VPS deployments. Since around March 2026, seriously developing the technical
-  foundation for an independent applied-AI practice. It is in the prototype and validation stage:
-  no paying clients and no consulting revenue yet.
+  observable Docker/VPS deployments. Since around March 2026 these projects have gone deeper into
+  how small AI systems are deployed, monitored and operated. This is personal project work in the
+  prototype stage, not a business: she does not offer consulting or services, and has no clients.
 - Moody's Analytics — Apr 2023 to Aug 2025. Assistant Director, Software Engineer in Predictive
   Analytics, New York. Product engineering across EDF-X, Credit Analytics and Risk Scorecard. She personally
   implemented business and model-selection rules in Python, translating credit-domain requirements
@@ -114,8 +114,8 @@ The agent is intentionally constrained to the evidence in this portfolio and is 
 
 ## Truth boundaries
 
-- The independent practice is in the prototype and validation stage. There are no paying clients,
-  no consulting revenue and no production adoption.
+- There is no practice or consulting business. The applied-AI work is her own projects, mostly in
+  the prototype stage. There are no clients, no consulting revenue and no production adoption.
 - Casicornio has not launched. The first issues are being prepared; there is no meaningful
   subscriber base and no revenue.
 - Moody's work was largely team work: she contributed to and built parts of it. She did not design

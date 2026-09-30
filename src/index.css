@@ -1033,12 +1033,12 @@ section[id], footer[id] {
 /* "AI online" presence badge on the portrait; opens the chat. */
 .hero-ai-status {
   position: absolute;
-  right: -30px;
-  bottom: 10px;
+  right: -6px;
+  bottom: 8px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 13px 7px 11px;
+  gap: 7px;
+  padding: 7px 10px 7px 11px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 600;
@@ -1050,6 +1050,12 @@ section[id], footer[id] {
   backdrop-filter: blur(12px) saturate(160%);
   border: 1px solid var(--glass-edge);
   box-shadow: var(--glass-shadow-lift);
+}
+
+.hero-ai-status-icon {
+  width: 16px;
+  height: 16px;
+  color: hsl(var(--primary));
 }
 
 .hero-tags {

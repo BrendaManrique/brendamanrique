@@ -91,7 +91,7 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../Moodys.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-10',
+      dateModified: '2026-09-30',
       keywords: ['credit analytics', 'probability of default', 'EDF-X', 'Risk Scorecard', 'qualitative overlay', 'stateful API', 'Python', 'business rules', 'financial systems engineering', 'Moody\'s Analytics'],
       articleType: 'TechArticle',
       articleTags: 'credit analytics,probability of default,stateful API,Python,product engineering',
@@ -143,7 +143,7 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../FinancialSystems.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-10',
+      dateModified: '2026-09-30',
       keywords: ['derivatives portfolio management', 'risk platform', 'Athena JPMorgan', 'market data terminal', 'WebSockets', 'gRPC', 'microservices', 'ReactJS', 'Java 8', 'XMPP', 'core banking', 'GeneXus'],
       articleType: 'TechArticle',
       articleTags: 'JPMorgan,Money.Net,derivatives,risk,real-time systems,frontend',
@@ -176,7 +176,7 @@ export const articleRegistry: ArticleConfig[] = [
         why: 'La Pregunta',
         'the-problems': 'Los Problemas',
         foundation: 'El Stack',
-        'delivery-model': 'Modelo de Entrega',
+        'delivery-model': 'La Estructura',
         next: 'Dónde Está',
         faq: 'FAQ',
       },
@@ -184,7 +184,7 @@ export const articleRegistry: ArticleConfig[] = [
         why: 'The Question',
         'the-problems': 'The Problems',
         foundation: 'The Stack',
-        'delivery-model': 'Delivery Model',
+        'delivery-model': 'The Structure',
         next: 'Where It Stands',
         faq: 'FAQ',
       },
@@ -196,7 +196,7 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../Consulting.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-10',
+      dateModified: '2026-09-30',
       keywords: ['applied AI', 'agentic AI', 'AI agent deployment', 'FastAPI agent service', 'human in the loop', 'HITL', 'MCP', 'observability', 'Docker', 'PostgreSQL', 'tool calling'],
       articleType: 'TechArticle',
       articleTags: 'build log,applied AI,FastAPI,deployment,HITL',
@@ -255,7 +255,7 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../PortfolioAgent.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-10',
+      dateModified: '2026-09-30',
       keywords: ['portfolio chat agent', 'agentic RAG', 'hybrid retrieval', 'pgvector', 'reciprocal rank fusion', 'LLM evaluation', 'guardrails', 'prompt injection', 'observability', 'Langfuse', 'CI evals', 'groundedness'],
       articleType: 'TechArticle',
       articleTags: 'RAG,evals,guardrails,observability,architecture',
@@ -314,7 +314,7 @@ export const articleRegistry: ArticleConfig[] = [
     xDefaultSlug: 'casicornio',
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-10',
+      dateModified: '2026-09-30',
       keywords: ['Casicornio', 'Spanish-language technology publication', 'startups', 'technology media', 'content operations', 'editorial systems', 'distribution', 'media experiment', 'publishing workflow', 'independent publication'],
       articleType: 'Article',
       articleTags: 'Casicornio,media ops,startups,automation',
@@ -362,7 +362,7 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../Invip.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-10',
+      dateModified: '2026-09-30',
       keywords: ['assistive technology', 'visual accessibility', 'computer vision', 'machine learning', 'Amazon Alexa', 'NYU startup', 'accessibility', 'visually impaired', 'voice interaction', 'co-founder CTO'],
       articleType: 'Article',
       articleTags: 'accessibility,assistive technology,speech interface,NYU',
@@ -412,7 +412,7 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../Fractal.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-10',
+      dateModified: '2026-09-30',
       keywords: ['fractal dimension', 'skin lesion imagery', 'boundary irregularity', 'image classification', 'AGSE 2010', 'undergraduate research', 'research prototype', 'fractal geometry', 'poster competition', 'feature extraction'],
       articleType: 'Article',
       articleTags: 'fractal geometry,research,classification,historical',
@@ -468,7 +468,7 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../EarlyProjects.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-10',
+      dateModified: '2026-09-30',
       keywords: ['dynamic UI components', 'undergraduate thesis', 'Aquolity', 'water quality crowdsourcing', 'Project Tango', 'Solana', 'NFT marketplace', 'smart contracts', 'prototype', 'MVP'],
       articleType: 'Article',
       articleTags: 'archive,thesis,prototypes,social tech,Solana',
@@ -519,7 +519,7 @@ export const articleRegistry: ArticleConfig[] = [
     xDefaultSlug: 'historia',
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-10',
+      dateModified: '2026-09-30',
       keywords: ['career transition', 'international relocation', 'leaving Moody\'s', 'relocating to Berlin', 'independent software engineer', 'applied AI', 'systems engineering career', 'senior software engineer', 'Berlin', 'independent projects'],
       articleType: 'Article',
       articleTags: 'story,career,relocation,applied AI',

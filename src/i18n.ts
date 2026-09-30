@@ -27,7 +27,6 @@ export const translations = {
       'Ingeniera full-stack',
       'Ingeniera de sistemas financieros',
     ],
-    aiOnline: 'IA en línea',
     heroLine: 'Construyo sistemas fiables para finanzas, analítica e IA aplicada.',
     pillLabels: ['Backend', 'Sistemas financieros', 'IA aplicada'],
     location: 'Berlín, Alemania · remoto',
@@ -279,7 +278,7 @@ export const translations = {
     cta: {
       title: 'Hablemos.',
       desc: 'Me interesan las conversaciones sobre sistemas donde la corrección importa.',
-      book: 'Agenda una llamada',
+      book: 'Agenda una llamada sobre un puesto',
       linkedin: 'LinkedIn',
       github: 'GitHub',
     },
@@ -301,7 +300,7 @@ export const translations = {
       subtitle: 'Pregunta por su experiencia y sus proyectos',
       greeting:
         '¡Hola! Soy la **IA de portafolio de Brenda**. Pregúntame lo que quieras sobre su experiencia, sus proyectos y las decisiones de ingeniería detrás de ellos. Si algo no está en el portafolio, te lo diré.',
-      error: `La IA de portafolio de Brenda está en mantenimiento ahora mismo. Mientras tanto, puedes contactar con Brenda directamente en [LinkedIn](${LINKEDIN_URL}).`,
+      error: `La IA está haciendo una pausa breve. Los casos de estudio de esta web cuentan el trabajo de Brenda en detalle — o puedes escribirle directamente por [LinkedIn](${LINKEDIN_URL}).`,
       offline: 'Parece que no hay conexión a internet. Comprueba tu red e inténtalo de nuevo.',
       prompts: [
         { icon: 'briefcase', label: 'Sistemas de IA', query: '¿Qué sistemas de IA está construyendo Brenda?' },
@@ -311,9 +310,9 @@ export const translations = {
       ],
       contactCtaTitle: '¿Quieres hablar con Brenda directamente?',
       contactCtaLabel: 'Conectar en LinkedIn',
-      bookCtaLabel: 'Agendar una llamada',
+      bookCtaLabel: 'Agendar una llamada sobre un puesto',
       limitTitle: 'Has usado tus 5 preguntas',
-      limitBody: 'Para seguir la conversación, agenda una llamada con Brenda — o escríbele por LinkedIn.',
+      limitBody: 'Para seguir la conversación, agenda una llamada con Brenda sobre un puesto — o escríbele por LinkedIn.',
       limitPlaceholder: 'Agenda una llamada para continuar',
       questionsLeft: (n: number) => (n === 1 ? 'Queda 1 pregunta' : `Quedan ${n} preguntas`),
       voice: {
@@ -346,7 +345,6 @@ export const translations = {
       'Full-Stack Engineer',
       'Financial Systems Engineer',
     ],
-    aiOnline: 'AI online',
     heroLine: 'Building reliable systems across finance, analytics and applied AI.',
     pillLabels: ['Backend', 'Financial Systems', 'Applied AI'],
     location: 'Berlin, Germany · remote',
@@ -598,7 +596,7 @@ export const translations = {
     cta: {
       title: 'Let us talk.',
       desc: "I'm interested in conversations about systems where correctness matters.",
-      book: 'Book a call',
+      book: 'Book a call about a role',
       linkedin: 'LinkedIn',
       github: 'GitHub',
     },
@@ -620,7 +618,7 @@ export const translations = {
       subtitle: 'Ask about her experience and projects',
       greeting:
         "Hi! I'm **Brenda's portfolio AI**. Ask me anything about her experience, her projects and the engineering decisions behind them. If something isn't in the portfolio, I'll tell you.",
-      error: `Brenda's portfolio AI is under maintenance right now. In the meantime, you can reach Brenda directly on [LinkedIn](${LINKEDIN_URL}).`,
+      error: `The live AI is taking a short break. The case studies on this site cover Brenda's work in depth — or you can reach her directly on [LinkedIn](${LINKEDIN_URL}).`,
       offline: 'It looks like you are offline. Check your connection and try again.',
       prompts: [
         { icon: 'briefcase', label: 'AI systems', query: 'What AI systems is Brenda building?' },
@@ -630,9 +628,9 @@ export const translations = {
       ],
       contactCtaTitle: 'Want to talk to Brenda directly?',
       contactCtaLabel: 'Connect on LinkedIn',
-      bookCtaLabel: 'Book a call',
+      bookCtaLabel: 'Book a call about a role',
       limitTitle: "You've used your 5 questions",
-      limitBody: 'To keep the conversation going, book a call with Brenda — or reach out on LinkedIn.',
+      limitBody: 'To keep the conversation going, book a call with Brenda about a role — or reach out on LinkedIn.',
       limitPlaceholder: 'Book a call to continue',
       questionsLeft: (n: number) => (n === 1 ? '1 question left' : `${n} questions left`),
       voice: {

@@ -2,6 +2,8 @@
 // Shared RAG pipeline — used by api/chat.js (text) and api/rag-search.js (voice)
 // ---------------------------------------------------------------------------
 
+import { reportError } from './errors.js'
+
 // ---------------------------------------------------------------------------
 // Cost tracking per span
 // ---------------------------------------------------------------------------
@@ -161,10 +163,11 @@ export async function rerankChunks(query, chunks, anthropicClient) {
       chunks: diversified, latencyMs: Date.now() - t0, rerankedOrder: ids.slice(0, 5),
       usage: { input_tokens: response.usage?.input_tokens || 0, output_tokens: response.usage?.output_tokens || 0 },
     }
-  } catch {
-    // Fallback: use original order with diversity
+  } catch (err) {
+    // Fallback: use original order with diversity. The error is returned so the
+    // caller can report it against its reranking observation.
     const diversified = diversifyByArticle(chunks.slice(0, 5))
-    return { chunks: diversified, latencyMs: Date.now() - t0, rerankedOrder: null, usage: null }
+    return { chunks: diversified, latencyMs: Date.now() - t0, rerankedOrder: null, usage: null, error: err }
   }
 }
 
@@ -342,6 +345,7 @@ export async function searchPortfolio(query, parent, anthropicClient) {
     }).end()
   } catch (err) {
     embeddingGen?.update({ level: 'ERROR', statusMessage: err.message, metadata: { error: err.message } }).end()
+    reportError('embedding', err, { parent })
     result.degraded = true
     result.degradedReason = 'embedding_fail'
     return result
@@ -397,12 +401,17 @@ export async function searchPortfolio(query, parent, anthropicClient) {
         rerankedOrder: rerankResult.rerankedOrder,
         latencyMs: rerankResult.latencyMs,
       },
+      ...(rerankResult.error ? { level: 'WARNING', statusMessage: rerankResult.error.message } : {}),
     }).end()
+    if (rerankResult.error) {
+      reportError('reranking', rerankResult.error, { parent, context: { fallback: 'similarity_order' } })
+    }
 
     result.chunks = rerankResult.chunks
     result.sources = extractSources(rerankResult.chunks)
   } catch (err) {
     retrievalSpan?.update({ level: 'ERROR', statusMessage: err.message, metadata: { error: err.message } }).end()
+    reportError('retrieval', err, { parent })
     result.degraded = true
     result.degradedReason = err.message.includes('timeout') ? 'retrieval_timeout' : 'retrieval_fail'
   }
@@ -435,7 +444,9 @@ export function classifyIntent(text) {
     'show me everything', 'imprime todo', 'muestra todo lo anterior',
     'repite todo', 'exporta', 'convierte a',
   ]
-  if (jailbreakPatterns.some(p => lower.includes(p))) {
+  // Whole words/phrases only: a bare substring match flagged 'dan' inside
+  // "guidance" or "Jordan" and 'export' inside "exported".
+  if (jailbreakPatterns.some(p => new RegExp(`\\b${escapeRegExp(p)}\\b`).test(lower))) {
     tags.push('jailbreak-attempt')
   }
 
@@ -447,6 +458,52 @@ export function classifyIntent(text) {
   if (/hola|hello|hi|hey|buenos|good/.test(lower) && text.length < 20) tags.push('greeting')
 
   return tags.length > 0 ? tags : ['topic:general']
+}
+
+function escapeRegExp(text) {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+// ---------------------------------------------------------------------------
+// Jailbreak pre-check — runs before any model call
+//
+// Two tiers, on purpose:
+//   - classifyIntent()'s broad list above only FLAGS (trace tag + alert). It is
+//     tuned for recall: words like "pretend", "forget" or "export" appear in
+//     honest questions, so blocking on them would refuse real visitors.
+//   - The patterns below BLOCK. Each one is an unambiguous injection or
+//     extraction phrasing, so a match gets a fixed refusal with no Claude call:
+//     no tokens spent and no chance for a clever variant to talk the model round.
+// Anything a keyword list misses is still covered by the system prompt's rules,
+// the canary/fingerprint check on the output, and the online judge.
+// ---------------------------------------------------------------------------
+
+const BLOCKING_JAILBREAK_PATTERNS = [
+  /\b(ignore|disregard|forget|override)\b.{0,30}\b(previous|prior|above|earlier|preceding|all|your)\b.{0,20}\b(instructions|prompts?|rules|guidelines|directives)\b/,
+  /\b(ignora|olvida|omite)\b.{0,30}\b(instrucciones|reglas|indicaciones)\b/,
+  /\bolvida todo lo anterior\b/,
+  /\b(print|show|reveal|repeat|output|display|dump|leak|give me|tell me|what are|what is|what's)\b.{0,20}\byour\b.{0,15}\b(system prompt|initial prompt|hidden prompt|prompt|instructions|internal rules|rules)\b/,
+  /\b(print|reveal|repeat|output|dump|leak)\b.{0,20}\bthe (system|initial|hidden) prompt\b/,
+  /\b(muestra|muéstrame|revela|imprime|repite|dime|cuáles son)\b.{0,20}\b(tu|tus)\b.{0,15}\b(prompt|instrucciones|reglas)\b/,
+  /\b(repeat|print|output|write|copy) (everything|all)( of the text)? (above|before)\b/,
+  /\b(repite|imprime|muestra) todo lo anterior\b/,
+  /\b(developer|god|dan) mode\b/,
+  /\bmodo (desarrollador|dios)\b/,
+  /\bdo anything now\b/,
+  /\bjailbreak\b/,
+]
+
+export function isBlockingJailbreak(text) {
+  const lower = text.toLowerCase()
+  return BLOCKING_JAILBREAK_PATTERNS.some(p => p.test(lower))
+}
+
+// Friendly on purpose: interviewers red-team portfolio chatbots, and a refusal
+// that shows the guardrail working lands better than a stern one. The
+// portfolio-agent case study is attached as a source badge, not an inline link.
+export const JAILBREAK_BLOCK_TEXT = {
+  en: "Nice try 🙂 That's one of the guardrails Brenda built into this assistant: it doesn't reveal or change its instructions. If you're curious how it works, the case study below walks through the design — or ask me anything about Brenda's work.",
+  es: 'Buen intento 🙂 Es una de las protecciones que Brenda construyó en este asistente: no revela ni cambia sus instrucciones. Si te interesa cómo funciona, el caso de estudio de abajo explica el diseño — o pregúntame lo que quieras sobre el trabajo de Brenda.',
 }
 
 // ---------------------------------------------------------------------------
@@ -495,6 +552,13 @@ export const PROMPT_FINGERPRINTS = [
 ]
 
 export const LEAK_RESPONSE = 'Esa información forma parte de mi diseño interno. El código fuente del proyecto es público en GitHub si te interesa la arquitectura.'
+
+// Language-aware version of LEAK_RESPONSE, same tone as JAILBREAK_BLOCK_TEXT.
+export function leakResponse(lang) {
+  return lang === 'en'
+    ? "That part is internal to how this assistant is built, so I'll keep it to myself 🙂 The project's source code is public on GitHub if you're curious about the architecture."
+    : 'Esa parte es interna al diseño de este asistente, así que me la guardo 🙂 El código fuente del proyecto es público en GitHub si te interesa la arquitectura.'
+}
 
 export function containsFingerprint(text) {
   const lower = text.toLowerCase()

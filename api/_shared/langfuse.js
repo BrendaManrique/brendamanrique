@@ -18,6 +18,7 @@ import { LangfuseSpanProcessor } from '@langfuse/otel'
 import { setLangfuseTracerProvider, LangfuseOtelSpanAttributes } from '@langfuse/tracing'
 import { LangfuseClient } from '@langfuse/client'
 import { createContextManager } from './otel-context.js'
+import { reportError } from './errors.js'
 
 let tracingPromise = null
 let processorRef = null
@@ -66,8 +67,10 @@ export async function flushTracing() {
   if (!processorRef) return
   try {
     await processorRef.forceFlush()
-  } catch {
-    // Never let an observability flush fail a user-facing request.
+  } catch (err) {
+    // Never let an observability flush fail a user-facing request. Langfuse is
+    // what failed, so this is reported to logs and email only.
+    reportError('langfuse-flush', err, { langfuse: false })
   }
 }
 
@@ -92,8 +95,8 @@ export async function flushScores() {
   if (!clientRef) return
   try {
     await clientRef.score.flush()
-  } catch {
-    // Non-critical.
+  } catch (err) {
+    reportError('langfuse-scores', err, { langfuse: false })
   }
 }
 

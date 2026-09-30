@@ -22,7 +22,7 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
     nav: { breadcrumbHome: 'Home', breadcrumbCurrent: 'The story' },
     status: 'Independent projects since Aug 2025',
     directAnswer:
-      'Brenda Manrique left Moody\'s Analytics in August 2025 and relocated internationally, establishing herself in Berlin. Since then she has been building applied-AI systems and independent software projects, and since March 2026 developing the technical foundation for an independent applied-AI practice. She is also looking for her next software-engineering role.',
+      'Brenda Manrique left Moody\'s Analytics in August 2025 and relocated internationally, establishing herself in Berlin. Since then she has been building applied-AI systems and independent software projects, which since March 2026 have focused on deploying and operating small AI systems. She is also looking for her next software-engineering role.',
     sections: {
       'systems-work': {
         heading: 'The work before this',
@@ -59,7 +59,7 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
           },
           {
             kind: 'prose',
-            text: 'Around March 2026 that turned into something more deliberate: building the technical foundation for an independent applied-AI practice. It is in the prototype and validation stage. No paying clients yet.',
+            text: 'Around March 2026 that turned into something more deliberate: going deep, through projects of her own, on how small AI systems are deployed, monitored and operated. It is project work in the prototype stage, not a business.',
           },
         ],
       },
@@ -99,7 +99,7 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
         },
         {
           q: 'What has she been doing since?',
-          a: 'Building applied-AI systems and independent software projects. Since March 2026, developing the technical foundation for an independent applied-AI practice, still in the prototype and validation stage. She is also looking for her next software-engineering role.',
+          a: 'Building applied-AI systems and independent software projects. Since March 2026 those projects have focused on deploying and operating small AI systems, still in the prototype stage. She is also looking for her next software-engineering role.',
         },
         {
           q: 'What is actually running today?',
@@ -135,7 +135,7 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
     nav: { breadcrumbHome: 'Inicio', breadcrumbCurrent: 'La historia' },
     status: 'Proyectos independientes desde ago 2025',
     directAnswer:
-      'Brenda Manrique dejó Moody\'s Analytics en agosto de 2025 y se mudó de país hasta establecerse en Berlín. Desde entonces construye sistemas de IA aplicada y proyectos de software propios, y desde marzo de 2026 desarrolla la base técnica de una práctica independiente de IA aplicada. También busca su siguiente puesto de ingeniería de software.',
+      'Brenda Manrique dejó Moody\'s Analytics en agosto de 2025 y se mudó de país hasta establecerse en Berlín. Desde entonces construye sistemas de IA aplicada y proyectos de software propios, que desde marzo de 2026 se centran en desplegar y operar sistemas de IA pequeños. También busca su siguiente puesto de ingeniería de software.',
     sections: {
       'systems-work': {
         heading: 'El trabajo anterior',
@@ -172,7 +172,7 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
           },
           {
             kind: 'prose',
-            text: 'Hacia marzo de 2026 eso se convirtió en algo más deliberado: construir la base técnica de una práctica independiente de IA aplicada. Está en fase de prototipos y validación. Todavía no hay clientes de pago.',
+            text: 'Hacia marzo de 2026 eso se convirtió en algo más deliberado: profundizar, con proyectos propios, en cómo se despliegan, se monitorizan y se operan sistemas de IA pequeños. Es trabajo de proyectos en fase de prototipos, no un negocio.',
           },
         ],
       },
@@ -212,7 +212,7 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
         },
         {
           q: '¿Qué ha hecho desde entonces?',
-          a: 'Construir sistemas de IA aplicada y proyectos de software propios. Desde marzo de 2026 desarrolla la base técnica de una práctica independiente de IA aplicada, todavía en fase de prototipos y validación. También busca su siguiente puesto de ingeniería de software.',
+          a: 'Construir sistemas de IA aplicada y proyectos de software propios. Desde marzo de 2026 esos proyectos se centran en desplegar y operar sistemas de IA pequeños, todavía en fase de prototipos. También busca su siguiente puesto de ingeniería de software.',
         },
         {
           q: '¿Qué está funcionando hoy realmente?',

@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { startObservation } from '@langfuse/tracing'
+import { startObservation, propagateAttributes } from '@langfuse/tracing'
 import {
   searchPortfolio, formatChunksForContext, extractSources, calcCost,
   filterSourcesByResponse, detectMentionedArticles, HOME_SOURCE,
@@ -103,7 +103,7 @@ export default async function handler(req) {
   }
 
   try {
-    const { query, traceparent, currentPage } = await req.json()
+    const { query, traceparent, sessionId, currentPage } = await req.json()
 
     // v4 attaches to the running voice session through the parent span context
     // issued by /api/voice-token, not by re-opening a trace id.
@@ -124,81 +124,91 @@ export default async function handler(req) {
 
     const processor = await initTracing()
     const lfClient = getLangfuseClient()
-    const ragSpan = processor
-      ? startObservation('voice-rag', { input: query, metadata: { query } }, { parentSpanContext })
-      : null
+    // Every observation below is a child of the voice-session root, and three
+    // of them are cost-bearing (embedding, rerank, claude-reasoning). They are
+    // started in a different request from the root, so the voice-token scope
+    // does not reach them: reopen it here or their cost drops out of the
+    // session's total.
+    return await propagateAttributes(
+      { traceName: 'voice-session', ...(sessionId ? { sessionId } : {}) },
+      async () => {
+        const ragSpan = processor
+          ? startObservation('voice-rag', { input: query, metadata: { query } }, { parentSpanContext })
+          : null
 
-    const t0 = Date.now()
+        const t0 = Date.now()
 
-    try {
-      const ragResult = await searchPortfolio(query, ragSpan, client)
+        try {
+          const ragResult = await searchPortfolio(query, ragSpan, client)
 
-      const formattedChunks = ragResult.chunks
-        ? formatChunksForContext(ragResult.chunks)
-        : 'No relevant content found.'
+          const formattedChunks = ragResult.chunks
+            ? formatChunksForContext(ragResult.chunks)
+            : 'No relevant content found.'
 
-      const sources = ragResult.sources || []
+          const sources = ragResult.sources || []
 
-      ragSpan?.update({
-        output: formattedChunks,
-        metadata: {
-          chunksFound: ragResult.chunks?.length || 0,
-          degraded: ragResult.degraded,
-          metrics: ragResult.metrics,
-        },
-      })
+          ragSpan?.update({
+            output: formattedChunks,
+            metadata: {
+              chunksFound: ragResult.chunks?.length || 0,
+              degraded: ragResult.degraded,
+              metrics: ragResult.metrics,
+            },
+          })
 
-      // Latency budget: skip Claude reasoning if RAG already took >1.5s
-      const ragElapsedMs = Date.now() - t0
-      const reasonedAnswer = (ragResult.chunks && ragElapsedMs <= 1500)
-        ? await reasonWithClaude(query, formattedChunks, ragSpan, lfClient)
-        : null
+          // Latency budget: skip Claude reasoning if RAG already took >1.5s
+          const ragElapsedMs = Date.now() - t0
+          const reasonedAnswer = (ragResult.chunks && ragElapsedMs <= 1500)
+            ? await reasonWithClaude(query, formattedChunks, ragSpan, lfClient)
+            : null
 
-      // Tier 1: Claude + RAG → reasoned answer
-      // Tier 2: RAG only (Claude failed) → raw chunks
-      // Tier 3: both failed → handled by catch below
-      const context = reasonedAnswer || formattedChunks
+          // Tier 1: Claude + RAG → reasoned answer
+          // Tier 2: RAG only (Claude failed) → raw chunks
+          // Tier 3: both failed → handled by catch below
+          const context = reasonedAnswer || formattedChunks
 
-      // Filter sources to articles mentioned in the answer (same logic as chat.js)
-      const responseText = reasonedAnswer || ''
-      let filteredSources = sources.length > 0
-        ? filterSourcesByResponse(sources, responseText)
-        : []
+          // Filter sources to articles mentioned in the answer (same logic as chat.js)
+          const responseText = reasonedAnswer || ''
+          let filteredSources = sources.length > 0
+            ? filterSourcesByResponse(sources, responseText)
+            : []
 
-      // Enrich with keyword-detected articles not in RAG sources
-      const ragArticleIds = new Set(filteredSources.map(s => s.article_id))
-      const detected = detectMentionedArticles(responseText)
-      for (const d of detected) {
-        if (!ragArticleIds.has(d.article_id) && filteredSources.length < 3) {
-          filteredSources.push(d)
+          // Enrich with keyword-detected articles not in RAG sources
+          const ragArticleIds = new Set(filteredSources.map(s => s.article_id))
+          const detected = detectMentionedArticles(responseText)
+          for (const d of detected) {
+            if (!ragArticleIds.has(d.article_id) && filteredSources.length < 3) {
+              filteredSources.push(d)
+            }
+          }
+
+          // Home fallback when RAG found chunks but no specific article matched
+          if (filteredSources.length === 0 && sources.length > 0) {
+            filteredSources = [HOME_SOURCE]
+          }
+
+          ragSpan?.end()
+          await flushTracing()
+
+          return new Response(JSON.stringify({ context, sources: filteredSources, currentPage }), {
+            headers: { 'Content-Type': 'application/json' },
+          })
+        } catch (err) {
+          ragSpan?.update({
+            level: 'ERROR', statusMessage: err.message, metadata: { error: err.message },
+          }).end()
+          await flushTracing()
+
+          // Return empty context on timeout/error rather than failing
+          return new Response(JSON.stringify({
+            context: 'Search unavailable — answer from your general knowledge.',
+            sources: [],
+          }), {
+            headers: { 'Content-Type': 'application/json' },
+          })
         }
-      }
-
-      // Home fallback when RAG found chunks but no specific article matched
-      if (filteredSources.length === 0 && sources.length > 0) {
-        filteredSources = [HOME_SOURCE]
-      }
-
-      ragSpan?.end()
-      await flushTracing()
-
-      return new Response(JSON.stringify({ context, sources: filteredSources, currentPage }), {
-        headers: { 'Content-Type': 'application/json' },
-      })
-    } catch (err) {
-      ragSpan?.update({
-        level: 'ERROR', statusMessage: err.message, metadata: { error: err.message },
-      }).end()
-      await flushTracing()
-
-      // Return empty context on timeout/error rather than failing
-      return new Response(JSON.stringify({
-        context: 'Search unavailable — answer from your general knowledge.',
-        sources: [],
-      }), {
-        headers: { 'Content-Type': 'application/json' },
-      })
-    }
+      },
+    )
   } catch (error) {
     console.error('RAG search error:', error)
     return new Response(JSON.stringify({ error: 'Internal server error' }), {

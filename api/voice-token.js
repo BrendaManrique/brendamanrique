@@ -1,6 +1,7 @@
 import { startObservation, propagateAttributes } from '@langfuse/tracing'
 import { initTracing, flushTracing, setTraceTags, toTraceparent } from './_shared/langfuse.js'
-import { VOICE_LIMIT, checkRateLimit, getClientIp, rateLimitHeaders } from './_shared/ratelimit.js'
+import { geolocation } from '@vercel/functions'
+import { VOICE_LIMIT, checkRateLimit, rateLimitHeaders } from './_shared/ratelimit.js'
 
 export const config = {
   runtime: 'edge',
@@ -173,8 +174,7 @@ export default async function handler(req) {
     const { lang = 'es', sessionId } = await req.json()
 
     // Rate limiting
-    const ip = getClientIp(req)
-    const rateLimit = await checkRateLimit({ ...VOICE_LIMIT, ip })
+    const rateLimit = await checkRateLimit({ ...VOICE_LIMIT, req })
     if (!rateLimit.allowed) {
       return new Response(JSON.stringify({
         error: 'rate_limited',
@@ -256,7 +256,7 @@ export default async function handler(req) {
       async () => {
         const root = startObservation('voice-session', {
           input: { lang },
-          metadata: { lang, ip: ip.slice(0, 8) + '...', remaining: rateLimit.remaining },
+          metadata: { lang, country: geolocation(req).country ?? null, remaining: rateLimit.remaining },
         })
         setTraceTags(root, [lang, 'voice'])
         traceId = root.traceId

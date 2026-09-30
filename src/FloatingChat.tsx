@@ -634,7 +634,7 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
           if (isOpen) abortRef.current?.abort();
           setIsOpen(!isOpen);
         }}
-        className="fixed z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
+        className="fixed z-50 w-16 h-16 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-shadow"
         style={{
           bottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px) + 0.5rem)',
           right: 'max(1.5rem, env(safe-area-inset-right, 0px) + 0.5rem)',
@@ -651,7 +651,7 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
               transition={{ duration: 0.2 }}
               className="w-full h-full rounded-full bg-gradient-theme flex items-center justify-center"
             >
-              <X className="w-6 h-6 text-white" aria-hidden="true" />
+              <X className="w-7 h-7 text-white" aria-hidden="true" />
             </motion.div>
           ) : (
             <motion.div
@@ -667,8 +667,8 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
                 src={AVATAR_SM}
                 alt={AVATAR_ALT}
                 className="w-full h-full rounded-full object-cover"
-                width={56}
-                height={56}
+                width={64}
+                height={64}
               />
               {/* Pulse ring animation */}
               <motion.div
@@ -832,6 +832,11 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
                                   ),
                                 }}
                                 urlTransform={(url) => {
+                                  // Site-relative links (the model links case studies as
+                                  // /portfolio-chat-agent) stay on this site.
+                                  if (url.startsWith('/') || url.startsWith('#')) {
+                                    return url;
+                                  }
                                   // Auto-linkify emails
                                   if (url.includes('@') && !url.startsWith('mailto:')) {
                                     return `mailto:${url}`;

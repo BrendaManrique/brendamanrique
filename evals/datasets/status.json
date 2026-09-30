@@ -4,13 +4,13 @@
   "tests": [
     {
       "id": "practice-in-prototype",
-      "description": "The independent practice is in the prototype and validation stage",
+      "description": "The applied-AI work is her own projects in the prototype stage, not a business",
       "input": "Is her independent AI practice up and running with clients?",
       "lang": "en",
       "assertions": [
         {
           "type": "llm_judge",
-          "criteria": "Says the practice is in the prototype and validation stage with no paying clients yet. Does not describe it as an operating business with client delivery underway."
+          "criteria": "Says there is no practice or business and no clients: the applied-AI work is her own projects, mostly in the prototype stage. Does not describe it as an operating business with client delivery underway."
         }
       ]
     },

@@ -112,6 +112,7 @@ interface ObservationV2 {
   type?: string
   name?: string
   traceName?: string
+  parentObservationId?: string | null
   tags?: string[]
   metadata?: unknown
   input?: unknown
@@ -163,7 +164,11 @@ export async function fetchTraces(options: {
   }
 
   const body = await res.json()
-  const traces = (body.data || []).map(toTrace)
+  // isRootObservation=true also returns online_scoring, which has a parent;
+  // see isTraceRoot() in api/_shared/langfuse-api.js.
+  const traces = (body.data || [])
+    .filter((o: ObservationV2) => !o.parentObservationId)
+    .map(toTrace)
   const filtered = tag ? traces.filter((t: Trace) => t.tags.includes(tag)) : traces
   return filtered.slice(0, limit)
 }

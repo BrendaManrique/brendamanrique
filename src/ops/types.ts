@@ -90,9 +90,9 @@ export interface OpsPromptVersion {
 export interface OpsRagStats {
   totalChunks: number
   byArticle: Array<{ articleId: string; slug: string; chunkCount: number }>
-  voiceRateLimits: Array<{ ip: string; count: number; windowStart: string }>
+  voiceRateLimits: RateLimitRow[]
   /** Chat question counters, same shape. Returned by the API; no panel yet. */
-  chatRateLimits?: Array<{ ip: string; count: number; windowStart: string }>
+  chatRateLimits?: RateLimitRow[]
 }
 
 // === Hook interfaces ===
@@ -115,4 +115,14 @@ export interface UseOpsApiResult<T> {
 export interface TabProps {
   stats: OpsStats | null
   loading: boolean
+}
+
+/** One visitor's counter. `ip` is a keyed hash of the address, not the address. */
+export interface RateLimitRow {
+  ip: string
+  location: string | null
+  count: number
+  totalCount: number | null
+  firstSeen: string | null
+  windowStart: string
 }

@@ -21,7 +21,7 @@ export const consultingContent: Record<CaseStudyLang, CaseStudyContent> = {
     seo: {
       title: 'Build log: small applied-AI systems',
       description:
-        'What I am building independently: Python and FastAPI services with retrieval, typed tool boundaries, approval flows and deployments you can observe and roll back.',
+        'What I am building on my own: Python and FastAPI services with retrieval, typed tool boundaries, approval flows and deployments you can observe and roll back.',
     },
     header: {
       kicker: 'Build log · Applied AI',
@@ -33,7 +33,7 @@ export const consultingContent: Record<CaseStudyLang, CaseStudyContent> = {
     nav: { breadcrumbHome: 'Home', breadcrumbCurrent: 'Applied AI build log' },
     status: 'Prototype and validation stage',
     directAnswer:
-      'This is a build log for the applied-AI work Brenda Manrique has been doing independently since moving to Berlin, and for the independent practice she began developing seriously around March 2026. It is in the prototype and validation stage: architecture, prototypes, deployed infrastructure and product experimentation, plus one system in production — the chat agent on this site. No paying clients yet.',
+      'This is a build log of the applied-AI projects Brenda Manrique has been building on her own since moving to Berlin. It is hands-on project work to learn what it takes to run small AI systems for real, not a business: she does not offer services through this site. Most of it is prototypes and infrastructure; one system is in production — the chat agent on this site.',
     sections: {
       why: {
         heading: 'The question',
@@ -114,7 +114,7 @@ export const consultingContent: Record<CaseStudyLang, CaseStudyContent> = {
         blocks: [
           {
             kind: 'prose',
-            text: 'The portfolio chat agent is the proving ground: a public, adversarial surface that forces retrieval, evaluation, security and observability to actually work. It is in production. The rest is prototypes and infrastructure, and there are no paying clients yet.',
+            text: 'The portfolio chat agent is the proving ground: a public, adversarial surface that forces retrieval, evaluation, security and observability to actually work. It is in production. The rest is prototypes and infrastructure.',
           },
         ],
       },
@@ -123,22 +123,22 @@ export const consultingContent: Record<CaseStudyLang, CaseStudyContent> = {
       heading: 'Frequently asked questions',
       items: [
         {
-          q: 'Does the practice have clients?',
-          a: 'Not yet. It is in the prototype and validation stage: architecture, prototypes, deployed infrastructure and product experimentation, plus the portfolio chat agent, which is in production.',
+          q: 'Is this a consulting business?',
+          a: 'No. It is a build log of her own projects, a way to go deep on applied AI. She does not offer services or take on clients through this site. Most of it is prototypes and infrastructure; the portfolio chat agent is in production.',
         },
         {
           q: 'When did this start?',
-          a: 'The experimenting started after she moved to Berlin in 2025. Around March 2026 it became more deliberate: building the technical foundation for an independent applied-AI practice.',
+          a: 'The experimenting started after she moved to Berlin in 2025. Around March 2026 it became more deliberate, with a focus on how these systems are deployed, monitored and rolled back.',
         },
         {
-          q: 'Is she available for employment as well?',
-          a: 'Yes. She is looking for her next senior software-engineering or applied-AI role alongside this work.',
+          q: 'Is she looking for a job?',
+          a: 'Yes. She is looking for her next senior software-engineering or applied-AI role. These projects are part of how she keeps her engineering sharp.',
         },
       ],
     },
     cta: {
       heading: 'Let us talk',
-      body: 'Open to senior software engineering and applied-AI roles, and to conversations about workflows worth turning into reliable software.',
+      body: 'Open to senior software-engineering and applied-AI roles. Happy to talk about any of this.',
       ctaLabel: 'Connect on LinkedIn',
       ctaHref: 'https://www.linkedin.com/in/brendastephanie/',
       secondaryLabel: 'How the portfolio agent was built',
@@ -164,7 +164,7 @@ export const consultingContent: Record<CaseStudyLang, CaseStudyContent> = {
     nav: { breadcrumbHome: 'Inicio', breadcrumbCurrent: 'Build log de IA aplicada' },
     status: 'Fase de prototipos y validación',
     directAnswer:
-      'Este es el build log del trabajo de IA aplicada que Brenda Manrique hace por su cuenta desde que se mudó a Berlín, y de la práctica independiente que empezó a desarrollar en serio hacia marzo de 2026. Está en fase de prototipos y validación: arquitectura, prototipos, infraestructura desplegada y experimentación con productos, más un sistema en producción, el agente de chat de este sitio. Todavía no hay clientes de pago.',
+      'Este es el build log de los proyectos de IA aplicada que Brenda Manrique construye por su cuenta desde que se mudó a Berlín. Es trabajo práctico para aprender qué hace falta para operar sistemas de IA pequeños de verdad, no un negocio: no ofrece servicios a través de este sitio. Casi todo son prototipos e infraestructura; un sistema está en producción, el agente de chat de este sitio.',
     sections: {
       why: {
         heading: 'La pregunta',
@@ -245,7 +245,7 @@ export const consultingContent: Record<CaseStudyLang, CaseStudyContent> = {
         blocks: [
           {
             kind: 'prose',
-            text: 'El agente de chat del portafolio es el banco de pruebas: una superficie pública y adversarial que obliga a que la recuperación, la evaluación, la seguridad y la observabilidad funcionen de verdad. Está en producción. El resto son prototipos e infraestructura, y todavía no hay clientes de pago.',
+            text: 'El agente de chat del portafolio es el banco de pruebas: una superficie pública y adversarial que obliga a que la recuperación, la evaluación, la seguridad y la observabilidad funcionen de verdad. Está en producción. El resto son prototipos e infraestructura.',
           },
         ],
       },
@@ -254,22 +254,22 @@ export const consultingContent: Record<CaseStudyLang, CaseStudyContent> = {
       heading: 'Preguntas frecuentes',
       items: [
         {
-          q: '¿Tiene clientes la práctica?',
-          a: 'Todavía no. Está en fase de prototipos y validación: arquitectura, prototipos, infraestructura desplegada y experimentación con productos, más el agente de chat del portafolio, que está en producción.',
+          q: '¿Es un negocio de consultoría?',
+          a: 'No. Es el build log de sus propios proyectos, una forma de profundizar en IA aplicada. No ofrece servicios ni acepta clientes a través de este sitio. Casi todo son prototipos e infraestructura; el agente de chat del portafolio está en producción.',
         },
         {
           q: '¿Cuándo empezó esto?',
-          a: 'La experimentación empezó tras mudarse a Berlín en 2025. Hacia marzo de 2026 se volvió más deliberado: construir la base técnica de una práctica independiente de IA aplicada.',
+          a: 'La experimentación empezó tras mudarse a Berlín en 2025. Hacia marzo de 2026 se volvió más deliberada, centrada en cómo se despliegan, se monitorizan y se revierten estos sistemas.',
         },
         {
-          q: '¿Está disponible también para un empleo?',
-          a: 'Sí. Busca su siguiente rol senior de ingeniería de software o de IA aplicada en paralelo a este trabajo.',
+          q: '¿Está buscando empleo?',
+          a: 'Sí. Busca su siguiente rol senior de ingeniería de software o de IA aplicada. Estos proyectos son parte de cómo mantiene su ingeniería al día.',
         },
       ],
     },
     cta: {
       heading: 'Hablemos',
-      body: 'Abierta a roles senior de ingeniería de software y de IA aplicada, y a conversaciones sobre flujos que merecen convertirse en software fiable.',
+      body: 'Abierta a roles senior de ingeniería de software y de IA aplicada. Encantada de hablar de cualquiera de estos temas.',
       ctaLabel: 'Conectar en LinkedIn',
       ctaHref: 'https://www.linkedin.com/in/brendastephanie/',
       secondaryLabel: 'Cómo se construyó el agente del portafolio',

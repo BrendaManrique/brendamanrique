@@ -22,8 +22,8 @@ export const GITHUB_URL = 'https://github.com/BrendaManrique'
 export const BOOKING_URL = 'https://cal.com/brendamanrique'
 
 /** Portrait used for avatars and author cards. */
-export const AVATAR_SM = '/brenda-portrait-sm.jpg'
-export const AVATAR = '/brenda-portrait.jpg'
+export const AVATAR_SM = '/brenda-illustrated-sm.jpg'
+export const AVATAR = '/brenda-illustrated.jpg'
 export const AVATAR_ALT = 'Portrait of Brenda Manrique'
 
 /**

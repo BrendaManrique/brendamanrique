@@ -18,7 +18,7 @@
  */
 
 import { build } from 'esbuild'
-import { parseMetadata } from '../api/_shared/langfuse-api.js'
+import { parseMetadata, fetchRootObservations } from '../api/_shared/langfuse-api.js'
 import http from 'node:http'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -119,6 +119,18 @@ function installFetchStub(collectorOrigin: string) {
         status: 404,
         headers: { 'Content-Type': 'application/json' },
       })
+    }
+
+    // Read side: a real root plus online_scoring, which Langfuse Cloud also
+    // returns under isRootObservation=true despite it having a parent.
+    if (url.includes('/api/public/v2/observations') && url.includes('isRootObservation=true')) {
+      return new Response(JSON.stringify({
+        data: [
+          { id: 'root-1', traceId: 't1', name: 'chat', parentObservationId: null },
+          { id: 'score-1', traceId: 't1', name: 'online_scoring', type: 'EVALUATOR', parentObservationId: 'root-1' },
+        ],
+        meta: { cursor: null },
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } })
     }
 
     // Langfuse OTLP ingestion goes through to the local collector untouched.
@@ -311,6 +323,16 @@ async function main() {
   assert(!!toolDecision && toolDecision.parentSpanId === root?.spanId,
     'tool_decision is a child of the root observation')
 
+  // online_scoring starts in waitUntil(), after the request's propagation scope
+  // has closed, so it only has sessionId if scoreTrace() reopens the scope.
+  const scoring = exported.find(s => s.name === 'online_scoring' && s.traceId === root?.traceId)
+  assert(!!scoring, 'online_scoring observation is exported into the chat trace')
+  if (scoring && root) {
+    assert(scoring.parentSpanId === root.spanId, 'online_scoring is a child of the root observation')
+    assert(scoring.attributes['session.id'] === 'session-under-test',
+      'sessionId propagates to the cost-bearing online_scoring evaluator')
+  }
+
   // --- voice-token -> voice-trace continuation ---
   console.log('\nVoice session continuation:')
   process.env.VITE_VOICE_ENABLED = 'true'
@@ -329,6 +351,14 @@ async function main() {
     const { traceId, traceparent } = await tokenRes.json()
     assert(typeof traceparent === 'string' && /^00-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$/.test(traceparent),
       'voice-token returns a W3C traceparent for cross-request continuation')
+
+    const ragSearch = await loadHandler('api/rag-search.js')
+    const ragRes = await ragSearch(new Request('https://example.test/api/rag-search', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: 'proyectos de IA', traceparent, sessionId: 'voice-session-1' }),
+    }))
+    assert(ragRes.status === 200, 'rag-search handler returns 200')
 
     const voiceTrace = await loadHandler('api/voice-trace.js')
     await voiceTrace(new Request('https://example.test/api/voice-trace', {
@@ -363,7 +393,27 @@ async function main() {
       assert(meta.durationMs === 42000 && meta.turnCount === 2,
         'voice session metadata the ops dashboard reads is present')
     }
+
+    // rag-search runs in its own request, outside voice-token's scope, so it
+    // must reopen the scope for its cost-bearing children to carry sessionId.
+    const voiceRag = voiceSpans.find(s => s.name === 'voice-rag')
+    const ragEmbedding = voiceSpans.find(s => s.name === 'embedding' && s.parentSpanId === voiceRag?.spanId)
+    assert(!!voiceRag, 'voice-rag observation is exported')
+    if (session && voiceRag) {
+      assert(voiceRag.traceId === session.traceId && voiceRag.parentSpanId === session.spanId,
+        'voice-rag attaches under the voice-session root')
+      assert(voiceRag.attributes['session.id'] === 'voice-session-1', 'voice-rag carries sessionId')
+    }
+    assert(!!ragEmbedding && ragEmbedding.attributes['session.id'] === 'voice-session-1',
+      'sessionId propagates to the cost-bearing voice RAG embedding')
   }
+
+  // --- Ops read path ---
+  console.log('\nOps read path:')
+  const roots = await fetchRootObservations({ from: new Date(Date.now() - 86400000).toISOString() })
+  const rootIds = (roots.data || []).map((o: { id: string }) => o.id)
+  assert(rootIds.length === 1 && rootIds[0] === 'root-1',
+    'fetchRootObservations lists one row per trace (parented online_scoring is dropped)')
 
   console.log(`\n${'='.repeat(50)}`)
   console.log(`Passed: ${passed}  Failed: ${failed}`)

@@ -692,12 +692,12 @@ export function useVoiceMode() {
   }, []);
 
   // Handle function calling (RAG search)
-  async function handleFunctionCall(callId: string, query: string, ws: WebSocket, _lang: string, _sessionId: string) {
+  async function handleFunctionCall(callId: string, query: string, ws: WebSocket, _lang: string, sessionId: string) {
     try {
       const res = await fetch('/api/rag-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, traceparent: traceparentRef.current, currentPage: currentPageRef.current }),
+        body: JSON.stringify({ query, traceparent: traceparentRef.current, sessionId, currentPage: currentPageRef.current }),
       });
 
       const { context, sources } = await res.json();

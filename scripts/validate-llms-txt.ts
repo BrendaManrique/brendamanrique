@@ -72,8 +72,8 @@ const PROOF_POINTS: ProofPoint[] = [
 
   // -- Truth boundaries (BRENDA-CONTENT §21) — the identity of this portfolio --
   {
-    source: 'truth boundaries → no clients yet',
-    terms: ['prototype and validation stage', 'no paying clients'],
+    source: 'truth boundaries → not a business, no clients',
+    terms: ['no practice or consulting business', 'no clients'],
   },
   {
     source: 'truth boundaries → no years-of-experience figure',

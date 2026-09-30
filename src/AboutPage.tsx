@@ -57,7 +57,7 @@ export default function AboutPage({ lang = 'es' }: { lang?: AboutLang }) {
         <header className="flex flex-col sm:flex-row items-center sm:items-start gap-6 mb-10">
           <img
             src={AVATAR_SM}
-            srcSet={`${AVATAR_SM} 96w, ${AVATAR} 227w`}
+            srcSet={`${AVATAR_SM} 128w, ${AVATAR} 400w`}
             sizes="96px"
             alt={AVATAR_ALT}
             className="w-24 h-24 rounded-full border-2 border-border shadow-lg object-cover"

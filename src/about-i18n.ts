@@ -23,7 +23,7 @@ export const aboutContent = {
     bio: [
       'Ingeniera de software senior. Su carrera ha pasado por varias superficies —investigación, accesibilidad, mercados financieros, sistemas de riesgo y crédito y ahora IA aplicada— pero el trabajo se ha mantenido consistente: entender un proceso complicado lo bastante bien como para convertirlo en software.',
       'Empezó con ingeniería de sistemas centrada en IA e investigación fractal en Perú. Después llegaron la IA para accesibilidad en NYU, el terminal de mercados en tiempo real de Money.Net, las carteras de derivados y las plataformas de riesgo de JPMorgan y la analítica de crédito en Moody\'s Analytics.',
-      'En agosto de 2025 dejó Moody\'s, se mudó de país y se estableció en Berlín. Desde entonces construye sistemas de IA aplicada, el agente de este portafolio y Casicornio. Desde marzo de 2026 desarrolla en serio la base técnica de una práctica independiente de IA aplicada, todavía en fase de prototipos y validación. También busca su siguiente puesto de ingeniería.',
+      'En agosto de 2025 dejó Moody\'s, se mudó de país y se estableció en Berlín. Desde entonces construye sistemas de IA aplicada, el agente de este portafolio y Casicornio. Desde marzo de 2026 esos proyectos se centran en desplegar y operar sistemas de IA pequeños, todavía en fase de prototipos. También busca su siguiente puesto de ingeniería.',
     ],
     seeking: 'Abierta a',
     roles: [
@@ -83,11 +83,11 @@ export const aboutContent = {
       },
       {
         q: '¿Qué está construyendo ahora?',
-        a: 'Sistemas pequeños de IA aplicada en Python y FastAPI, con recuperación, tool calling, flujos de aprobación humana y despliegues observables; el agente de chat de este portafolio, que está en producción; y Casicornio, una publicación independiente en español sobre startups, tecnología e IA. Desde marzo de 2026 desarrolla la base técnica de una práctica independiente de IA aplicada, todavía en fase de prototipos y validación.',
+        a: 'Sistemas pequeños de IA aplicada en Python y FastAPI, con recuperación, tool calling, flujos de aprobación humana y despliegues observables; el agente de chat de este portafolio, que está en producción; y Casicornio, una publicación independiente en español sobre startups, tecnología e IA. Son proyectos propios, casi todos en fase de prototipos.',
       },
       {
-        q: '¿Tiene clientes la práctica independiente?',
-        a: 'Todavía no. Está en fase de prototipos y validación: lo que existe hoy es arquitectura, prototipos, infraestructura desplegada y experimentación con productos, más el agente de chat de este sitio, que está en producción.',
+        q: '¿Ofrece servicios de consultoría?',
+        a: 'No. Sus proyectos de IA aplicada son trabajo propio, no un negocio: no ofrece servicios ni acepta clientes a través de este sitio. Lo que existe hoy son prototipos e infraestructura desplegada, más el agente de chat de este sitio, que está en producción.',
       },
       {
         q: '¿Cómo se contacta con ella?',
@@ -120,7 +120,7 @@ export const aboutContent = {
     bio: [
       'A senior software engineer. Her career has moved through several surfaces — research, accessibility, financial markets, risk and credit systems, and now applied AI — but the work has stayed consistent: understand a complicated process well enough to turn it into software.',
       'She started with AI-focused systems engineering and fractal research in Peru. Then came accessibility AI at NYU, a real-time market terminal at Money.Net, derivatives portfolios and risk platforms at JPMorgan, and credit analytics at Moody\'s Analytics.',
-      'In August 2025 she left Moody\'s, relocated internationally, and settled in Berlin. Since then she has been building applied-AI systems, this portfolio\'s agent, and Casicornio. Since March 2026 she has been seriously developing the technical foundation for an independent applied-AI practice, still in the prototype and validation stage. She is also looking for her next software-engineering role.',
+      'In August 2025 she left Moody\'s, relocated internationally, and settled in Berlin. Since then she has been building applied-AI systems, this portfolio\'s agent, and Casicornio. Since March 2026 those projects have focused on deploying and operating small AI systems, still in the prototype stage. She is also looking for her next software-engineering role.',
     ],
     seeking: 'Open to',
     roles: [
@@ -180,11 +180,11 @@ export const aboutContent = {
       },
       {
         q: 'What is she building now?',
-        a: 'Small applied-AI systems in Python and FastAPI, with retrieval, tool calling, human approval flows and observable deployments; this portfolio\'s chat agent, which is in production; and Casicornio, an independent Spanish-language publication on startups, technology and AI. Since March 2026 she has been developing the technical foundation for an independent applied-AI practice, still in the prototype and validation stage.',
+        a: 'Small applied-AI systems in Python and FastAPI, with retrieval, tool calling, human approval flows and observable deployments; this portfolio\'s chat agent, which is in production; and Casicornio, an independent Spanish-language publication on startups, technology and AI. These are her own projects, mostly in the prototype stage.',
       },
       {
-        q: 'Does the independent practice have clients?',
-        a: 'Not yet. It is in the prototype and validation stage: what exists today is architecture, prototypes, deployed infrastructure and product experimentation, plus this site\'s chat agent, which is in production.',
+        q: 'Does she offer consulting services?',
+        a: 'No. Her applied-AI projects are her own work, not a business: she does not offer services or take on clients through this site. What exists today is prototypes and deployed infrastructure, plus this site\'s chat agent, which is in production.',
       },
       {
         q: 'How do I contact her?',

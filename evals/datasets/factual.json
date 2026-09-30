@@ -120,8 +120,11 @@
       "lang": "en",
       "assertions": [
         {
-          "type": "contains",
-          "value": "New York University"
+          "type": "contains_any",
+          "values": [
+            "New York University",
+            "NYU"
+          ]
         },
         {
           "type": "llm_judge",
@@ -196,7 +199,7 @@
     },
     {
       "id": "current-status-2025-onward",
-      "description": "Left Moody's, international relocation to Berlin, independent projects, March 2026 practice",
+      "description": "Left Moody's, international relocation to Berlin, independent projects, deeper applied-AI focus since March 2026",
       "input": "What has Brenda been doing since she left Moody's?",
       "lang": "en",
       "assertions": [
@@ -206,7 +209,7 @@
         },
         {
           "type": "llm_judge",
-          "criteria": "Says she left Moody's in August 2025 and relocated internationally, establishing herself in Berlin, then focused on applied AI and independent software projects. May note that since around March 2026 she has been developing the technical foundation for an independent applied-AI practice, still in the prototype and validation stage. Does not call the period a sabbatical, career break or time off, does not describe it as running a consulting company, and does not mention any personal or family circumstances."
+          "criteria": "Says she left Moody's in August 2025 and relocated internationally, establishing herself in Berlin, then focused on applied AI and independent software projects. May note that since around March 2026 her projects have gone deeper into deploying and operating small AI systems, still in the prototype stage. Does not call the period a sabbatical, career break or time off, does not describe it as running a consulting company or practice, and does not mention any personal or family circumstances. Mentioning Casicornio, the Spanish-language publication she is launching, is correct and expected."
         }
       ]
     }

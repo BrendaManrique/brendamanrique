@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Download, Copy, Check, ExternalLink, Clock } from 'lucide-react'
 import { EditorModeProvider, EditorLabel, H2, StepList, Accordion } from './content-types'
 import { AUTHOR_NAME, AVATAR_SM, AVATAR_ALT, GITHUB_URL, LINKEDIN_URL } from '../site'
+import { openPrivacyChoices } from '../privacy-consent'
 
 // ---------------------------------------------------------------------------
 // Inline utilities
@@ -226,6 +227,10 @@ export function ArticleFooter({ lang }: ArticleFooterProps) {
         <Link to={lang === 'es' ? '/privacidad' : '/privacy'} className="hover:text-primary transition-colors">
           {lang === 'es' ? 'Privacidad' : 'Privacy'}
         </Link>
+        <span className="text-border">|</span>
+        <button type="button" onClick={openPrivacyChoices} className="hover:text-primary transition-colors">
+          {lang === 'es' ? 'Preferencias de privacidad' : 'Privacy choices'}
+        </button>
       </div>
     </footer>
   )

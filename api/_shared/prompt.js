@@ -1,4 +1,5 @@
 import FALLBACK from '../../chatbot-prompt.txt'
+import { reportError } from './errors.js'
 
 /**
  * Fetch the production system prompt from Langfuse prompt management.
@@ -20,6 +21,10 @@ export async function getSystemPrompt(client) {
       })
       return { text: prompt.prompt, version: prompt.version, prompt }
     }
-  } catch { /* fallback to file */ }
+  } catch (err) {
+    // The file fallback keeps the chat answering, but on a prompt that may be
+    // older than production's — worth knowing about.
+    reportError('prompt-fetch', err, { context: { fallback: 'chatbot-prompt.txt' } })
+  }
   return { text: FALLBACK, version: 'file', prompt: null }
 }

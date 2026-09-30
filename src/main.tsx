@@ -1,10 +1,10 @@
 import { StrictMode, lazy, Suspense, useState, useEffect, useRef, Component, type ReactNode, type ComponentType } from 'react'
 import { hydrateRoot, createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route, useLocation, Link } from 'react-router-dom'
-import { Analytics } from '@vercel/analytics/react'
 import './index.css'
 import App from './App.tsx'
 import GlobalNav from './GlobalNav.tsx'
+import PrivacyConsent from './PrivacyConsent.tsx'
 import { articleRegistry, getEsSlugs } from './articles/registry'
 import { LINKEDIN_URL, SITE_NAME } from './site'
 
@@ -192,7 +192,7 @@ const app = (
       </PageTransition>
       <GlobalChat />
       <GlobalMusic />
-      <Analytics />
+      <PrivacyConsent />
     </BrowserRouter>
   </StrictMode>
 )
