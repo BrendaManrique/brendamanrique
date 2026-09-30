@@ -37,7 +37,7 @@ const PROOF_POINTS: ProofPoint[] = [
   },
   {
     source: 'i18n.ts → hero',
-    terms: ['Agentic AI Systems Builder', '15+ years'],
+    terms: ['Senior Software Engineer', 'financial systems'],
   },
 
   // -- Experience (i18n.ts → experience) --
@@ -63,7 +63,7 @@ const PROOF_POINTS: ProofPoint[] = [
   },
   {
     source: 'articles/portfolio-agent-i18n.ts → evals',
-    terms: ['factual', 'boundary', 'attribution', 'status', 'retrieval', 'language', 'zero tolerance'],
+    terms: ['factual', 'boundary', 'attribution', 'status', 'retrieval', 'language', 'tested against factual, attribution and safety regressions'],
   },
   {
     source: 'chatbot-prompt.txt → third-person persona',
@@ -72,24 +72,32 @@ const PROOF_POINTS: ProofPoint[] = [
 
   // -- Truth boundaries (BRENDA-CONTENT §21) — the identity of this portfolio --
   {
-    source: 'truth boundaries → pre-scale',
-    terms: ['pre-scale', 'build and validation phase', 'no client roster'],
+    source: 'truth boundaries → no clients yet',
+    terms: ['prototype and validation stage', 'no paying clients'],
   },
   {
-    source: 'truth boundaries → permitted hard metrics',
-    terms: ['5,000 scorecard PDs', 'two working days'],
+    source: 'truth boundaries → no years-of-experience figure',
+    terms: ['No total years-of-experience figure'],
+  },
+  {
+    source: 'truth boundaries → Casicornio pre-launch',
+    terms: ['Casicornio has not launched'],
+  },
+  {
+    source: 'truth boundaries → team attribution at Moody\'s',
+    terms: ['built parts of it', 'did not design'],
   },
   {
     source: 'truth boundaries → fractal disclaimer',
-    terms: ['not a validated clinical', 'never be described as one'],
+    terms: ['research prototype, not a clinical diagnostic system'],
   },
   {
-    source: 'truth boundaries → sanitized Moody\'s case study',
-    terms: ['sanitized'],
+    source: 'truth boundaries → employer confidentiality',
+    terms: ['never internal', 'proprietary data flows'],
   },
   {
     source: 'truth boundaries → no German fluency',
-    terms: ['no German fluency is claimed'],
+    terms: ['does not work in German'],
   },
   {
     source: 'truth boundaries → no published email',

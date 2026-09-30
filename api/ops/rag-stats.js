@@ -38,9 +38,10 @@ export default async function handler(req) {
         `${supabaseUrl}/rest/v1/documents?select=metadata`,
         { headers },
       ),
-      // Get voice rate limits
+      // Rate limit counters. Chat and voice now share one table keyed by
+      // `scope`, so this reads both and splits them below.
       fetch(
-        `${supabaseUrl}/rest/v1/voice_rate_limits?select=*&order=window_start.desc&limit=10`,
+        `${supabaseUrl}/rest/v1/rate_limits?select=*&order=window_start.desc&limit=25`,
         { headers },
       ).catch(() => null),
     ])
@@ -63,19 +64,25 @@ export default async function handler(req) {
 
     // Rate limits
     let voiceRateLimits = []
+    let chatRateLimits = []
     if (rateLimitsRes?.ok) {
       const rlData = await rateLimitsRes.json()
-      voiceRateLimits = (rlData || []).map(r => ({
+      const rows = (rlData || []).map(r => ({
+        scope: r.scope || 'voice',
         ip: r.ip || r.client_ip || 'unknown',
         count: r.request_count || r.count || 0,
         windowStart: r.last_used || r.window_start || new Date().toISOString(),
       }))
+      // VoiceTab reads voiceRateLimits and must keep seeing voice rows only.
+      voiceRateLimits = rows.filter(r => r.scope === 'voice').slice(0, 10)
+      chatRateLimits = rows.filter(r => r.scope === 'chat').slice(0, 10)
     }
 
     return json({
       byArticle: chunks,
       totalChunks,
       voiceRateLimits,
+      chatRateLimits,
     })
   } catch (err) {
     return json({ error: err.message }, 500)

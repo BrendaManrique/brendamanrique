@@ -1,21 +1,10 @@
-import { Langfuse } from 'langfuse'
+import { startObservation, propagateAttributes } from '@langfuse/tracing'
 import { waitUntil } from '@vercel/functions'
 import { classifyIntent, containsFingerprint, sendJailbreakAlert } from './_shared/rag.js'
+import { initTracing, flushTracing, setTraceTags, parseTraceparent } from './_shared/langfuse.js'
 
 export const config = {
   runtime: 'edge',
-}
-
-let langfuseClient = null
-function getLangfuse() {
-  if (!langfuseClient && process.env.LANGFUSE_SECRET_KEY) {
-    langfuseClient = new Langfuse({
-      publicKey: process.env.LANGFUSE_PUBLIC_KEY,
-      secretKey: process.env.LANGFUSE_SECRET_KEY,
-      baseUrl: process.env.LANGFUSE_BASE_URL,
-    })
-  }
-  return langfuseClient
 }
 
 export default async function handler(req) {
@@ -24,17 +13,20 @@ export default async function handler(req) {
   }
 
   try {
-    const { traceId, sessionId, transcript = [], durationMs, lang } = await req.json()
+    const { traceparent, sessionId, transcript = [], durationMs, lang } = await req.json()
 
-    if (!traceId) {
-      return new Response(JSON.stringify({ error: 'Missing traceId' }), {
+    // v4 joins an existing trace through the parent span context carried by the
+    // traceparent that /api/voice-token issued, not by re-opening a trace id.
+    const parentSpanContext = parseTraceparent(traceparent)
+    if (!parentSpanContext) {
+      return new Response(JSON.stringify({ error: 'Missing or malformed traceparent' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       })
     }
 
-    const langfuse = getLangfuse()
-    if (!langfuse) {
+    const processor = await initTracing()
+    if (!processor) {
       return new Response(JSON.stringify({ ok: true }), {
         headers: { 'Content-Type': 'application/json' },
       })
@@ -73,43 +65,48 @@ export default async function handler(req) {
     const audioOutputCost = durationMin * (1 - userRatio) * 0.24
     const voiceTotalCost = audioInputCost + audioOutputCost
 
-    // Update trace with transcript and metadata
-    const trace = langfuse.trace({ id: traceId })
-    trace.update({
-      sessionId: sessionId || undefined,
-      tags: [...allTags],
-      metadata: {
-        durationMs,
-        turnCount: transcript.length,
-        userMessageCount: userMessages.length,
-        jailbreakDetected,
-        leakDetected,
-        cost: {
-          audioInput: audioInputCost,
-          audioOutput: audioOutputCost,
-          voice: voiceTotalCost,
-          total: voiceTotalCost,
-        },
+    // The session summary is a child of the voice-session root rather than an
+    // update to it: the root observation was exported when /api/voice-token
+    // returned, and a v4 observation is written once, when it ends. The ops
+    // dashboard reads voice session metadata off this observation.
+    await propagateAttributes(
+      { traceName: 'voice-session', ...(sessionId ? { sessionId } : {}) },
+      async () => {
+        const transcriptGen = startObservation('voice-transcript', {
+          input: userMessages.join('\n'),
+          output: assistantMessages.join('\n'),
+          model: 'gpt-realtime',
+          costDetails: {
+            input: audioInputCost,
+            output: audioOutputCost,
+            total: voiceTotalCost,
+          },
+          metadata: {
+            durationMs,
+            turnCount: transcript.length,
+            userMessageCount: userMessages.length,
+            jailbreakDetected,
+            leakDetected,
+            turns: transcript.length,
+            cost: {
+              audioInput: audioInputCost,
+              audioOutput: audioOutputCost,
+              voice: voiceTotalCost,
+              total: voiceTotalCost,
+            },
+          },
+        }, { asType: 'generation', parentSpanContext })
+        setTraceTags(transcriptGen, [...allTags])
+        transcriptGen.end()
       },
-    })
-
-    // Add transcript as a generation
-    trace.generation({
-      name: 'voice-transcript',
-      input: userMessages.join('\n'),
-      output: assistantMessages.join('\n'),
-      metadata: {
-        turns: transcript.length,
-        durationMs,
-      },
-    })
+    )
 
     // Send jailbreak alert if detected
     if (jailbreakDetected) {
       waitUntil(sendJailbreakAlert(`[VOICE JAILBREAK] ${userMessages.join(' | ')}`))
     }
 
-    await langfuse.flushAsync()
+    await flushTracing()
 
     return new Response(JSON.stringify({ ok: true }), {
       headers: { 'Content-Type': 'application/json' },

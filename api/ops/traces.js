@@ -1,4 +1,5 @@
-import { validateOpsAuth, langfuseAuth, langfuseBaseUrl } from '../_shared/ops-auth.js'
+import { validateOpsAuth } from '../_shared/ops-auth.js'
+import { fetchRootObservations, fetchScoresByTrace, parseIo, parseMetadata } from '../_shared/langfuse-api.js'
 
 export const config = { runtime: 'edge' }
 
@@ -10,113 +11,78 @@ export default async function handler(req) {
     const url = new URL(req.url)
     const days = parseInt(url.searchParams.get('days') || '7', 10)
     const limit = parseInt(url.searchParams.get('limit') || '50', 10)
-    const offset = parseInt(url.searchParams.get('offset') || '0', 10)
+    // v2 observations paginate by cursor, not offset. The dashboard's "load
+    // more" passes back the nextCursor from the previous page.
+    const cursor = url.searchParams.get('cursor') || undefined
     const lang = url.searchParams.get('lang')       // "es" or "en"
     const mode = url.searchParams.get('mode')       // "text" or "voice"
     const rag = url.searchParams.get('rag')         // "yes" or "no"
     const jailbreak = url.searchParams.get('jailbreak') // "true"
     const includeEvals = url.searchParams.get('includeEvals') === 'true'
 
-    const lfAuth = langfuseAuth()
-    if (!lfAuth) return json({ error: 'Langfuse not configured' }, 503)
-
     const from = new Date(Date.now() - days * 86400000).toISOString()
-    const base = langfuseBaseUrl()
+    const to = new Date().toISOString()
 
-    // Build Langfuse query params
-    const params = new URLSearchParams({
-      limit: String(limit),
-      offset: String(offset),
-      fromTimestamp: from,
+    // One row per trace: the trace's root observation, which under v4 carries
+    // the conversation's input/output and metadata.
+    const result = await fetchRootObservations({ from, to, limit, cursor })
+    if (result.error) return json({ error: result.error }, result.status)
+
+    // Tag filters are applied here rather than server-side: v2 exposes tags
+    // through the trace_context field group but has no tags query parameter,
+    // and the old endpoint could not negate a tag either.
+    const required = []
+    if (lang) required.push(lang)
+    if (mode === 'voice') required.push('voice')
+    if (rag) required.push(`rag:${rag}`)
+    if (jailbreak === 'true') required.push('jailbreak-attempt')
+
+    let filtered = result.data.filter(o => {
+      const tags = o.tags || []
+      if (!required.every(t => tags.includes(t))) return false
+      if (mode === 'text' && tags.includes('voice')) return false
+      if (!includeEvals && tags.some(t => t.startsWith('source:'))) return false
+      return true
     })
 
-    // Tag filters
-    const tagFilters = []
-    if (lang) tagFilters.push(lang)
-    if (mode === 'voice') tagFilters.push('voice')
-    if (rag) tagFilters.push(`rag:${rag}`)
-    if (jailbreak === 'true') tagFilters.push('jailbreak-attempt')
+    const traceIds = filtered.map(o => o.traceId).filter(Boolean)
+    const scoresByTrace = traceIds.length > 0 ? await fetchScoresByTrace({ from, to }) : {}
 
-    // Langfuse supports multiple tags params
-    for (const tag of tagFilters) {
-      params.append('tags', tag)
-    }
-
-    const tracesRes = await fetch(`${base}/api/public/traces?${params}`, {
-      headers: { Authorization: lfAuth },
-    })
-
-    if (!tracesRes.ok) {
-      return json({ error: `Langfuse error: ${tracesRes.status}` }, 502)
-    }
-
-    const tracesData = await tracesRes.json()
-    const traces = tracesData.data || []
-    // Client-side filters (Langfuse can't negate tags)
-    let filtered = traces
-    if (mode === 'text') {
-      filtered = filtered.filter(t => !(t.tags || []).includes('voice'))
-    }
-    if (!includeEvals) {
-      filtered = filtered.filter(t => !(t.tags || []).some(tag => tag.startsWith('source:')))
-    }
-    // Use filtered count (Langfuse totalItems includes filtered-out traces)
-    const total = filtered.length < parseInt(String(limit))
-      ? filtered.length + offset
-      : (tracesData.meta?.totalItems ?? filtered.length)
-
-    // Fetch scores for these traces
-    const traceIds = filtered.map(t => t.id)
-    let scoresByTrace = {}
-    if (traceIds.length > 0) {
-      const scoresRes = await fetch(
-        `${base}/api/public/scores?fromTimestamp=${encodeURIComponent(from)}`,
-        { headers: { Authorization: lfAuth } },
-      )
-      if (scoresRes.ok) {
-        const scoresData = await scoresRes.json()
-        const traceIdSet = new Set(traceIds)
-        for (const s of (scoresData.data || [])) {
-          if (traceIdSet.has(s.traceId)) {
-            if (!scoresByTrace[s.traceId]) scoresByTrace[s.traceId] = {}
-            scoresByTrace[s.traceId][s.name] = s.value
-          }
-        }
-      }
-    }
-
-    const data = filtered.map(t => {
-      // Detect lang from tags
-      const tags = t.tags || []
-      const lang = tags.includes('es') ? 'es' : tags.includes('en') ? 'en' : undefined
+    const data = filtered.map(o => {
+      const tags = o.tags || []
+      const meta = parseMetadata(o.metadata)
+      const detectedLang = tags.includes('es') ? 'es' : tags.includes('en') ? 'en' : undefined
 
       return {
-        id: t.id,
-        timestamp: t.timestamp,
-        name: t.name,
+        id: o.traceId,
+        timestamp: o.startTime,
+        name: o.traceName || o.name,
         tags,
         metadata: {
-          lang,
-          lastUserMessage: t.metadata?.lastUserMessage || summarizeInput(t.input),
-          messageCount: t.metadata?.messageCount,
-          cost: t.metadata?.cost,
-          latencyBreakdown: t.metadata?.latencyBreakdown,
-          ragUsed: t.metadata?.ragUsed,
-          sources: t.metadata?.sources,
-          ragDegraded: t.metadata?.ragDegraded,
-          degradedReason: t.metadata?.degradedReason,
-          promptVersion: t.metadata?.promptVersion,
-          durationMs: t.metadata?.durationMs,
-          turnCount: t.metadata?.turnCount,
-          userMessageCount: t.metadata?.userMessageCount,
-          jailbreakDetected: t.metadata?.jailbreakDetected,
-          leakDetected: t.metadata?.leakDetected,
+          lang: detectedLang,
+          lastUserMessage: meta.lastUserMessage || summarizeInput(parseIo(o.input)),
+          messageCount: meta.messageCount,
+          cost: meta.cost,
+          latencyBreakdown: meta.latencyBreakdown,
+          ragUsed: meta.ragUsed,
+          sources: meta.sources,
+          ragDegraded: meta.ragDegraded,
+          degradedReason: meta.degradedReason,
+          promptVersion: meta.promptVersion,
+          durationMs: meta.durationMs,
+          turnCount: meta.turnCount,
+          userMessageCount: meta.userMessageCount,
+          jailbreakDetected: meta.jailbreakDetected,
+          leakDetected: meta.leakDetected,
+          // Cost Langfuse itself computed from the observations' costDetails,
+          // independent of the hand-rolled breakdown above.
+          totalCost: o.totalCost,
         },
-        scores: scoresByTrace[t.id] || {},
+        scores: scoresByTrace[o.traceId] || {},
       }
     })
 
-    return json({ data, total })
+    return json({ data, nextCursor: result.cursor, total: data.length })
   } catch (err) {
     return json({ error: err.message }, 500)
   }
@@ -125,7 +91,6 @@ export default async function handler(req) {
 /** Extract first user message as a short preview */
 function summarizeInput(input) {
   if (!input) return null
-  // input is typically the messages array or the last user message
   if (typeof input === 'string') return input.slice(0, 200)
   if (Array.isArray(input)) {
     const last = input.filter(m => m.role === 'user').pop()

@@ -5,7 +5,7 @@
     {
       "id": "moodys-cites-moodys",
       "description": "Credit analytics detail must retrieve the Moody's article",
-      "input": "Explain the bulk qualitative overlay workflow in detail.",
+      "input": "Explain the qualitative overlay workflow in detail.",
       "lang": "en",
       "assertions": [
         {
@@ -17,7 +17,7 @@
         },
         {
           "type": "llm_judge",
-          "criteria": "Describes entity, base PD, qualitative categories, overall score, adjusted PD and implied rating, grounded in the Moody's case study."
+          "criteria": "Describes entity, base PD, qualitative categories, overall score, adjusted PD and implied rating, grounded in the Moody's case study, and frames it as team work she built parts of."
         }
       ]
     },
@@ -61,8 +61,8 @@
     },
     {
       "id": "consulting-cites-consulting",
-      "description": "Delivery model question must cite the consulting build log",
-      "input": "What does a repeatable client installation look like?",
+      "description": "Delivery-model question must cite the applied-AI build log",
+      "input": "What does a repeatable applied-AI deployment look like for her?",
       "lang": "en",
       "assertions": [
         {
@@ -77,7 +77,7 @@
     {
       "id": "fractal-cites-fractal",
       "description": "Fractal question must reach the article carrying the disclaimer",
-      "input": "Tell me about the Koch curve research on mole irregularity.",
+      "input": "Tell me about the fractal-dimension research on skin-lesion images.",
       "lang": "en",
       "assertions": [
         {
@@ -89,7 +89,7 @@
         },
         {
           "type": "llm_judge",
-          "criteria": "Includes the historical-research disclaimer: not a validated clinical diagnostic system."
+          "criteria": "States it was a research prototype, not a clinical diagnostic system."
         }
       ]
     },

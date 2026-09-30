@@ -1,4 +1,5 @@
-import { validateOpsAuth, langfuseAuth, langfuseBaseUrl } from '../../_shared/ops-auth.js'
+import { validateOpsAuth, langfuseBaseUrl } from '../../_shared/ops-auth.js'
+import { fetchTraceObservations, fetchScoresByTrace, parseIo, parseMetadata } from '../../_shared/langfuse-api.js'
 
 export const config = { runtime: 'edge' }
 
@@ -16,74 +17,55 @@ export default async function handler(req) {
       return json({ error: 'Missing trace ID' }, 400)
     }
 
-    const lfAuth = langfuseAuth()
-    if (!lfAuth) return json({ error: 'Langfuse not configured' }, 503)
-
-    const base = langfuseBaseUrl()
-
-    // Fetch trace, observations, and scores in parallel
-    const [traceRes, obsRes, scoresRes] = await Promise.all([
-      fetch(`${base}/api/public/traces/${traceId}`, {
-        headers: { Authorization: lfAuth },
-      }),
-      fetch(`${base}/api/public/observations?traceId=${traceId}`, {
-        headers: { Authorization: lfAuth },
-      }),
-      fetch(`${base}/api/public/scores?traceId=${traceId}`, {
-        headers: { Authorization: lfAuth },
-      }),
+    // GET /api/public/traces/{id} is deprecated. v2 returns the trace as its
+    // observations; the root observation carries what the trace object used to.
+    const [obsResult, scoresByTrace] = await Promise.all([
+      fetchTraceObservations(traceId),
+      fetchScoresByTrace({ traceId }),
     ])
 
-    if (!traceRes.ok) {
-      const status = traceRes.status === 404 ? 404 : 502
-      return json({ error: `Trace not found or Langfuse error: ${traceRes.status}` }, status)
-    }
+    if (obsResult.error) return json({ error: obsResult.error }, obsResult.status)
+    if (obsResult.data.length === 0) return json({ error: 'Trace not found' }, 404)
 
-    const trace = await traceRes.json()
+    const raw = obsResult.data
+    const root = raw.find(o => o.isRootObservation) || raw[0]
+    const rootMeta = parseMetadata(root.metadata)
 
-    // Observations
-    let observations = []
-    if (obsRes.ok) {
-      const obsData = await obsRes.json()
-      observations = (obsData.data || []).map(o => ({
-        id: o.id,
-        name: o.name,
-        type: o.type,
-        startTime: o.startTime,
-        endTime: o.endTime,
-        model: o.model,
-        input: o.input,
-        output: o.output,
-        metadata: o.metadata,
-        usage: o.usage,
-      }))
-    }
+    const observations = raw.map(o => ({
+      id: o.id,
+      name: o.name,
+      // v1 reported SCREAMING_CASE types; v2 reports the v4 observation types
+      // ('generation', 'span', 'embedding', 'retriever', …). Normalised to lower
+      // case, which is what the dashboard's rendering already matches on.
+      type: (o.type || '').toLowerCase(),
+      startTime: o.startTime,
+      endTime: o.endTime,
+      model: o.model,
+      input: parseIo(o.input),
+      output: parseIo(o.output),
+      metadata: parseMetadata(o.metadata),
+      usage: o.usageDetails,
+      costDetails: o.costDetails,
+      totalCost: o.totalCost,
+    })).sort((a, b) => String(a.startTime).localeCompare(String(b.startTime)))
 
-    // Scores — flatten to just values for frontend
-    let scores = {}
-    if (scoresRes.ok) {
-      const scoresData = await scoresRes.json()
-      for (const s of (scoresData.data || [])) {
-        scores[s.name] = s.value
-      }
-    }
-
-    // Build Langfuse UI link
-    const projectId = trace.projectId || ''
+    const projectId = root.projectId || ''
+    const base = langfuseBaseUrl()
     const langfuseUrl = projectId
       ? `${base}/project/${projectId}/traces/${traceId}`
       : `${base}/trace/${traceId}`
 
     return json({
-      id: trace.id,
-      name: trace.name,
-      timestamp: trace.timestamp,
-      tags: trace.tags || [],
-      metadata: trace.metadata,
-      input: trace.input,
-      output: trace.output,
+      id: traceId,
+      name: root.traceName || root.name,
+      timestamp: root.startTime,
+      tags: root.tags || [],
+      metadata: rootMeta,
+      // v4 deprecates trace-level input/output; the root observation holds them.
+      input: parseIo(root.input),
+      output: parseIo(root.output),
       observations,
-      scores,
+      scores: scoresByTrace[traceId] || {},
       langfuseUrl,
     })
   } catch (err) {

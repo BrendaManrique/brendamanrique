@@ -1,30 +1,21 @@
 import { config } from 'dotenv';
 config({ path: '.env.local' });
 
-const LANGFUSE_PUBLIC_KEY = process.env.LANGFUSE_PUBLIC_KEY!;
-const LANGFUSE_SECRET_KEY = process.env.LANGFUSE_SECRET_KEY!;
-const LANGFUSE_BASE_URL = process.env.LANGFUSE_BASE_URL || 'https://cloud.langfuse.com';
+import {
+  fetchTraces as listTraces,
+  fetchTraceDetail,
+  type Trace as LangfuseTrace,
+} from './langfuse-read';
 
-const AUTH = Buffer.from(`${LANGFUSE_PUBLIC_KEY}:${LANGFUSE_SECRET_KEY}`).toString('base64');
+// Credentials are read by ./langfuse-read from the same env vars.
+
+// Trace shape now comes from the v4 read helper: v1's trace endpoints are
+// deprecated, and a trace is read as its root observation plus children.
+type Trace = LangfuseTrace;
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
-}
-
-interface Trace {
-  id: string;
-  timestamp: string;
-  tags: string[];
-  metadata: {
-    lang?: string;
-    messageCount?: number;
-    lastUserMessage?: string;
-  };
-  observations?: Array<{
-    input?: Message[];
-    output?: string;
-  }>;
 }
 
 // Colores ANSI
@@ -74,47 +65,15 @@ async function fetchTraces(options: {
   limit?: number;
 }): Promise<Trace[]> {
   const { jailbreakOnly = false, days = 1, limit = 50 } = options;
-
-  const fromDate = new Date();
-  fromDate.setDate(fromDate.getDate() - days);
-
-  let url = `${LANGFUSE_BASE_URL}/api/public/traces?limit=${limit}&fromTimestamp=${fromDate.toISOString()}`;
-
-  if (jailbreakOnly) {
-    url += '&tags=jailbreak-attempt';
-  }
-
-  const response = await fetch(url, {
-    headers: { Authorization: `Basic ${AUTH}` },
-  });
-
-  if (!response.ok) {
-    console.log(`${colors.red}Error al conectar con Langfuse: ${response.status}${colors.reset}`);
-    return [];
-  }
-
-  const text = await response.text();
   try {
-    const data = JSON.parse(text);
-    return data.data || [];
-  } catch {
-    console.log(`${colors.red}Error parseando respuesta de Langfuse${colors.reset}`);
+    return await listTraces({
+      days,
+      limit,
+      tag: jailbreakOnly ? 'jailbreak-attempt' : undefined,
+    });
+  } catch (err) {
+    console.log(`${colors.red}Error al conectar con Langfuse: ${err instanceof Error ? err.message : 'desconocido'}${colors.reset}`);
     return [];
-  }
-}
-
-async function fetchTraceDetail(traceId: string): Promise<Trace | null> {
-  const response = await fetch(`${LANGFUSE_BASE_URL}/api/public/traces/${traceId}`, {
-    headers: { Authorization: `Basic ${AUTH}` },
-  });
-
-  if (!response.ok) return null;
-
-  const text = await response.text();
-  try {
-    return JSON.parse(text);
-  } catch {
-    return null;
   }
 }
 
@@ -158,8 +117,18 @@ function printConversation(trace: Trace) {
   console.log(`${colors.yellow}  📅 ${formatDate(trace.timestamp)}${colors.reset}  ${formatTags(trace.tags)}`);
   console.log(`${colors.dim}${'─'.repeat(62)}${colors.reset}`);
 
-  const messages = trace.observations?.[0]?.input || [];
-  const lastOutput = trace.observations?.[0]?.output;
+  // Under v4 the conversation lives on the trace's root observation: input is
+  // the user's message, output the assistant's answer. Older traces kept the
+  // message array on the first child observation, so both are handled.
+  const root = trace.observations?.find(o => o.type === 'span' || o.type === 'generation');
+  const rawInput = trace.input ?? root?.input;
+  const messages: Message[] = Array.isArray(rawInput)
+    ? (rawInput as Message[])
+    : typeof rawInput === 'string' && rawInput
+      ? [{ role: 'user', content: rawInput }]
+      : [];
+  const rawOutput = trace.output ?? root?.output;
+  const lastOutput = typeof rawOutput === 'string' ? rawOutput : undefined;
   let turnNumber = 1;
 
   for (const msg of messages) {

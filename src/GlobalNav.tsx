@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Sun, Moon, House, X, ChevronRight } from 'lucide-react'
 import { translations, type Lang } from './i18n'
 import { getAltPaths, getPageTitles, getSectionLabels, getEsSlugs } from './articles/registry'
-import { SITE_NAME } from './site'
+import { LANG_REDIRECT_KEY, SITE_NAME } from './site'
 
 /**
  * GlobalNav — unified navigation across all pages.
@@ -88,22 +88,13 @@ function useLang() {
 }
 
 function useTheme() {
-  const [isDark, setIsDark] = useState(true)
+  // Paper (light) is the default look; dark is opt-in via the toggle and
+  // remembered in localStorage. The inline bootstrap in index.html applies
+  // the same rule before first paint.
+  const [isDark, setIsDark] = useState(false)
 
   useEffect(() => {
     setIsDark(document.documentElement.classList.contains('dark'))
-  }, [])
-
-  useEffect(() => {
-    if (localStorage.getItem('theme')) return
-    const mq = window.matchMedia('(prefers-color-scheme: dark)')
-    const handler = (e: MediaQueryListEvent) => {
-      setIsDark(e.matches)
-      document.documentElement.classList.toggle('dark', e.matches)
-      document.documentElement.classList.toggle('light', !e.matches)
-    }
-    mq.addEventListener('change', handler)
-    return () => mq.removeEventListener('change', handler)
   }, [])
 
   const toggleTheme = useCallback(() => {
@@ -149,6 +140,11 @@ function useLanguageBanner(lang: Lang) {
   useEffect(() => {
     if (typeof navigator === 'undefined') return
     if (stored) return // already 'shown' or 'dismissed'
+    // "/" already redirected this visitor to /en once. Landing back on Spanish
+    // after that is a choice, not a mismatch worth interrupting.
+    try {
+      if (lang === 'es' && sessionStorage.getItem(LANG_REDIRECT_KEY)) return
+    } catch { /* storage blocked — fall through to the banner */ }
 
     const browserPrefersEn = !navigator.language.toLowerCase().startsWith('es')
     const mismatch = (lang === 'es' && browserPrefersEn) || (lang === 'en' && !browserPrefersEn)
@@ -351,23 +347,22 @@ export default function GlobalNav() {
     )
   }
 
-  // Home: controls always fixed at same position, banner bar grows behind them
+  // Home: the hero has its own nav row, so the banner drops *below* the
+  // controls as a floating pill instead of a full-width bar that would
+  // otherwise land on top of the hero nav links.
   if (!hydrated) return null
 
   return (
-    <>
-      {/* Translucent bar — appears/disappears without moving controls */}
+    <div className="fixed top-4 right-6 z-50 flex flex-col items-end gap-3">
+      {controls}
       {showBanner && (
         <div
-          className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-md border-b border-border"
-          style={{ height: 'calc(1rem + 2.5rem + 0.75rem)', ...(animateBanner ? fade('0.35s') : {}) }}
-        />
+          className="rounded-full border border-border bg-card/90 backdrop-blur-md shadow-lg px-4 py-2"
+          style={animateBanner ? fade('0.35s') : undefined}
+        >
+          {bannerMessage}
+        </div>
       )}
-      {/* Controls + banner — always at same fixed position */}
-      <div className="fixed top-4 right-6 z-50 flex items-center gap-3">
-        {bannerMessage}
-        {controls}
-      </div>
-    </>
+    </div>
   )
 }

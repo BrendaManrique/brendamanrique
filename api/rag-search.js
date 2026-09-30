@@ -1,10 +1,11 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { Langfuse } from 'langfuse'
+import { startObservation } from '@langfuse/tracing'
 import {
   searchPortfolio, formatChunksForContext, extractSources, calcCost,
   filterSourcesByResponse, detectMentionedArticles, HOME_SOURCE,
 } from './_shared/rag.js'
 import { getSystemPrompt } from './_shared/prompt.js'
+import { initTracing, flushTracing, getLangfuseClient, parseTraceparent } from './_shared/langfuse.js'
 
 export const config = {
   runtime: 'edge',
@@ -14,17 +15,6 @@ const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
-let langfuseClient = null
-function getLangfuse() {
-  if (!langfuseClient && process.env.LANGFUSE_SECRET_KEY) {
-    langfuseClient = new Langfuse({
-      publicKey: process.env.LANGFUSE_PUBLIC_KEY,
-      secretKey: process.env.LANGFUSE_SECRET_KEY,
-      baseUrl: process.env.LANGFUSE_BASE_URL,
-    })
-  }
-  return langfuseClient
-}
 
 // ---------------------------------------------------------------------------
 // Claude reasoning layer — turns raw RAG chunks into a verified answer
@@ -32,12 +22,16 @@ function getLangfuse() {
 
 const VOICE_OVERRIDE = `Spoken-conversation answer. Max 2-3 sentences. No markdown, no links. Natural spoken language. Be precise with the data in the context — never invent. ALWAYS speak in the THIRD PERSON about Brenda ("Brenda built...", "she worked on...") — you are Brenda's portfolio AI, never Brenda herself.`
 
-async function reasonWithClaude(query, formattedChunks, span, langfuse) {
+async function reasonWithClaude(query, formattedChunks, parent, lfClient) {
   const t0 = Date.now()
-  const reasoningSpan = span?.span({ name: 'claude-reasoning', metadata: { query } })
+  const reasoningSpan = parent?.startObservation(
+    'claude-reasoning',
+    { model: 'claude-sonnet-4-6', input: query },
+    { asType: 'generation' },
+  )
 
   try {
-    const { text: systemPromptText } = await getSystemPrompt(langfuse)
+    const { text: systemPromptText } = await getSystemPrompt(lfClient)
 
     const response = await Promise.race([
       client.messages.create({
@@ -77,18 +71,24 @@ async function reasonWithClaude(query, formattedChunks, span, langfuse) {
     const outputTokens = response.usage?.output_tokens || 0
     const latencyMs = Date.now() - t0
 
-    reasoningSpan?.end({
+    reasoningSpan?.update({
+      output: answer,
+      usageDetails: { input: inputTokens, output: outputTokens, total: inputTokens + outputTokens },
+      costDetails: { total: calcCost('claude-sonnet-4-6', inputTokens, outputTokens) },
       metadata: {
         inputTokens,
         outputTokens,
         latencyMs,
         cost: calcCost('claude-sonnet-4-6', inputTokens, outputTokens),
       },
-    })
+    }).end()
 
     return answer || null
   } catch (err) {
-    reasoningSpan?.end({ metadata: { error: err.message, latencyMs: Date.now() - t0 } })
+    reasoningSpan?.update({
+      level: 'ERROR', statusMessage: err.message,
+      metadata: { error: err.message, latencyMs: Date.now() - t0 },
+    }).end()
     return null // fallback to raw chunks
   }
 }
@@ -103,10 +103,13 @@ export default async function handler(req) {
   }
 
   try {
-    const { query, traceId, currentPage } = await req.json()
+    const { query, traceparent, currentPage } = await req.json()
 
-    if (!traceId) {
-      return new Response(JSON.stringify({ error: 'Missing traceId' }), {
+    // v4 attaches to the running voice session through the parent span context
+    // issued by /api/voice-token, not by re-opening a trace id.
+    const parentSpanContext = parseTraceparent(traceparent)
+    if (!parentSpanContext) {
+      return new Response(JSON.stringify({ error: 'Missing or malformed traceparent' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       })
@@ -119,13 +122,11 @@ export default async function handler(req) {
       })
     }
 
-    // Create span under existing voice trace if provided
-    const langfuse = getLangfuse()
-    let trace = null
-    if (langfuse && traceId) {
-      trace = langfuse.trace({ id: traceId })
-    }
-    const ragSpan = trace?.span({ name: 'voice-rag', metadata: { query } })
+    const processor = await initTracing()
+    const lfClient = getLangfuseClient()
+    const ragSpan = processor
+      ? startObservation('voice-rag', { input: query, metadata: { query } }, { parentSpanContext })
+      : null
 
     const t0 = Date.now()
 
@@ -138,7 +139,8 @@ export default async function handler(req) {
 
       const sources = ragResult.sources || []
 
-      ragSpan?.end({
+      ragSpan?.update({
+        output: formattedChunks,
         metadata: {
           chunksFound: ragResult.chunks?.length || 0,
           degraded: ragResult.degraded,
@@ -149,7 +151,7 @@ export default async function handler(req) {
       // Latency budget: skip Claude reasoning if RAG already took >1.5s
       const ragElapsedMs = Date.now() - t0
       const reasonedAnswer = (ragResult.chunks && ragElapsedMs <= 1500)
-        ? await reasonWithClaude(query, formattedChunks, trace, langfuse)
+        ? await reasonWithClaude(query, formattedChunks, ragSpan, lfClient)
         : null
 
       // Tier 1: Claude + RAG → reasoned answer
@@ -177,14 +179,17 @@ export default async function handler(req) {
         filteredSources = [HOME_SOURCE]
       }
 
-      if (langfuse) await langfuse.flushAsync()
+      ragSpan?.end()
+      await flushTracing()
 
       return new Response(JSON.stringify({ context, sources: filteredSources, currentPage }), {
         headers: { 'Content-Type': 'application/json' },
       })
     } catch (err) {
-      ragSpan?.end({ metadata: { error: err.message } })
-      if (langfuse) await langfuse.flushAsync()
+      ragSpan?.update({
+        level: 'ERROR', statusMessage: err.message, metadata: { error: err.message },
+      }).end()
+      await flushTracing()
 
       // Return empty context on timeout/error rather than failing
       return new Response(JSON.stringify({

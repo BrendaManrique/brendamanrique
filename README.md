@@ -28,15 +28,20 @@ An agent built truth-layer-first. It is **Brenda's portfolio AI** — it refers 
 - **Server-issued sessions.** A visitor gets a random server-side token and three questions. The count cannot be reset by refreshing; a server-generated visitor hash adds a second limit.
 - **Online scoring.** Every answer is scored for quality, groundedness and safety; low-scoring cases land in a queue.
 - **CI-gated evals.** Seven categories — factual, boundary, attribution, status, retrieval, language, safety — must pass before a change merges.
-- **Observability.** Tracing and a prompt registry via Langfuse, with a local fallback prompt so prompt retrieval is not a single point of failure.
+- **Observability.** Tracing and a prompt registry via Langfuse v4 (OpenTelemetry ingestion), with a local fallback prompt so prompt retrieval is not a single point of failure.
 - **Bilingual (ES/EN)** case studies with JSON-LD, prerendered HTML and cross-linked RAG.
 - **GEO-ready** — `llms.txt`, structured data, AI-crawler-friendly `robots.txt`.
 
-### The truth boundary is the product
+### Truth boundaries
 
-This portfolio deliberately refuses to claim scale it does not have. The consulting practice is **pre-scale, in a build and validation phase**. There is no client roster, no production-scale customer metrics, and no page implies otherwise.
+The agent is intentionally constrained to the evidence in this portfolio and is tested against factual, attribution and safety regressions. Concretely, the `boundary` and `attribution` eval categories enforce that it never:
 
-The only hard metrics anywhere on the site: **≈5,000 scorecard PDs**, **2 working days**, **15+ years**, and dated employment ranges. Everything else is qualitative — enforced by the `boundary` eval category, where the target score is zero tolerance.
+- claims clients, consulting revenue, subscribers or production adoption that do not exist;
+- states a total years-of-experience figure, or a Staff / Principal / Lead title;
+- turns team work at a previous employer into individual ownership;
+- reconstructs a previous employer's internal architecture or data flows.
+
+The dated employment ranges are the only numbers published on the site.
 
 ---
 
@@ -113,6 +118,7 @@ See [`evals/README.md`](evals/README.md).
 |---|---|
 | `npm run rag:sync` | Export article chunks → embed → ingest into Supabase |
 | `npm run prompt:sync` | Push `chatbot-prompt.txt` to the Langfuse prompt registry |
+| `npm run test:tracing` | Verify Langfuse v4 spans and edge bundling offline (no credentials needed) |
 | `npm run validate-articles` | Registry/SEO consistency check (build gate) |
 | `npm run validate-llms-txt` | Keeps `llms.txt` in sync with site content and truth boundaries |
 | `npm run chats` / `chats:tui` | Browse production conversations from the terminal |
@@ -186,15 +192,15 @@ chatbot-prompt.txt             # The agent's system prompt (synced to Langfuse)
 
 | Article | Subject |
 |---|---|
-| [Moody's Analytics](https://brendamanrique.com/moodys-credit-intelligence) | Credit analytics, qualitative overlays, stateful API design |
+| [Moody's Analytics](https://brendamanrique.com/moodys-credit-intelligence) | Credit rules in Python, qualitative overlays, stateful APIs |
 | [Financial systems](https://brendamanrique.com/financial-systems) | JPMorgan derivatives/risk, Money.Net terminal |
-| [Agentic AI consulting](https://brendamanrique.com/agentic-ai-consulting) | The practice build log — pre-scale, stated as such |
+| [Applied AI](https://brendamanrique.com/applied-ai) | Build log for the independent applied-AI work |
 | [Portfolio chat agent](https://brendamanrique.com/portfolio-chat-agent) | This system |
-| [Casicornio](https://brendamanrique.com/en/casicornio) | Spanish-language founder/technology publication |
+| [Casicornio](https://brendamanrique.com/en/casicornio) | Spanish-language technology publication, launching |
 | [Invip](https://brendamanrique.com/invip-accessibility-ai) | AI for visual accessibility, NYU 2015–2018 |
-| [Fractal dimension](https://brendamanrique.com/fractal-dimension) | 2010 research — **not** a clinical diagnostic system |
-| [Early projects](https://brendamanrique.com/early-projects) | Android thesis, Aquolity, experiments |
-| [The story](https://brendamanrique.com/story) | Why the current chapter is a build phase |
+| [Fractal dimension](https://brendamanrique.com/fractal-dimension) | 2010 research prototype — **not** a clinical diagnostic system |
+| [Early projects](https://brendamanrique.com/early-projects) | Thesis, Aquolity MVP, Tango and Solana prototypes |
+| [The story](https://brendamanrique.com/story) | Leaving Moody's, the move to Berlin, and now |
 
 ---
 
@@ -227,11 +233,16 @@ Un agente construido empezando por la capa de verdad. Es **la IA de portafolio d
 - **Evals con puerta en CI.** Siete categorías que deben pasar antes de fusionar.
 - **Observabilidad** con Langfuse y prompt de fallback local.
 
-### El límite de verdad es el producto
+### Límites de verdad
 
-Este portafolio se niega deliberadamente a afirmar una escala que no tiene. La práctica de consultoría está **pre-escala, en fase de construcción y validación**. No hay cartera de clientes ni métricas de producción, y ninguna página insinúa lo contrario.
+El agente está limitado a propósito a la evidencia del portafolio y se prueba contra regresiones factuales, de atribución y de seguridad. Las categorías `boundary` y `attribution` garantizan que nunca:
 
-Únicas métricas duras del sitio: **≈5.000 PDs de scorecard**, **2 días laborables**, **15+ años** y los rangos de empleo fechados. Todo lo demás es cualitativo, y lo protege la categoría de evals `boundary`, con tolerancia cero.
+- afirme clientes, ingresos de consultoría, suscriptores o adopción en producción que no existen;
+- publique una cifra total de años de experiencia, ni un título de Staff / Principal / Lead;
+- convierta trabajo de equipo de un empleador anterior en propiedad individual;
+- reconstruya la arquitectura interna o los flujos de datos de un empleador anterior.
+
+Las únicas cifras del sitio son los rangos de empleo fechados.
 
 ## Estructura y scripts
 

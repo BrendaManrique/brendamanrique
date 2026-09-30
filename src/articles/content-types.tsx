@@ -250,7 +250,7 @@ interface InfoCardProps {
 export function InfoCard({ heading, children, className, editorId }: InfoCardProps) {
   return (
     <EditorLabel name="InfoCard" id={editorId}>
-      <div className={`bg-card border border-border rounded-lg p-5 mb-6 hover:border-primary/20 transition-colors ${className ?? ''}`}>
+      <div className={`bg-card rounded-lg p-5 mb-6 transition-colors ${className ?? ''}`}>
         {heading && <p className="font-medium text-foreground mb-2">{heading}</p>}
         {children}
       </div>
@@ -278,7 +278,7 @@ export function CardStack({ items, className, editorId }: CardStackProps) {
     <EditorLabel name="CardStack" id={editorId}>
       <div className={`space-y-3 mb-4 ${className ?? ''}`}>
         {items.map((item, i) => (
-          <div key={i} className="bg-card border border-border rounded-lg p-4 hover:border-primary/20 transition-colors">
+          <div key={i} className="bg-card shadow-surface rounded-lg p-4 transition-colors">
             <p className="font-medium text-foreground text-sm mb-1">{item.title}</p>
             <p className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: String(item.detail) }} />
           </div>
@@ -420,7 +420,7 @@ export function StackGrid({ items, columns = 4, align = 'center', className, edi
     <EditorLabel name="StackGrid" id={editorId}>
       <div className={`grid grid-cols-2 ${colsMap[columns]} gap-3 mb-8 ${className ?? ''}`}>
         {items.map(s => (
-          <div key={s.name} className={`bg-card border border-border rounded-lg p-5 ${isLeft ? 'flex items-start gap-3' : 'flex flex-col items-center text-center'}`}>
+          <div key={s.name} className={`bg-card rounded-lg p-5 ${isLeft ? 'flex items-start gap-3' : 'flex flex-col items-center text-center'}`}>
             <div className={isLeft ? 'shrink-0 mt-0.5' : 'mb-3'}>{s.icon}</div>
             <div>
               <p className="font-medium text-foreground text-sm mb-1">{s.name}</p>
@@ -454,7 +454,7 @@ interface Photo1Props extends PhotoItem {
 export function Photo1({ src, alt, caption, loading = 'lazy', width, height, className, editorId }: Photo1Props) {
   return (
     <EditorLabel name="Photo1" id={editorId}>
-      <figure className={`rounded-lg overflow-hidden border border-border shadow-lg mb-6 ${className ?? ''}`}>
+      <figure className={`rounded-lg overflow-hidden shadow-lg mb-6 ${className ?? ''}`}>
         <img src={src} alt={alt} width={width} height={height} className="w-full h-auto min-h-[200px] object-contain bg-card" loading={loading} decoding="async" />
         {caption && <figcaption className="px-4 py-2 text-sm text-muted-foreground text-center bg-card">{caption}</figcaption>}
       </figure>
@@ -487,7 +487,7 @@ export function DiagramZoom({ src, hdSrc, alt, caption, loading = 'lazy', width,
   return (
     <EditorLabel name="DiagramZoom" id={editorId}>
       <figure
-        className={`relative rounded-lg overflow-hidden border border-border shadow-lg mb-6 group cursor-zoom-in ${className ?? ''}`}
+        className={`relative rounded-lg overflow-hidden shadow-lg mb-6 group cursor-zoom-in ${className ?? ''}`}
         onClick={() => setLightbox(true)}
       >
         <img
@@ -527,7 +527,7 @@ interface Photo2Props {
 export function Photo2({ items, caption, className, editorId }: Photo2Props) {
   return (
     <EditorLabel name="Photo2" id={editorId}>
-      <figure className={`rounded-lg overflow-hidden border border-border shadow-lg mb-6 ${className ?? ''}`}>
+      <figure className={`rounded-lg overflow-hidden shadow-lg mb-6 ${className ?? ''}`}>
         <div className="grid grid-cols-2 gap-0">
           {items.map(item => (
             <div key={item.src} className="overflow-hidden">
@@ -552,7 +552,7 @@ export function Photo3({ items, className, editorId }: Photo3Props) {
     <EditorLabel name="Photo3" id={editorId}>
       <div className={`grid grid-cols-3 gap-3 mb-6 ${className ?? ''}`}>
         {items.map(item => (
-          <figure key={item.src} className="rounded-lg overflow-hidden border border-border shadow-md">
+          <figure key={item.src} className="rounded-lg overflow-hidden shadow-md">
             <img src={item.src} alt={item.alt} width={item.width} height={item.height} className="w-full h-auto" loading={item.loading ?? 'lazy'} decoding="async" />
           </figure>
         ))}
@@ -581,7 +581,7 @@ export function ToolList({ items, className, editorId }: ToolListProps) {
     <EditorLabel name="ToolList" id={editorId}>
       <div className={`grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 ${className ?? ''}`}>
         {items.map(tool => (
-          <div key={tool.name} className="rounded-lg border border-border/50 bg-muted/30 px-4 py-3">
+          <div key={tool.name} className="rounded-lg bg-muted/60 px-4 py-3">
             <code className="text-sm text-primary font-mono font-semibold">{tool.name}</code>
             <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{tool.desc}</p>
           </div>
@@ -611,7 +611,7 @@ export function ConditionList({ items, className, editorId }: ConditionListProps
     <EditorLabel name="ConditionList" id={editorId}>
       <div className={`space-y-3 mb-6 ${className ?? ''}`}>
         {items.map((f, i) => (
-          <div key={i} className="rounded-lg border border-border/50 bg-muted/30 px-4 py-3">
+          <div key={i} className="rounded-lg bg-muted/60 px-4 py-3">
             <span className="text-sm font-semibold text-primary">{f.condition}</span>
             <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{f.action}</p>
           </div>
@@ -742,7 +742,7 @@ export function CodeBlock({ children, segments, highlight = 'code', className, e
     const fullCode = segments.map(s => s.code).join('\n\n')
     return (
       <EditorLabel name="CodeBlock" id={editorId}>
-        <div className={`relative bg-[hsl(var(--codeblock))] border border-border rounded-lg overflow-hidden mb-6 ${className ?? ''}`}>
+        <div className={`relative bg-[hsl(var(--codeblock))] rounded-lg overflow-hidden mb-6 ${className ?? ''}`}>
           <CodeCopyButton text={fullCode} />
           {segments.map((seg, i) => (
             <div key={i}>
@@ -766,7 +766,7 @@ export function CodeBlock({ children, segments, highlight = 'code', className, e
     <EditorLabel name="CodeBlock" id={editorId}>
       <div className="relative">
         {text && <CodeCopyButton text={text} />}
-        <pre className={`bg-[hsl(var(--codeblock))] border border-border rounded-lg p-5 text-sm leading-[1.7] overflow-x-auto whitespace-pre-wrap font-mono text-[hsl(var(--codeblock-text))] mb-6 ${className ?? ''}`}>
+        <pre className={`bg-[hsl(var(--codeblock))] rounded-lg p-5 text-sm leading-[1.7] overflow-x-auto whitespace-pre-wrap font-mono text-[hsl(var(--codeblock-text))] mb-6 ${className ?? ''}`}>
           {text ? highlightCode(text, highlight) : children}
         </pre>
       </div>
@@ -809,7 +809,7 @@ export function Accordion({ items, variant = 'simple', className, editorId }: Ac
       <div className={`space-y-3 mb-8 ${className ?? ''}`}>
         {variant === 'simple'
           ? (items as readonly AccordionSimpleItem[]).map((item, i) => (
-              <details key={i} className="group bg-card border border-border rounded-lg">
+              <details key={i} className="group bg-card shadow-surface-lift rounded-lg">
                 <summary className="px-5 py-4 cursor-pointer font-medium text-foreground text-sm flex items-center justify-between">
                   {item.title}
                   <ChevronRight className="w-4 h-4 text-muted-foreground group-open:rotate-90 transition-transform shrink-0" />
@@ -820,7 +820,7 @@ export function Accordion({ items, variant = 'simple', className, editorId }: Ac
               </details>
             ))
           : (items as readonly AccordionRichItem[]).filter(isRichItem).map((flow, i) => (
-              <details key={i} className="group bg-card border border-border rounded-lg">
+              <details key={i} className="group bg-card shadow-surface-lift rounded-lg">
                 <summary className="px-5 py-4 cursor-pointer flex items-start gap-3">
                   {flow.icon && <span className="text-lg">{flow.icon}</span>}
                   <div className="flex-1 min-w-0">
@@ -1027,7 +1027,7 @@ function ScreenshotFigure({ src, alt, summaryEn, lang, width, height, className 
   const [hovered, setHovered] = useState(false)
   return (
     <figure
-      className={`bg-card border border-border rounded-lg overflow-hidden relative ${showOverlay ? 'cursor-pointer' : ''} ${className ?? ''}`}
+      className={`bg-card rounded-lg overflow-hidden relative ${showOverlay ? 'cursor-pointer' : ''} ${className ?? ''}`}
       onMouseEnter={showOverlay ? () => setHovered(true) : undefined}
       onMouseLeave={showOverlay ? () => setHovered(false) : undefined}
       onClick={showOverlay ? () => setHovered(h => !h) : undefined}
@@ -1131,7 +1131,7 @@ interface DetailCardProps {
 export function DetailCard({ icon, title, description, children, className, editorId }: DetailCardProps) {
   return (
     <EditorLabel name="DetailCard" id={editorId}>
-      <div className={`bg-card border border-border rounded-lg p-5 hover:border-primary/20 transition-colors ${className ?? ''}`}>
+      <div className={`bg-card rounded-lg p-5 transition-colors ${className ?? ''}`}>
         {icon && (
           <div className="flex items-center gap-2 mb-2">
             {icon}
@@ -1242,7 +1242,7 @@ export function FloatingToc({ ctas }: { ctas?: TocCta[] } = {}) {
             <button
               key={i}
               onClick={() => scrollTo(targetId)}
-              className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-primary/10 border border-primary/20 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
+              className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
             >
               <Rocket className="w-3.5 h-3.5 flex-shrink-0" />
               <span className="truncate">{cta.label}</span>
@@ -1269,7 +1269,7 @@ export function FloatingToc({ ctas }: { ctas?: TocCta[] } = {}) {
             href={cta.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-primary/10 border border-primary/20 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
+            className="flex items-center gap-2 w-full px-3 py-2 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/15 transition-colors"
           >
             <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.438 9.8 8.205 11.387.6.113.82-.26.82-.577 0-.285-.01-1.04-.015-2.04-3.338.725-4.042-1.61-4.042-1.61-.546-1.385-1.335-1.755-1.335-1.755-1.09-.745.085-.73.085-.73 1.205.085 1.84 1.24 1.84 1.24 1.07 1.835 2.807 1.305 3.492.997.107-.775.42-1.305.762-1.605-2.665-.305-5.467-1.335-5.467-5.93 0-1.31.465-2.38 1.235-3.22-.135-.305-.54-1.525.105-3.175 0 0 1.005-.325 3.3 1.23.96-.265 1.98-.395 3-.4 1.02.005 2.04.135 3 .4 2.28-1.555 3.285-1.23 3.285-1.23.645 1.65.24 2.87.12 3.175.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.1.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.295 24 12c0-6.63-5.37-12-12-12z"/>
@@ -1333,7 +1333,7 @@ export function FloatingToc({ ctas }: { ctas?: TocCta[] } = {}) {
       {/* Mobile/Tablet: hamburger in header + slide-down panel */}
       <button
         onClick={() => setTocOpen(o => !o)}
-        className="xl:hidden fixed top-[1.05rem] left-4 z-[60] w-9 h-9 rounded-lg bg-card border border-border flex items-center justify-center hover:border-primary/50 transition-colors"
+        className="xl:hidden fixed top-[1.05rem] left-4 z-[60] w-9 h-9 rounded-lg bg-card shadow-surface flex items-center justify-center transition-colors"
         aria-label="Toggle table of contents"
       >
         {tocOpen ? <X className="w-4 h-4 text-primary" /> : <List className="w-4 h-4 text-muted-foreground" />}
@@ -1341,7 +1341,7 @@ export function FloatingToc({ ctas }: { ctas?: TocCta[] } = {}) {
       {tocOpen && (
         <>
           <div className="xl:hidden fixed inset-0 bg-background/60 backdrop-blur-sm z-40" onClick={() => setTocOpen(false)} />
-          <div className="xl:hidden fixed top-14 left-4 z-50 w-72 max-h-[70vh] overflow-y-auto bg-card border border-border rounded-xl shadow-xl p-4">
+          <div className="xl:hidden fixed top-14 left-4 z-50 w-72 max-h-[70vh] overflow-y-auto bg-card rounded-xl shadow-xl p-4">
             {tocNav}
             {ctaBlock}
           </div>
@@ -1368,7 +1368,7 @@ export function AudioPlayer({ editorId, items, lang }: { editorId?: string; item
     <EditorLabel name="AudioPlayer" id={editorId}>
       <div className="space-y-4 mb-6">
         {items.map((item, i) => (
-          <div key={i} className="rounded-xl border border-border bg-card/50 p-4">
+          <div key={i} className="rounded-xl bg-card shadow-surface/50 p-4">
             <div className="flex items-center gap-3 mb-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-primary">{item.label}</span>
             </div>
@@ -1483,7 +1483,7 @@ export function ArchitectureDiagram({ src, thumbnail, alt, label, subtitle, edit
         className="relative rounded-2xl p-[1.5px] bg-gradient-theme mb-8 cursor-pointer group"
         onClick={() => setOpen(true)}
       >
-        <div className="rounded-[calc(1rem-1.5px)] overflow-hidden bg-card">
+        <div className="rounded-[calc(1rem-1.5px)] overflow-hidden bg-card shadow-surface">
           <img
             src={thumbnail}
             alt={alt}
@@ -1498,7 +1498,7 @@ export function ArchitectureDiagram({ src, thumbnail, alt, label, subtitle, edit
               <p className="font-display font-semibold text-foreground">{label}</p>
               {subtitle && <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>}
             </div>
-            <span className="px-4 py-2 rounded-lg bg-primary/10 border border-primary/30 text-sm font-medium text-primary group-hover:bg-primary/20 group-hover:border-primary/50 transition-all">
+            <span className="px-4 py-2 rounded-lg bg-primary/10 text-sm font-medium text-primary group-hover:bg-primary/20 group- transition-all">
               <ZoomIn className="w-4 h-4 inline mr-1.5 -mt-0.5" />
               Explorar
             </span>
@@ -1511,7 +1511,7 @@ export function ArchitectureDiagram({ src, thumbnail, alt, label, subtitle, edit
         <div className="fixed inset-0 top-14 z-[35] bg-background">
           <button
             onClick={() => setOpen(false)}
-            className="absolute top-3 right-4 z-10 w-9 h-9 rounded-lg bg-card border border-border flex items-center justify-center hover:border-primary/50 transition-colors"
+            className="absolute top-3 right-4 z-10 w-9 h-9 rounded-lg bg-card shadow-surface flex items-center justify-center transition-colors"
             aria-label="Close diagram"
           >
             <X className="w-4 h-4 text-muted-foreground" />

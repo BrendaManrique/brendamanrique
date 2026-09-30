@@ -83,7 +83,7 @@ export default function AboutPage({ lang = 'es' }: { lang?: AboutLang }) {
         </header>
 
         {/* Status — the defining honesty of this portfolio, stated up front */}
-        <p className="inline-flex items-center gap-2 mb-6 px-3.5 py-2 text-sm font-medium rounded-full bg-primary/10 text-primary border border-primary/20">
+        <p className="inline-flex items-center gap-2 mb-6 px-3.5 py-2 text-sm font-medium rounded-full bg-primary/10 text-primary">
           <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
           {t.statusLabel}
         </p>
@@ -96,7 +96,7 @@ export default function AboutPage({ lang = 'es' }: { lang?: AboutLang }) {
         {/* Story CTA */}
         <Link
           to={t.storyCta.href}
-          className="flex items-center justify-between mb-10 p-4 rounded-lg bg-primary/5 border border-primary/20 hover:border-primary/50 hover:bg-primary/10 transition-all group"
+          className="flex items-center justify-between mb-10 p-4 rounded-lg bg-primary/5 hover:bg-primary/10 transition-all group"
         >
           <div>
             <p className="font-medium text-primary text-sm group-hover:text-primary transition-colors">{t.storyCta.label}</p>
@@ -115,11 +115,11 @@ export default function AboutPage({ lang = 'es' }: { lang?: AboutLang }) {
         </section>
 
         {/* Seeking */}
-        <section className="mb-10 p-4 rounded-lg bg-primary/5 border border-primary/20">
+        <section className="mb-10 p-4 rounded-lg bg-primary/5">
           <p className="text-sm font-medium text-primary mb-2">{t.seeking}</p>
           <div className="flex flex-wrap gap-2 mb-3">
             {t.roles.map((role) => (
-              <span key={role} className="px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
+              <span key={role} className="px-3 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
                 {role}
               </span>
             ))}
@@ -135,7 +135,7 @@ export default function AboutPage({ lang = 'es' }: { lang?: AboutLang }) {
           </h2>
           <div className="space-y-3">
             {t.timeline.map((item) => (
-              <div key={item.period} className="flex gap-4 p-3 rounded-lg bg-card border border-border">
+              <div key={item.period} className="flex gap-4 p-3 rounded-lg bg-card shadow-surface">
                 <span className="text-xs font-mono text-primary whitespace-nowrap pt-0.5">{item.period}</span>
                 <div>
                   <p className="font-medium text-foreground text-sm">{item.role}</p>
@@ -157,7 +157,7 @@ export default function AboutPage({ lang = 'es' }: { lang?: AboutLang }) {
               <Link
                 key={project.name}
                 to={project.href}
-                className="flex items-center justify-between p-3 rounded-lg bg-card border border-border hover:border-primary/30 hover:bg-primary/5 transition-all group"
+                className="flex items-center justify-between p-3 rounded-lg bg-card shadow-surface hover:bg-primary/5 transition-all group"
               >
                 <div>
                   <p className="font-medium text-foreground text-sm group-hover:text-primary transition-colors">{project.name}</p>
@@ -177,7 +177,7 @@ export default function AboutPage({ lang = 'es' }: { lang?: AboutLang }) {
           </h2>
           <div className="space-y-3">
             {t.skills.map((group) => (
-              <div key={group.area} className="p-3 rounded-lg bg-card border border-border">
+              <div key={group.area} className="p-3 rounded-lg bg-card shadow-surface">
                 <p className="font-medium text-foreground text-sm mb-2">{group.area}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {group.items.map((item) => (
@@ -232,7 +232,7 @@ export default function AboutPage({ lang = 'es' }: { lang?: AboutLang }) {
           </h2>
           <div className="space-y-4">
             {t.faq.map((item) => (
-              <div key={item.q} className="p-4 rounded-lg bg-card border border-border">
+              <div key={item.q} className="p-4 rounded-lg bg-card shadow-surface">
                 <p className="font-medium text-foreground text-sm mb-2">{item.q}</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">{item.a}</p>
               </div>
@@ -253,7 +253,7 @@ export default function AboutPage({ lang = 'es' }: { lang?: AboutLang }) {
                 href={link.url}
                 target="_blank"
                 rel={link.rel ?? 'noopener noreferrer'}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card border border-border text-sm text-muted-foreground hover:text-foreground hover:border-primary/30 transition-all"
+                className="flex items-center gap-2 px-3 py-2 rounded-lg bg-card shadow-surface text-sm text-muted-foreground hover:text-foreground transition-all"
               >
                 <ExternalLink className="w-3 h-3 text-primary shrink-0" />
                 {link.name}

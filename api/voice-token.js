@@ -1,4 +1,6 @@
-import { Langfuse } from 'langfuse'
+import { startObservation, propagateAttributes } from '@langfuse/tracing'
+import { initTracing, flushTracing, setTraceTags, toTraceparent } from './_shared/langfuse.js'
+import { VOICE_LIMIT, checkRateLimit, getClientIp, rateLimitHeaders } from './_shared/ratelimit.js'
 
 export const config = {
   runtime: 'edge',
@@ -8,71 +10,15 @@ export const config = {
 // Langfuse (singleton)
 // ---------------------------------------------------------------------------
 
-let langfuseClient = null
-function getLangfuse() {
-  if (!langfuseClient && process.env.LANGFUSE_SECRET_KEY) {
-    langfuseClient = new Langfuse({
-      publicKey: process.env.LANGFUSE_PUBLIC_KEY,
-      secretKey: process.env.LANGFUSE_SECRET_KEY,
-      baseUrl: process.env.LANGFUSE_BASE_URL,
-    })
-  }
-  return langfuseClient
-}
 
 // ---------------------------------------------------------------------------
-// Rate limiting via Supabase
+// Rate limiting
+//
+// Now shares api/_shared/ratelimit.js with the chat endpoint. The limiter that
+// lived here read the count and wrote it back in two round trips, so parallel
+// requests all read the same value and all passed — on the most expensive call
+// on the site. The RPC it now calls increments atomically.
 // ---------------------------------------------------------------------------
-
-const MAX_SESSIONS_PER_IP = 3
-const WINDOW_MS = 24 * 60 * 60 * 1000 // 24 hours
-
-async function checkRateLimit(ip) {
-  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    return { allowed: true, remaining: MAX_SESSIONS_PER_IP }
-  }
-
-  const supabaseUrl = process.env.SUPABASE_URL
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-  const headers = {
-    'apikey': supabaseKey,
-    'Authorization': `Bearer ${supabaseKey}`,
-    'Content-Type': 'application/json',
-    'Prefer': 'return=representation',
-  }
-
-  // Check current count
-  const windowStart = new Date(Date.now() - WINDOW_MS).toISOString()
-  const checkRes = await fetch(
-    `${supabaseUrl}/rest/v1/voice_rate_limits?ip=eq.${encodeURIComponent(ip)}&window_start=gte.${windowStart}&select=count`,
-    { headers },
-  )
-
-  if (!checkRes.ok) {
-    // If table doesn't exist or error, allow (fail open)
-    return { allowed: true, remaining: MAX_SESSIONS_PER_IP }
-  }
-
-  const rows = await checkRes.json()
-  const currentCount = rows[0]?.count || 0
-
-  if (currentCount >= MAX_SESSIONS_PER_IP) {
-    return { allowed: false, remaining: 0 }
-  }
-
-  // Increment
-  await fetch(`${supabaseUrl}/rest/v1/voice_rate_limits`, {
-    method: 'POST',
-    headers: { ...headers, 'Prefer': 'resolution=merge-duplicates' },
-    body: JSON.stringify({
-      ip,
-      count: currentCount + 1,
-      window_start: rows.length > 0 ? undefined : new Date().toISOString(),
-    }),
-  }).catch(() => {}) // non-critical
-
-  return { allowed: true, remaining: MAX_SESSIONS_PER_IP - currentCount - 1 }
-}
 
 // ---------------------------------------------------------------------------
 // Voice system prompt (adapted for speech — shorter, no markdown)
@@ -129,30 +75,34 @@ const VOICE_BASE_PROMPT = `You are Brenda's portfolio AI representative, talking
 
 ## About Brenda (for greetings and basic context)
 
-- Brenda Manrique — Agentic AI Systems Builder; full-stack and financial-systems engineer.
-- 15+ years in production software across finance, analytics and intelligent systems.
+- Brenda Manrique — Senior Software Engineer; full-stack, financial systems, applied AI.
+- Never state a total number of years of experience. Give the dated roles instead.
 - Based in Berlin, Germany; works remotely. Previously New York and Peru.
-- Since August 2025 she is in a deliberate build and validation phase — intentionally pre-scale.
-- Open to senior software / applied-AI roles, and to companies with operational workflows worth turning into reliable agentic systems.
+- Since August 2025: independent software and AI projects in Berlin, after leaving Moody's and relocating internationally. Never call that period a sabbatical or a career break, and do not editorialise about whether the departure was voluntary.
+- Looking for her next senior software engineering or applied-AI role.
 - Through-line: understand a complicated process well enough to turn it into software.
 
 Projects (use search_portfolio for ANY detail — ZERO metrics from memory):
-- Moody's Analytics — credit analytics, scorecards, qualitative overlays, stateful API design
-- JPMorgan + Money.Net — derivatives, risk platforms, a market-data terminal built from scratch
-- Agentic AI consulting practice — in build
-- This portfolio chat agent — live
-- Casicornio — Spanish-language founder/technology publication
-- Invip (accessibility AI), fractal-dimension research, early Android/Aquolity projects
+- Moody's Analytics (Predictive Analytics, New York) — credit rules in Python, qualitative overlays (team work), stateful API design
+- JPMorgan Asset Management — led frontend engineering for a derivatives portfolio app on Athena
+- Money.Net — joined while the new markets terminal was being created; coded the initial frontend
+- Independent applied-AI systems — prototypes, no paying clients yet
+- This portfolio chat agent — in production
+- Casicornio — Spanish-language technology publication, launching
+- Invip (accessibility, computer vision + Alexa), fractal-dimension research, early thesis and Aquolity MVP
 
 RULE: use search_portfolio whenever the question could be answered from the portfolio. When in doubt, SEARCH. Answer without searching only for greetings, contact or clearly off-topic questions. Searching is cheap — inventing is unacceptable.
 
 ## Truth boundaries (critical)
 
-- The consulting practice is pre-scale, in build and validation phase. NEVER imply a client roster, revenue or production-scale customer metrics.
-- The fractal-dimension work is historical research. It is NOT a clinical diagnostic system — say so plainly whenever it comes up.
-- Casicornio is an operating project, not a large media business.
+- The independent practice is in the prototype and validation stage. NEVER imply clients, revenue, users or production adoption.
+- Casicornio has not launched. Never mention subscribers, audience or revenue.
+- The fractal-dimension work was a research prototype, NOT a clinical diagnostic system — say so plainly whenever it comes up.
+- Moody's work was largely team work. Say "contributed to" or "built parts of". Never describe employers' internal architecture.
+- Never say "high-frequency" about Money.Net. Say real-time, high-volume market data.
+- Never mention LLMs in connection with Invip.
 - Brenda works in English and Spanish. Never claim German fluency.
-- The only hard numbers that may be spoken: roughly 5,000 scorecard PDs, two working days, 15+ years, and the dated employment ranges.
+- The only numbers that may be spoken are the dated employment ranges. No performance metrics exist on this site.
 
 ## How to use search_portfolio results (critical)
 
@@ -223,17 +173,20 @@ export default async function handler(req) {
     const { lang = 'es', sessionId } = await req.json()
 
     // Rate limiting
-    const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
-    const rateLimit = await checkRateLimit(ip)
+    const ip = getClientIp(req)
+    const rateLimit = await checkRateLimit({ ...VOICE_LIMIT, ip })
     if (!rateLimit.allowed) {
       return new Response(JSON.stringify({
         error: 'rate_limited',
         message: lang === 'en'
-          ? 'You have reached the limit of 3 voice sessions per day'
-          : 'Has alcanzado el límite de 3 sesiones de voz por día',
+          ? `You have reached the limit of ${VOICE_LIMIT.max} voice sessions per day`
+          : `Has alcanzado el límite de ${VOICE_LIMIT.max} sesiones de voz por día`,
       }), {
         status: 429,
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...rateLimitHeaders(rateLimit, VOICE_LIMIT.max),
+        },
       })
     }
 
@@ -291,23 +244,32 @@ export default async function handler(req) {
 
     const data = await response.json()
 
-    // Create Langfuse trace for this voice session
-    const langfuse = getLangfuse()
+    // Open the voice session's root observation. The session continues across
+    // two later requests (/api/rag-search and /api/voice-trace), which cannot
+    // re-open a trace by id under v4 — they attach to this root through the
+    // W3C traceparent returned below.
+    await initTracing()
     let traceId = null
-    if (langfuse) {
-      const trace = langfuse.trace({
-        name: 'voice-session',
-        sessionId: sessionId || undefined,
-        tags: [lang, 'voice'],
-        metadata: { lang, ip: ip.slice(0, 8) + '...', remaining: rateLimit.remaining },
-      })
-      traceId = trace.id
-      await langfuse.flushAsync()
-    }
+    let traceparent = null
+    await propagateAttributes(
+      { traceName: 'voice-session', ...(sessionId ? { sessionId } : {}) },
+      async () => {
+        const root = startObservation('voice-session', {
+          input: { lang },
+          metadata: { lang, ip: ip.slice(0, 8) + '...', remaining: rateLimit.remaining },
+        })
+        setTraceTags(root, [lang, 'voice'])
+        traceId = root.traceId
+        traceparent = toTraceparent(root)
+        root.end()
+      },
+    )
+    await flushTracing()
 
     return new Response(JSON.stringify({
       token: data.value,
       traceId,
+      traceparent,
       expiresAt: data.expires_at,
     }), {
       headers: { 'Content-Type': 'application/json' },

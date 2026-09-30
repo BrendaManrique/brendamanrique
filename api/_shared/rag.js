@@ -8,7 +8,7 @@
 
 export const MODEL_COSTS = {
   'claude-sonnet-4-6': { input: 3.0 / 1e6, output: 15.0 / 1e6 },
-  'claude-haiku-4-5-20251001': { input: 0.25 / 1e6, output: 1.25 / 1e6 },
+  'claude-haiku-4-5-20251001': { input: 1.0 / 1e6, output: 5.0 / 1e6 },
   'text-embedding-3-small': { input: 0.02 / 1e6 },
 }
 
@@ -230,7 +230,7 @@ export function extractSources(chunks) {
 export const ARTICLE_KEYWORDS = {
   'moodys':            ['moody', 'edf-x', 'edfx', 'scorecard', 'probability of default', 'probabilidad de impago', 'qualitative overlay', 'overlay cualitativo', 'credit analytics', 'analítica de crédito'],
   'financial-systems': ['jpmorgan', 'jp morgan', 'money.net', 'money net', 'athena', 'derivatives', 'derivados', 'terminal', 'market data', 'datos de mercado', 'websockets', 'grpc'],
-  'consulting':        ['consulting', 'consultoría', 'consultoria', 'practice', 'práctica', 'fastapi', 'hitl', 'human-in-the-loop', 'installation', 'instalación', 'agent deployment'],
+  'consulting':        ['applied ai', 'ia aplicada', 'consulting', 'consultoría', 'consultoria', 'practice', 'práctica', 'fastapi', 'hitl', 'human-in-the-loop', 'mcp', 'installation', 'instalación', 'agent deployment'],
   'portfolio-agent':   ['chat agent', 'agente de portafolio', 'portfolio agent', 'this chat', 'este chat', 'evals', 'rag', 'guardrails', 'observability', 'observabilidad', 'pgvector'],
   'casicornio':        ['casicornio', 'publication', 'publicación', 'media', 'editorial', 'distribution', 'distribución'],
   'invip':             ['invip', 'accessibility', 'accesibilidad', 'visually impaired', 'discapacidad visual', 'alexa'],
@@ -254,7 +254,7 @@ export function filterSourcesByResponse(sources, responseText) {
 export const ARTICLE_ROUTES = {
   'moodys':            { page_path_es: '/moodys', page_path_en: '/moodys-credit-intelligence' },
   'financial-systems': { page_path_es: '/sistemas-financieros', page_path_en: '/financial-systems' },
-  'consulting':        { page_path_es: '/consultoria-ia-agentica', page_path_en: '/agentic-ai-consulting' },
+  'consulting':        { page_path_es: '/ia-aplicada', page_path_en: '/applied-ai' },
   'portfolio-agent':   { page_path_es: '/agente-de-portafolio', page_path_en: '/portfolio-chat-agent' },
   'casicornio':        { page_path_es: '/casicornio', page_path_en: '/casicornio' },
   'invip':             { page_path_es: '/invip', page_path_en: '/invip-accessibility-ai' },
@@ -302,7 +302,15 @@ export function detectMentionedArticles(responseText) {
 // RAG: full agentic search pipeline
 // ---------------------------------------------------------------------------
 
-export async function searchPortfolio(query, trace, anthropicClient) {
+/**
+ * Agentic RAG pipeline.
+ *
+ * `parent` is a Langfuse observation (v4 `LangfuseSpan`/`LangfuseGeneration`) that
+ * child observations hang off via parent.startObservation(). In v3 this was a
+ * trace object with .span()/.generation() factory methods; v4 replaced those with
+ * a single startObservation(name, attributes, { asType }).
+ */
+export async function searchPortfolio(query, parent, anthropicClient) {
   const result = {
     chunks: null,
     sources: [],
@@ -314,35 +322,47 @@ export async function searchPortfolio(query, trace, anthropicClient) {
 
   // 1. Embed
   let embedding
-  const embeddingGen = trace?.generation({ name: 'embedding', model: 'text-embedding-3-small', metadata: { query } })
+  const embeddingGen = parent?.startObservation(
+    'embedding',
+    { model: 'text-embedding-3-small', input: query },
+    { asType: 'embedding' },
+  )
   try {
     const embResult = await embedQuery(query)
     embedding = embResult.embedding
     result.metrics.embeddingMs = embResult.latencyMs
     result.usage.embeddingTokens = embResult.totalTokens
-    embeddingGen?.end({
-      usage: { input: embResult.totalTokens, output: 0 },
+    // usageDetails/costDetails replace v3's `usage: { input, output }`. costDetails
+    // is what Langfuse aggregates into trace and session cost, so the numbers this
+    // repo already computes are reported natively instead of only as metadata.
+    embeddingGen?.update({
+      usageDetails: { input: embResult.totalTokens, total: embResult.totalTokens },
+      costDetails: { total: calcCost('text-embedding-3-small', embResult.totalTokens) },
       metadata: { latencyMs: embResult.latencyMs },
-    })
+    }).end()
   } catch (err) {
-    embeddingGen?.end({ metadata: { error: err.message } })
+    embeddingGen?.update({ level: 'ERROR', statusMessage: err.message, metadata: { error: err.message } }).end()
     result.degraded = true
     result.degradedReason = 'embedding_fail'
     return result
   }
 
   // 2. Retrieve
-  const retrievalSpan = trace?.span({ name: 'retrieval', metadata: { query } })
+  const retrievalSpan = parent?.startObservation(
+    'retrieval',
+    { input: query },
+    { asType: 'retriever' },
+  )
   try {
     const searchResult = await searchDocuments(query, embedding)
     result.metrics.retrievalMs = searchResult.latencyMs
-    retrievalSpan?.end({
+    retrievalSpan?.update({
       metadata: {
         chunksCount: searchResult.chunks.length,
         topSimilarity: searchResult.chunks[0]?.similarity || 0,
         latencyMs: searchResult.latencyMs,
       },
-    })
+    }).end()
 
     if (!searchResult.chunks.length) {
       result.degradedReason = 'no_match'
@@ -357,28 +377,32 @@ export async function searchPortfolio(query, trace, anthropicClient) {
     }
 
     // 3. Re-rank
-    const rerankGen = trace?.generation({ name: 'reranking', model: 'claude-haiku-4-5-20251001', metadata: { query } })
+    const rerankGen = parent?.startObservation(
+      'reranking',
+      { model: 'claude-haiku-4-5-20251001', input: query },
+      { asType: 'generation' },
+    )
     const rerankResult = await rerankChunks(query, filteredChunks, anthropicClient)
     result.metrics.rerankMs = rerankResult.latencyMs
     if (rerankResult.usage) {
       result.usage.rerankInputTokens = rerankResult.usage.input_tokens
       result.usage.rerankOutputTokens = rerankResult.usage.output_tokens
     }
-    rerankGen?.end({
-      usage: {
-        input: rerankResult.usage?.input_tokens || 0,
-        output: rerankResult.usage?.output_tokens || 0,
-      },
+    const rerankIn = rerankResult.usage?.input_tokens || 0
+    const rerankOut = rerankResult.usage?.output_tokens || 0
+    rerankGen?.update({
+      usageDetails: { input: rerankIn, output: rerankOut, total: rerankIn + rerankOut },
+      costDetails: { total: calcCost('claude-haiku-4-5-20251001', rerankIn, rerankOut) },
       metadata: {
         rerankedOrder: rerankResult.rerankedOrder,
         latencyMs: rerankResult.latencyMs,
       },
-    })
+    }).end()
 
     result.chunks = rerankResult.chunks
     result.sources = extractSources(rerankResult.chunks)
   } catch (err) {
-    retrievalSpan?.end({ metadata: { error: err.message } })
+    retrievalSpan?.update({ level: 'ERROR', statusMessage: err.message, metadata: { error: err.message } }).end()
     result.degraded = true
     result.degradedReason = err.message.includes('timeout') ? 'retrieval_timeout' : 'retrieval_fail'
   }

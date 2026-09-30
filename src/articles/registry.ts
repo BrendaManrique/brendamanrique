@@ -56,34 +56,30 @@ export const articleRegistry: ArticleConfig[] = [
     titles: { es: "Moody's Analytics", en: "Moody's Analytics" },
     seo: {
       es: {
-        title: "Inteligencia de crédito a escala en Moody's",
+        title: "Reglas de crédito como software en Moody's",
         description:
-          "Case study sanitizado de analítica de crédito full-stack en Moody's: overlays cualitativos, API con estado y lógica de decisión de modelos.",
+          "Predictive Analytics: reglas de selección de modelo en Python, overlays cualitativos y APIs con estado para procesos largos.",
       },
       en: {
-        title: "Credit intelligence at scale at Moody's",
+        title: "Turning credit-domain rules into software",
         description:
-          "A sanitized case study of full-stack credit analytics: qualitative overlays, stateful API design and credit-model decision logic.",
+          "Predictive Analytics: model-selection rules in Python, qualitative overlays and stateful API design for long-running analytics.",
       },
     },
     sectionLabels: {
       es: {
         role: 'El Rol',
+        'model-logic': 'Reglas de Dominio',
         overlay: 'Overlay Cualitativo',
-        'api-v2': 'API con Estado',
-        'model-logic': 'Lógica del Modelo',
-        refresh: 'Refresco Programado',
-        'full-stack': 'Full-Stack',
+        'api-v2': 'APIs con Estado',
         lessons: 'Lecciones',
         faq: 'FAQ',
       },
       en: {
         role: 'The Role',
+        'model-logic': 'Domain Rules',
         overlay: 'Qualitative Overlay',
-        'api-v2': 'Stateful API',
-        'model-logic': 'Model Logic',
-        refresh: 'Scheduled Refresh',
-        'full-stack': 'Full-Stack',
+        'api-v2': 'Stateful APIs',
         lessons: 'Lessons',
         faq: 'FAQ',
       },
@@ -95,17 +91,17 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../Moodys.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-01',
-      keywords: ['credit analytics', 'probability of default', 'EDF-X', 'scorecard', 'qualitative overlay', 'stateful API', 'batching and concurrency', 'PostgreSQL', 'AWS', 'financial systems engineering', 'Moody\'s Analytics'],
+      dateModified: '2026-09-10',
+      keywords: ['credit analytics', 'probability of default', 'EDF-X', 'Risk Scorecard', 'qualitative overlay', 'stateful API', 'Python', 'business rules', 'financial systems engineering', 'Moody\'s Analytics'],
       articleType: 'TechArticle',
-      articleTags: 'credit analytics,probability of default,stateful API,AWS,PostgreSQL,full-stack',
+      articleTags: 'credit analytics,probability of default,stateful API,Python,product engineering',
       images: [OG_IMAGE],
       about: [
         { '@type': 'Thing', name: 'Credit risk analytics' },
         { '@type': 'Thing', name: 'Probability of default' },
         { '@type': 'Organization', name: "Moody's Analytics", url: 'https://www.moodys.com' },
       ],
-      extra: { proficiencyLevel: 'Expert', dependencies: 'AWS, S3, PostgreSQL, internal shared data services' },
+      extra: { proficiencyLevel: 'Advanced', dependencies: 'Python, TypeScript, Angular' },
     },
   },
   {
@@ -114,14 +110,14 @@ export const articleRegistry: ArticleConfig[] = [
     titles: { es: 'Sistemas financieros', en: 'Financial systems' },
     seo: {
       es: {
-        title: 'Sistemas financieros antes del capítulo de IA',
+        title: 'Sistemas financieros: JPMorgan y Money.Net',
         description:
-          'Derivados y riesgo en JPMorgan, un terminal de mercado desde cero en Money.Net, y los hábitos de fiabilidad que hoy moldean los agentes.',
+          'Liderar la ingeniería frontend sobre Athena en JPMorgan, y ayudar a construir el terminal de mercados de Money.Net desde cero.',
       },
       en: {
-        title: 'Financial systems before the AI chapter',
+        title: 'Financial systems: JPMorgan and Money.Net',
         description:
-          'JPMorgan derivatives and risk infrastructure, a Money.Net terminal built from scratch, and the reliability habits behind the agent work.',
+          'Leading frontend engineering on Athena at JPMorgan, and helping build the Money.Net markets terminal from the ground up.',
       },
     },
     sectionLabels: {
@@ -147,51 +143,49 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../FinancialSystems.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-01',
+      dateModified: '2026-09-10',
       keywords: ['derivatives portfolio management', 'risk platform', 'Athena JPMorgan', 'market data terminal', 'WebSockets', 'gRPC', 'microservices', 'ReactJS', 'Java 8', 'XMPP', 'core banking', 'GeneXus'],
       articleType: 'TechArticle',
-      articleTags: 'JPMorgan,Money.Net,derivatives,risk,real-time systems,full-stack',
+      articleTags: 'JPMorgan,Money.Net,derivatives,risk,real-time systems,frontend',
       images: [OG_IMAGE],
       about: [
         { '@type': 'Thing', name: 'Financial systems engineering' },
         { '@type': 'Thing', name: 'Real-time market data' },
       ],
-      extra: { proficiencyLevel: 'Expert', dependencies: 'Java, JavaScript, Python, WebSockets, gRPC' },
+      extra: { proficiencyLevel: 'Advanced', dependencies: 'Java, JavaScript, TypeScript, Python, C#, WebSockets, gRPC' },
     },
   },
   {
     id: 'consulting',
-    slugs: { es: 'consultoria-ia-agentica', en: 'agentic-ai-consulting' },
-    titles: { es: 'Consultoría IA agéntica', en: 'Agentic AI consulting' },
+    slugs: { es: 'ia-aplicada', en: 'applied-ai' },
+    titles: { es: 'IA aplicada', en: 'Applied AI' },
     seo: {
       es: {
-        title: 'Construir una consultoría en IA agéntica',
+        title: 'Build log: sistemas pequeños de IA aplicada',
         description:
-          'Build log: de un año de trabajo autodirigido a un modelo de entrega mantenible para agentes de empresa. Deliberadamente pre-escala.',
+          'Servicios en Python y FastAPI con recuperación, herramientas tipadas, flujos de aprobación y despliegues observables.',
       },
       en: {
-        title: 'Building an agentic AI consulting practice',
+        title: 'Build log: small applied-AI systems',
         description:
-          'A build log: turning self-directed AI work into a supportable delivery model for company agents. Deliberately pre-scale.',
+          'Python and FastAPI services with retrieval, typed tool boundaries, approval flows and observable deployments.',
       },
     },
     sectionLabels: {
       es: {
-        why: 'Por Qué',
+        why: 'La Pregunta',
         'the-problems': 'Los Problemas',
-        foundation: 'La Base',
+        foundation: 'El Stack',
         'delivery-model': 'Modelo de Entrega',
-        'truth-boundary': 'Límite de Verdad',
-        next: 'Siguiente',
+        next: 'Dónde Está',
         faq: 'FAQ',
       },
       en: {
-        why: 'Why',
+        why: 'The Question',
         'the-problems': 'The Problems',
-        foundation: 'Foundation',
+        foundation: 'The Stack',
         'delivery-model': 'Delivery Model',
-        'truth-boundary': 'Truth Boundary',
-        next: 'Next',
+        next: 'Where It Stands',
         faq: 'FAQ',
       },
     },
@@ -202,13 +196,13 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../Consulting.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-01',
-      keywords: ['agentic AI', 'AI consulting practice', 'agent deployment', 'FastAPI agent service', 'human in the loop', 'HITL', 'agent observability', 'Docker', 'PostgreSQL', 'tool use', 'build phase'],
+      dateModified: '2026-09-10',
+      keywords: ['applied AI', 'agentic AI', 'AI agent deployment', 'FastAPI agent service', 'human in the loop', 'HITL', 'MCP', 'observability', 'Docker', 'PostgreSQL', 'tool calling'],
       articleType: 'TechArticle',
-      articleTags: 'build log,agentic AI,FastAPI,deployment,HITL',
+      articleTags: 'build log,applied AI,FastAPI,deployment,HITL',
       images: [OG_IMAGE],
       about: [
-        { '@type': 'Thing', name: 'Agentic AI' },
+        { '@type': 'Thing', name: 'Applied AI' },
         { '@type': 'Thing', name: 'AI agent deployment' },
       ],
       extra: { proficiencyLevel: 'Advanced', dependencies: 'Python, FastAPI, Docker, PostgreSQL' },
@@ -220,45 +214,37 @@ export const articleRegistry: ArticleConfig[] = [
     titles: { es: 'Agente de portafolio', en: 'Portfolio chat agent' },
     seo: {
       es: {
-        title: 'La burbuja de chat es lo menos interesante',
+        title: 'Un agente que no puede inventarme la carrera',
         description:
-          'Un agente de portafolio que representa mi trabajo sin inventar experiencia: RAG híbrido, evals, guardrails y observabilidad.',
+          'Recuperación híbrida sobre el portafolio, guardrails, scoring online y evals en CI, para que un LLM no invente mi experiencia.',
       },
       en: {
-        title: 'The chat bubble is the least interesting part',
+        title: 'A portfolio agent that cannot invent my career',
         description:
-          'A portfolio agent that represents my work without inventing experience: hybrid RAG, evals, guardrails and observability.',
+          'Hybrid retrieval over the portfolio, guardrails, online scoring and CI-gated evals, so an LLM cannot make up my experience.',
       },
     },
     sectionLabels: {
       es: {
-        'the-hard-part': 'La Parte Difícil',
+        'the-hard-part': 'La Restricción',
         'truth-layer': 'Capa de Verdad',
-        rag: 'RAG',
-        tools: 'Herramientas',
+        rag: 'Recuperación',
         adversarial: 'Superficie Adversarial',
         evals: 'Evals',
         observability: 'Observabilidad',
-        memory: 'Memoria',
-        voice: 'Voz',
         architecture: 'Arquitectura',
-        done: '«Terminado»',
-        shipped: 'Qué Se Entregó',
+        shipped: 'Qué Funciona',
         faq: 'FAQ',
       },
       en: {
-        'the-hard-part': 'The Hard Part',
+        'the-hard-part': 'The Constraint',
         'truth-layer': 'Truth Layer',
-        rag: 'RAG',
-        tools: 'Tools',
+        rag: 'Retrieval',
         adversarial: 'Adversarial Surface',
         evals: 'Evals',
         observability: 'Observability',
-        memory: 'Memory',
-        voice: 'Voice',
         architecture: 'Architecture',
-        done: 'What "Done" Means',
-        shipped: 'What Shipped',
+        shipped: 'What Is Running',
         faq: 'FAQ',
       },
     },
@@ -269,10 +255,10 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../PortfolioAgent.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-01',
+      dateModified: '2026-09-10',
       keywords: ['portfolio chat agent', 'agentic RAG', 'hybrid retrieval', 'pgvector', 'reciprocal rank fusion', 'LLM evaluation', 'guardrails', 'prompt injection', 'observability', 'Langfuse', 'CI evals', 'groundedness'],
       articleType: 'TechArticle',
-      articleTags: 'agentic RAG,evals,guardrails,observability,architecture',
+      articleTags: 'RAG,evals,guardrails,observability,architecture',
       images: [OG_IMAGE],
       about: [
         { '@type': 'Thing', name: 'Retrieval-Augmented Generation' },
@@ -280,7 +266,7 @@ export const articleRegistry: ArticleConfig[] = [
         { '@type': 'SoftwareApplication', name: 'Langfuse', url: 'https://langfuse.com', applicationCategory: 'LLM Observability' },
         { '@type': 'SoftwareApplication', name: 'Supabase', url: 'https://supabase.com', applicationCategory: 'Database' },
       ],
-      extra: { proficiencyLevel: 'Expert', dependencies: 'Claude, Supabase (Postgres + pgvector), Langfuse, Vercel, GitHub Actions' },
+      extra: { proficiencyLevel: 'Advanced', dependencies: 'Claude, Supabase (Postgres + pgvector), Langfuse, Vercel, GitHub Actions' },
       mentions: [
         { '@type': 'SoftwareApplication', name: 'Langfuse', url: 'https://langfuse.com' },
         { '@type': 'SoftwareApplication', name: 'Supabase', url: 'https://supabase.com' },
@@ -294,14 +280,14 @@ export const articleRegistry: ArticleConfig[] = [
     titles: { es: 'Casicornio', en: 'Casicornio' },
     seo: {
       es: {
-        title: 'Casicornio: aprender distribución operando',
+        title: 'Casicornio: publicación de tecnología en español',
         description:
-          'Por qué llevo una publicación en español sobre fundadores y tecnología, y qué quiero automatizar sin automatizar la voz.',
+          'Construyo una publicación independiente en español sobre startups, tecnología e IA. Primeros números en preparación.',
       },
       en: {
-        title: 'Casicornio: learning distribution by doing',
+        title: 'Casicornio: a Spanish-language tech publication',
         description:
-          'Why I run a Spanish-language founder and technology publication, and what I want to automate without automating the voice.',
+          'Building an independent Spanish-language publication on startups, technology and AI. First issues in preparation.',
       },
     },
     sectionLabels: {
@@ -328,10 +314,10 @@ export const articleRegistry: ArticleConfig[] = [
     xDefaultSlug: 'casicornio',
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-01',
-      keywords: ['Casicornio', 'founder media', 'Spanish-language technology publication', 'content operations', 'editorial systems', 'distribution', 'media experiment', 'publishing workflow', 'audience building', 'positioning'],
+      dateModified: '2026-09-10',
+      keywords: ['Casicornio', 'Spanish-language technology publication', 'startups', 'technology media', 'content operations', 'editorial systems', 'distribution', 'media experiment', 'publishing workflow', 'independent publication'],
       articleType: 'Article',
-      articleTags: 'Casicornio,media ops,founders,automation',
+      articleTags: 'Casicornio,media ops,startups,automation',
       images: [OG_IMAGE],
       about: [
         { '@type': 'Thing', name: 'Content operations' },
@@ -347,12 +333,12 @@ export const articleRegistry: ArticleConfig[] = [
       es: {
         title: 'Invip — IA para accesibilidad visual',
         description:
-          'Proyecto premiado en NYU y empresa en EE. UU.: un asistente de audio para personas con discapacidad visual, antes de la IA conversacional.',
+          'Startup de accesibilidad en EE. UU. con un prototipo funcional: visión por computador, machine learning y voz con Amazon Alexa.',
       },
       en: {
         title: 'Invip — AI for visual accessibility',
         description:
-          'An NYU award-winning project and U.S.-incorporated company: an audio assistant for visually impaired people, built before conversational AI.',
+          'A U.S.-incorporated accessibility startup with a working prototype: computer vision, machine learning and Amazon Alexa voice.',
       },
     },
     sectionLabels: {
@@ -376,8 +362,8 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../Invip.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-01',
-      keywords: ['assistive technology', 'visual accessibility', 'audio assistant', 'speech interface', 'NYU startup', 'multimodal AI', 'accessibility AI', 'visually impaired', 'voice interaction', 'co-founder CTO'],
+      dateModified: '2026-09-10',
+      keywords: ['assistive technology', 'visual accessibility', 'computer vision', 'machine learning', 'Amazon Alexa', 'NYU startup', 'accessibility', 'visually impaired', 'voice interaction', 'co-founder CTO'],
       articleType: 'Article',
       articleTags: 'accessibility,assistive technology,speech interface,NYU',
       images: [OG_IMAGE],
@@ -395,12 +381,12 @@ export const articleRegistry: ArticleConfig[] = [
       es: {
         title: 'Dimensión fractal — investigación de 2010',
         description:
-          'Geometría fractal y curvas de Koch sobre la irregularidad de lunares. Investigación histórica: no es un diagnóstico clínico validado.',
+          'La dimensión fractal como característica para distinguir imágenes de lesiones cutáneas. Investigación, no un diagnóstico clínico.',
       },
       en: {
         title: 'Fractal dimension — 2010 research',
         description:
-          'Fractal geometry and Koch-curve measurements on mole irregularity. Historical research only — not a validated clinical diagnostic system.',
+          'Fractal dimension as a feature for distinguishing skin-lesion images. Research, not a clinical diagnostic system.',
       },
     },
     sectionLabels: {
@@ -426,8 +412,8 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../Fractal.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-01',
-      keywords: ['fractal dimension', 'Koch curve', 'boundary irregularity', 'shape classification', 'AGSE 2010', 'undergraduate research', 'computational intelligence', 'fractal geometry', 'poster contest', 'historical research'],
+      dateModified: '2026-09-10',
+      keywords: ['fractal dimension', 'skin lesion imagery', 'boundary irregularity', 'image classification', 'AGSE 2010', 'undergraduate research', 'research prototype', 'fractal geometry', 'poster competition', 'feature extraction'],
       articleType: 'Article',
       articleTags: 'fractal geometry,research,classification,historical',
       images: [OG_IMAGE],
@@ -437,7 +423,7 @@ export const articleRegistry: ArticleConfig[] = [
       ],
       extra: {
         disambiguatingDescription:
-          'Historical undergraduate research project from 2010. Not a validated clinical diagnostic system and never deployed for diagnosis.',
+          'A 2010 undergraduate research prototype. Not a clinical diagnostic system and never deployed for diagnosis.',
       },
     },
   },
@@ -449,27 +435,27 @@ export const articleRegistry: ArticleConfig[] = [
       es: {
         title: 'Archivo de proyectos iniciales',
         description:
-          'Tesis de framework Android con mención honorífica, el concepto Aquolity, un experimento VR para Project Tango y un marketplace blockchain.',
+          'Tesis con mención honorífica, el MVP de Aquolity, un prototipo de Project Tango y un prototipo de marketplace NFT en Solana.',
       },
       en: {
         title: 'Early projects archive',
         description:
-          'An Android framework thesis with honorable mention, the Aquolity water-quality concept, a Project Tango VR experiment and a blockchain marketplace.',
+          'A thesis with honorable mention, the Aquolity MVP, a Project Tango prototype and a Solana NFT marketplace prototype.',
       },
     },
     sectionLabels: {
       es: {
-        android: 'Tesis Android',
+        android: 'Tesis',
         aquolity: 'Aquolity',
-        experiments: 'Experimentos',
+        experiments: 'Prototipos',
         portfolios: 'Portafolios Antiguos',
         'why-archive': 'Por Qué el Archivo',
         faq: 'FAQ',
       },
       en: {
-        android: 'Android Thesis',
+        android: 'Thesis',
         aquolity: 'Aquolity',
-        experiments: 'Experiments',
+        experiments: 'Prototypes',
         portfolios: 'Older Portfolios',
         'why-archive': 'Why an Archive',
         faq: 'FAQ',
@@ -482,13 +468,13 @@ export const articleRegistry: ArticleConfig[] = [
     component: () => import('../EarlyProjects.tsx'),
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-01',
-      keywords: ['Android framework', 'data acquisition', 'undergraduate thesis', 'Aquolity', 'water quality crowdsourcing', 'Project Tango', 'blockchain marketplace', 'NFT minting', 'dynamic UI components', 'smart contracts'],
+      dateModified: '2026-09-10',
+      keywords: ['dynamic UI components', 'undergraduate thesis', 'Aquolity', 'water quality crowdsourcing', 'Project Tango', 'Solana', 'NFT marketplace', 'smart contracts', 'prototype', 'MVP'],
       articleType: 'Article',
-      articleTags: 'archive,thesis,Android,social tech,experiments',
+      articleTags: 'archive,thesis,prototypes,social tech,Solana',
       images: [OG_IMAGE],
       about: [
-        { '@type': 'Thing', name: 'Mobile data acquisition' },
+        { '@type': 'Thing', name: 'Dynamic user interfaces' },
         { '@type': 'Thing', name: 'Crowdsourcing' },
       ],
     },
@@ -499,28 +485,28 @@ export const articleRegistry: ArticleConfig[] = [
     titles: { es: 'Historia', en: 'Story' },
     seo: {
       es: {
-        title: 'Este capítulo no es «no pasó nada».',
+        title: 'Irme, cambiar de país y volver a empezar',
         description:
-          'Quince años de trabajo en sistemas y, en 2025, una salida deliberada del camino empleado para aprender el nuevo stack de IA construyendo con él.',
+          'Por qué dejó Moody\'s en 2025, la mudanza internacional hasta Berlín y el trabajo de IA aplicada que hace ahora.',
       },
       en: {
-        title: 'This chapter is not "nothing happened."',
+        title: 'Leaving, moving countries, starting again',
         description:
-          'Fifteen years of systems work, then a deliberate step away from the employed path in 2025 to learn the new AI stack by building with it.',
+          'Why she left Moody\'s in 2025, the international move to Berlin, and the applied-AI work she does now.',
       },
     },
     sectionLabels: {
       es: {
-        'fifteen-years': 'Más de 15 Años',
+        'systems-work': 'Antes',
         'the-turn': 'Dejar Moody\'s',
-        'build-phase': 'Fase de Construcción',
+        'build-phase': 'Volver a Empezar',
         now: 'Ahora',
         faq: 'FAQ',
       },
       en: {
-        'fifteen-years': '15+ Years',
+        'systems-work': 'Before',
         'the-turn': 'Leaving Moody\'s',
-        'build-phase': 'The Build Phase',
+        'build-phase': 'Starting Again',
         now: 'Now',
         faq: 'FAQ',
       },
@@ -533,14 +519,14 @@ export const articleRegistry: ArticleConfig[] = [
     xDefaultSlug: 'historia',
     seoMeta: {
       datePublished: '2026-09-01',
-      dateModified: '2026-09-01',
-      keywords: ['build phase', 'career transition', 'agentic AI', 'leaving Moody\'s', 'pre-scale', 'systems engineering career', 'intellectual honesty', 'build and validation', 'independent engineer', 'portfolio honesty'],
+      dateModified: '2026-09-10',
+      keywords: ['career transition', 'international relocation', 'leaving Moody\'s', 'relocating to Berlin', 'independent software engineer', 'applied AI', 'systems engineering career', 'senior software engineer', 'Berlin', 'independent projects'],
       articleType: 'Article',
-      articleTags: 'story,build phase,career,agentic AI',
+      articleTags: 'story,career,relocation,applied AI',
       images: [OG_IMAGE],
       about: [
         { '@type': 'Person', name: 'Brenda Manrique', url: `${SITE_URL}/about` },
-        { '@type': 'Thing', name: 'Agentic AI' },
+        { '@type': 'Thing', name: 'Applied AI' },
       ],
     },
   },

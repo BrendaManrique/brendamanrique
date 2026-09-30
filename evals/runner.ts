@@ -105,7 +105,17 @@ async function callChat(input: string, lang: 'es' | 'en', conversation?: Convers
   const messages = conversation || [{ role: 'user', content: input }]
   const response = await fetch(CHAT_API_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Trace-Source': 'eval' },
+      // Exempts the run from the 5-question IP cap in api/chat.js. Without it
+      // an eval suite is refused after its fifth prompt. X-Trace-Source alone
+      // is not enough on purpose — it is client-settable, so the exemption is
+      // tied to the shared secret.
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Trace-Source': 'eval',
+      ...(process.env.PROMPT_REGRESSION_SECRET
+        ? { 'X-Prompt-Auth': process.env.PROMPT_REGRESSION_SECRET }
+        : {}),
+    },
     body: JSON.stringify({
       messages,
       lang,

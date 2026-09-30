@@ -78,3 +78,80 @@ create table if not exists public.voice_rate_limits (
 alter table public.documents enable row level security;
 alter table public.rag_hashes enable row level security;
 alter table public.voice_rate_limits enable row level security;
+
+-- 9. Generic rate limiting (chat + voice), atomic
+-- Supersedes `voice_rate_limits` above, which was read-then-write: two round
+-- trips, so concurrent requests all read the same count and all passed. Here a
+-- single statement increments and reports, so N parallel requests produce N
+-- distinct counts and the cap holds.
+--
+-- `scope` keeps one table per limiter ('chat', 'voice', ...) instead of one
+-- table per endpoint. The window is a fixed window, not a sliding one: the
+-- counter resets when `window_start` ages past the window rather than decaying
+-- per request. At these volumes the precision is irrelevant and it keeps the
+-- whole limiter to one row and one statement.
+create table if not exists public.rate_limits (
+  scope text not null,
+  ip text not null,
+  count int not null default 0,
+  window_start timestamptz not null default now(),
+  primary key (scope, ip)
+);
+
+-- Lets a cleanup job find expired rows without a full scan. Nothing prunes
+-- automatically: rows are tiny and reused per IP, so the table tracks distinct
+-- visitors, not traffic.
+create index if not exists rate_limits_window_idx
+  on public.rate_limits (window_start);
+
+-- Increment and report in one statement.
+-- Returns allowed=false on the call that pushes `count` past p_max, so the
+-- caller spends exactly one unit per request and never has to write back.
+create or replace function public.bump_rate_limit(
+  p_scope text,
+  p_ip text,
+  p_window_seconds int,
+  p_max int
+) returns table (allowed boolean, used int, remaining int, reset_at timestamptz)
+language plpgsql
+security definer
+set search_path = public
+as $$
+declare
+  v_used int;
+  v_window_start timestamptz;
+  v_window interval := make_interval(secs => p_window_seconds);
+begin
+  insert into public.rate_limits as rl (scope, ip, count, window_start)
+  values (p_scope, p_ip, 1, now())
+  on conflict (scope, ip) do update
+    set
+      -- Expired window: start over at 1. Live window: increment, but clamp at
+      -- p_max + 1 so a client that keeps hammering after being blocked cannot
+      -- inflate the counter without bound.
+      count = case
+                when rl.window_start <= now() - v_window then 1
+                else least(rl.count + 1, p_max + 1)
+              end,
+      window_start = case
+                when rl.window_start <= now() - v_window then now()
+                else rl.window_start
+              end
+  returning rl.count, rl.window_start into v_used, v_window_start;
+
+  return query select
+    v_used <= p_max,
+    v_used,
+    greatest(p_max - v_used, 0),
+    v_window_start + v_window;
+end;
+$$;
+
+-- Only the service_role key may move a counter. Without this a leaked anon key
+-- could call the function directly and burn a visitor's budget, or call it with
+-- someone else's IP. `security definer` is what lets it write through RLS.
+revoke all on function public.bump_rate_limit(text, text, int, int) from public;
+revoke all on function public.bump_rate_limit(text, text, int, int) from anon, authenticated;
+grant execute on function public.bump_rate_limit(text, text, int, int) to service_role;
+
+alter table public.rate_limits enable row level security;

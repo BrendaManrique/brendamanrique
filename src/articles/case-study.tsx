@@ -89,7 +89,7 @@ export type CaseStudyLang = 'es' | 'en'
 function Flow({ steps, caption }: { steps: readonly string[]; caption?: string }) {
   return (
     <div className="mb-6">
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-2 p-4 rounded-lg bg-card border border-border">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-2 p-4 rounded-lg bg-card shadow-surface">
         {steps.map((step, i) => (
           <span key={step} className="flex items-center gap-2">
             <span className="px-3 py-1.5 rounded-md bg-primary/10 text-primary text-sm font-medium">
@@ -146,7 +146,7 @@ function renderBlock(block: Block, key: number) {
       return (
         <div key={key} className="flex flex-wrap gap-2 mb-6">
           {block.items.map(item => (
-            <span key={item} className="px-3 py-1.5 rounded-full bg-card border border-border text-sm text-muted-foreground">
+            <span key={item} className="px-3 py-1.5 rounded-full bg-card shadow-surface text-sm text-muted-foreground">
               {item}
             </span>
           ))}

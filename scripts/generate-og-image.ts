@@ -36,7 +36,7 @@ async function main() {
   // Resolve template with runtime file:// asset paths.
   const fontSG = 'file://' + join(ROOT, 'public', 'fonts', 'space-grotesk-latin.woff2')
   const fontDM = 'file://' + join(ROOT, 'public', 'fonts', 'dm-sans-latin.woff2')
-  const avatar = 'file://' + join(ROOT, 'public', 'brenda-archive.jpg')
+  const avatar = 'file://' + join(ROOT, 'public', 'brenda-portrait.jpg')
   const html = readFileSync(TEMPLATE, 'utf-8')
     .replaceAll('__FONT_SG__', fontSG)
     .replaceAll('__FONT_DM__', fontDM)

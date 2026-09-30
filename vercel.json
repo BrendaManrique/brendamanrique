@@ -71,6 +71,16 @@
   ],
   "redirects": [
     {
+      "source": "/consultoria-ia-agentica",
+      "destination": "/ia-aplicada",
+      "permanent": true
+    },
+    {
+      "source": "/agentic-ai-consulting",
+      "destination": "/applied-ai",
+      "permanent": true
+    },
+    {
       "source": "/en/",
       "destination": "/en",
       "permanent": true
@@ -103,12 +113,12 @@
       "destination": "/financial-systems/index.html"
     },
     {
-      "source": "/consultoria-ia-agentica",
-      "destination": "/consultoria-ia-agentica/index.html"
+      "source": "/ia-aplicada",
+      "destination": "/ia-aplicada/index.html"
     },
     {
-      "source": "/agentic-ai-consulting",
-      "destination": "/agentic-ai-consulting/index.html"
+      "source": "/applied-ai",
+      "destination": "/applied-ai/index.html"
     },
     {
       "source": "/agente-de-portafolio",
@@ -173,12 +183,6 @@
     {
       "source": "/privacy",
       "destination": "/privacy/index.html"
-    }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/evaluate",
-      "schedule": "0 8 * * *"
     }
   ]
 }

@@ -190,9 +190,16 @@ async function testTraces() {
   const res = await fetchAuthed('/api/ops/traces')
   assert(res.status === 200, 'Returns 200')
 
-  const body = await res.json() as { data: Array<Record<string, unknown>>; total: number }
+  const body = await res.json() as {
+    data: Array<Record<string, unknown>>
+    total: number
+    nextCursor: string | null
+  }
   assert(Array.isArray(body.data), 'Response has data array')
   assert(typeof body.total === 'number', 'Response has total number')
+  // Langfuse's v2 observations API paginates by cursor; the endpoint forwards
+  // the cursor instead of the offset it used to accept.
+  assert('nextCursor' in body, 'Response has nextCursor key')
 
   if (body.data.length > 0) {
     const t = body.data[0]
@@ -229,9 +236,15 @@ async function testTraces() {
   const resCombined = await fetchAuthed('/api/ops/traces', { lang: 'es', rag: 'yes', limit: '5' })
   assert(resCombined.status === 200, 'Combined filters return 200')
 
-  // Pagination
-  const resPage = await fetchAuthed('/api/ops/traces', { limit: '5', offset: '5' })
-  assert(resPage.status === 200, 'Pagination (offset=5) returns 200')
+  // Pagination (cursor-based since the v4 migration)
+  const firstPage = await fetchAuthed('/api/ops/traces', { limit: '5' })
+  const firstBody = await firstPage.json() as { nextCursor: string | null }
+  if (firstBody.nextCursor) {
+    const resPage = await fetchAuthed('/api/ops/traces', { limit: '5', cursor: firstBody.nextCursor })
+    assert(resPage.status === 200, 'Pagination (cursor) returns 200')
+  } else {
+    console.log('  \u23ed\ufe0f  SKIP cursor pagination — fewer than 5 traces in range')
+  }
 }
 
 async function testTraceDetail() {

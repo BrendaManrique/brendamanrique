@@ -6,34 +6,34 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
   en: {
     slug: 'story',
     altSlug: 'historia',
-    readingTime: '5 min read',
+    readingTime: '4 min read',
     seo: {
-      title: 'This chapter is not "nothing happened."',
+      title: 'Leaving, moving countries, starting again',
       description:
-        'Fifteen years of systems work, then a deliberate step away from the employed path in 2025 to learn the new AI stack by building with it. The build phase before the client portfolio.',
+        'Why Brenda Manrique left Moody\'s in 2025, relocated internationally to Berlin, and started building applied-AI systems independently.',
     },
     header: {
-      kicker: 'The story · Build phase',
-      h1: 'This chapter is not "nothing happened."',
+      kicker: 'The story',
+      h1: 'Leaving, moving countries, starting again',
       subtitle:
-        'Fifteen years building systems from the inside out, a decision to leave Moody\'s in 2025, and the build phase that comes before a client portfolio.',
+        'Why I left Moody\'s in 2025, what an international move actually took, and what I am building now.',
       date: 'Sep 1, 2026',
     },
     nav: { breadcrumbHome: 'Home', breadcrumbCurrent: 'The story' },
-    status: 'Build & validation phase — since Aug 2025',
+    status: 'Independent projects since Aug 2025',
     directAnswer:
-      'Brenda Manrique spent 15+ years building production systems: AI-focused systems engineering and fractal research, then accessibility AI, real-time financial terminals, derivatives and risk platforms, and credit analytics at Moody\'s. In 2025 she stepped away from the employed path to learn the new AI stack by building with it. That gap is not absence — it is the build phase before the client portfolio.',
+      'Brenda Manrique left Moody\'s Analytics in August 2025 and relocated internationally, establishing herself in Berlin. Since then she has been building applied-AI systems and independent software projects, and since March 2026 developing the technical foundation for an independent applied-AI practice. She is also looking for her next software-engineering role.',
     sections: {
-      'fifteen-years': {
-        heading: '15+ years building systems from the inside out',
+      'systems-work': {
+        heading: 'The work before this',
         blocks: [
           {
             kind: 'prose',
-            text: 'She started with AI-focused systems engineering, fractal diagnostics and mobile data frameworks — an undergraduate degree with an artificial intelligence concentration, a research award in 2010, a thesis with an honorable mention in 2013.',
+            text: 'She started with AI-focused systems engineering and fractal research: an undergraduate degree with an artificial intelligence concentration, a research award in 2010, a thesis with an honorable mention in 2013.',
           },
           {
             kind: 'prose',
-            text: 'Then came accessibility AI at NYU, real-time financial terminals at Money.Net, derivatives and risk platforms at JPMorgan, and credit analytics at Moody\'s. Different surfaces, one job: understand a complicated process well enough to turn it into software.',
+            text: 'Then accessibility AI at NYU, a real-time market terminal at Money.Net, derivatives portfolios and risk platforms at JPMorgan, and credit analytics at Moody\'s. Different surfaces, one job: understand a complicated process well enough to turn it into software.',
           },
         ],
       },
@@ -42,32 +42,24 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
         blocks: [
           {
             kind: 'prose',
-            text: 'In August 2025 she left Moody\'s Analytics by choice. Not because the work ran out — because the question she wanted to answer could not be answered on evenings and weekends.',
-          },
-          {
-            kind: 'quote',
-            text: 'What does a professional AI-agent installation look like after the demo?',
+            text: 'In August 2025 she left Moody\'s Analytics. She was moving countries, and that is not something you do around someone else\'s roadmap.',
           },
           {
             kind: 'prose',
-            text: 'Answering that means building the whole thing: deployment, observability, failure recovery, permissions, updates, and the boundary between an agent and the company systems it is allowed to touch. Reading about it is not the same activity.',
+            text: 'The move took a while: time in Peru with family, roughly three months around Italy, a month in China, and stops in Scotland and Spain. Then Berlin, and the paperwork and logistics of actually establishing yourself somewhere new.',
           },
         ],
       },
       'build-phase': {
-        heading: 'The build phase',
+        heading: 'Starting again',
         blocks: [
           {
             kind: 'prose',
-            text: 'Since then: assembling an agentic AI consulting practice, prototyping deployable systems, studying Anthropic material hands-on, and running Casicornio — a Spanish-language founder and technology publication that supplies the one feedback loop an engineering career does not give you for free.',
-          },
-          {
-            kind: 'callout',
-            text: 'This chapter is not "nothing happened." It is the build phase before the client portfolio.',
+            text: 'Berlin is where the experimenting started: software products, and a lot of time inside the new AI tooling. The question worth answering was not whether a model can call a tool. It was what a small AI system looks like once someone has to operate it — deployment, permissions, approvals, monitoring, and a rollback path.',
           },
           {
             kind: 'prose',
-            text: 'It is also stated as such everywhere on this site. There is no client roster, no production-scale customer metrics, and no page that implies otherwise. The engineering is the evidence.',
+            text: 'Around March 2026 that turned into something more deliberate: building the technical foundation for an independent applied-AI practice. It is in the prototype and validation stage. No paying clients yet.',
           },
         ],
       },
@@ -78,20 +70,20 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
             kind: 'cards',
             items: [
               {
-                title: 'Consulting practice · in build',
-                detail: 'Offers, deployment patterns, client architecture, maintainability, observability and repeatable delivery for company AI agents.',
+                title: 'Applied-AI systems · prototypes',
+                detail: 'Python and FastAPI services with retrieval, typed tool boundaries, approval flows and observable deployments.',
               },
               {
-                title: 'Portfolio agent · live',
+                title: 'Portfolio agent · in production',
                 detail: 'The chat on this site: hybrid RAG, evals, guardrails and observability, running in public against real questions.',
               },
               {
-                title: 'Casicornio · operating',
-                detail: 'A founder and technology publication, and a way to learn distribution and editorial systems by doing.',
+                title: 'Casicornio · launching',
+                detail: 'An independent Spanish-language publication on startups, technology and AI. The first issues are in preparation.',
               },
               {
                 title: 'Open to roles',
-                detail: 'Senior software and applied-AI roles, and conversations with companies that have operational workflows worth turning into reliable agentic systems.',
+                detail: 'Senior software engineering and applied-AI roles.',
               },
             ],
           },
@@ -102,59 +94,59 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
       heading: 'Frequently asked questions',
       items: [
         {
-          q: 'Why is there a gap after Moody\'s?',
-          a: 'There is no gap. Since August 2025 she has been in a deliberate build and validation phase: designing an agentic AI consulting practice, prototyping Python/FastAPI agent services with RAG, memory, tool integrations and human approval patterns, studying Anthropic material hands-on, and running Casicornio. It is intentionally pre-scale.',
+          q: 'Why did she leave Moody\'s?',
+          a: 'She left in August 2025 because she was relocating internationally. The move took her through Peru, Italy, China, Scotland and Spain before she established herself in Berlin.',
         },
         {
-          q: 'Why leave a senior role to do this?',
-          a: 'Because the question she wanted to answer — what a professional AI-agent installation looks like after the demo — required building the whole system, not studying it on the side. She left by choice in August 2025.',
+          q: 'What has she been doing since?',
+          a: 'Building applied-AI systems and independent software projects. Since March 2026, developing the technical foundation for an independent applied-AI practice, still in the prototype and validation stage. She is also looking for her next software-engineering role.',
         },
         {
           q: 'What is actually running today?',
-          a: 'The portfolio chat agent on this site is live. Everything else in the current chapter is research, architecture, prototypes, infrastructure decisions and implementation experiments, plus Casicornio as an operating project. No client-scale metrics are claimed.',
+          a: 'The portfolio chat agent on this site. The rest of the current work is architecture, prototypes, deployed infrastructure and product experimentation, plus Casicornio, which is preparing its first issues.',
         },
       ],
     },
     cta: {
-      heading: 'Build something difficult',
-      body: 'Interested in senior software and applied-AI roles, and in companies with operational workflows worth turning into reliable agentic systems.',
+      heading: 'Let us talk',
+      body: 'Open to senior software engineering and applied-AI roles, and to conversations about systems where correctness matters.',
       ctaLabel: 'Connect on LinkedIn',
       ctaHref: 'https://www.linkedin.com/in/brendastephanie/',
-      secondaryLabel: 'The consulting build log',
-      secondaryHref: '/agentic-ai-consulting',
+      secondaryLabel: 'The applied-AI build log',
+      secondaryHref: '/applied-ai',
     },
   },
   es: {
     slug: 'historia',
     altSlug: 'story',
-    readingTime: '5 min de lectura',
+    readingTime: '4 min de lectura',
     seo: {
-      title: 'Este capítulo no es «no pasó nada».',
+      title: 'Irme, cambiar de país y volver a empezar',
       description:
-        'Quince años de trabajo en sistemas y, en 2025, una salida deliberada del camino empleado para aprender el nuevo stack de IA construyendo con él. La fase de construcción previa al portafolio de clientes.',
+        'Por qué Brenda Manrique dejó Moody\'s en 2025, se mudó de país hasta instalarse en Berlín y empezó a construir sistemas de IA aplicada por su cuenta.',
     },
     header: {
-      kicker: 'La historia · Fase de construcción',
-      h1: 'Este capítulo no es «no pasó nada».',
+      kicker: 'La historia',
+      h1: 'Irme, cambiar de país y volver a empezar',
       subtitle:
-        'Más de quince años construyendo sistemas desde dentro hacia fuera, la decisión de dejar Moody\'s en 2025 y la fase de construcción que precede a un portafolio de clientes.',
+        'Por qué dejé Moody\'s en 2025, lo que implicó de verdad mudarse de país y qué estoy construyendo ahora.',
       date: '1 sep 2026',
     },
     nav: { breadcrumbHome: 'Inicio', breadcrumbCurrent: 'La historia' },
-    status: 'Fase de construcción y validación — desde ago 2025',
+    status: 'Proyectos independientes desde ago 2025',
     directAnswer:
-      'Brenda Manrique lleva más de 15 años construyendo sistemas en producción: ingeniería de sistemas centrada en IA e investigación fractal, después IA para accesibilidad, terminales financieros en tiempo real, plataformas de derivados y riesgo, y analítica de crédito en Moody\'s. En 2025 se apartó del camino empleado para aprender el nuevo stack de IA construyendo con él. Ese hueco no es ausencia: es la fase de construcción previa al portafolio de clientes.',
+      'Brenda Manrique dejó Moody\'s Analytics en agosto de 2025 y se mudó de país hasta establecerse en Berlín. Desde entonces construye sistemas de IA aplicada y proyectos de software propios, y desde marzo de 2026 desarrolla la base técnica de una práctica independiente de IA aplicada. También busca su siguiente puesto de ingeniería de software.',
     sections: {
-      'fifteen-years': {
-        heading: 'Más de 15 años construyendo sistemas desde dentro hacia fuera',
+      'systems-work': {
+        heading: 'El trabajo anterior',
         blocks: [
           {
             kind: 'prose',
-            text: 'Empezó con ingeniería de sistemas centrada en IA, diagnóstico fractal y frameworks de datos móviles: una carrera con concentración en inteligencia artificial, un premio de investigación en 2010 y una tesis con mención honorífica en 2013.',
+            text: 'Empezó con ingeniería de sistemas centrada en IA e investigación fractal: una carrera con concentración en inteligencia artificial, un premio de investigación en 2010 y una tesis con mención honorífica en 2013.',
           },
           {
             kind: 'prose',
-            text: 'Después vinieron la IA para accesibilidad en NYU, los terminales financieros en tiempo real en Money.Net, las plataformas de derivados y riesgo en JPMorgan y la analítica de crédito en Moody\'s. Superficies distintas, un mismo trabajo: entender un proceso complicado lo bastante bien como para convertirlo en software.',
+            text: 'Después vinieron la IA para accesibilidad en NYU, el terminal de mercados en tiempo real en Money.Net, las carteras de derivados y las plataformas de riesgo en JPMorgan, y la analítica de crédito en Moody\'s. Superficies distintas, un mismo trabajo: entender un proceso complicado lo bastante bien como para convertirlo en software.',
           },
         ],
       },
@@ -163,32 +155,24 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
         blocks: [
           {
             kind: 'prose',
-            text: 'En agosto de 2025 dejó Moody\'s Analytics por decisión propia. No porque se acabara el trabajo, sino porque la pregunta que quería responder no se responde por las tardes y los fines de semana.',
-          },
-          {
-            kind: 'quote',
-            text: '¿Qué aspecto tiene una instalación profesional de agentes de IA después de la demo?',
+            text: 'En agosto de 2025 dejó Moody\'s Analytics. Se mudaba de país, y eso no se hace alrededor de la hoja de ruta de otra persona.',
           },
           {
             kind: 'prose',
-            text: 'Responderla implica construirlo todo: despliegue, observabilidad, recuperación ante fallos, permisos, actualizaciones y el límite entre un agente y los sistemas de la empresa que se le permite tocar. Leer sobre ello no es la misma actividad.',
+            text: 'La mudanza llevó su tiempo: temporada en Perú con la familia, unos tres meses por Italia, un mes en China y paradas en Escocia y España. Después Berlín, con todo el papeleo y la logística de establecerse de verdad en un sitio nuevo.',
           },
         ],
       },
       'build-phase': {
-        heading: 'La fase de construcción',
+        heading: 'Volver a empezar',
         blocks: [
           {
             kind: 'prose',
-            text: 'Desde entonces: montar una práctica de consultoría en IA agéntica, prototipar sistemas desplegables, estudiar material de Anthropic con las manos, y llevar Casicornio, una publicación en español sobre fundadores y tecnología que aporta el único bucle de feedback que una carrera de ingeniería no regala.',
-          },
-          {
-            kind: 'callout',
-            text: 'Este capítulo no es «no pasó nada». Es la fase de construcción previa al portafolio de clientes.',
+            text: 'En Berlín empezó a experimentar: productos de software y mucho tiempo dentro del nuevo herramental de IA. La pregunta que valía la pena responder no era si un modelo puede llamar a una herramienta, sino cómo es un sistema de IA pequeño cuando alguien tiene que operarlo: despliegue, permisos, aprobaciones, monitorización y camino de rollback.',
           },
           {
             kind: 'prose',
-            text: 'Y así se dice en todo el sitio. No hay cartera de clientes, ni métricas de cliente a escala de producción, ni una página que insinúe lo contrario. La ingeniería es la prueba.',
+            text: 'Hacia marzo de 2026 eso se convirtió en algo más deliberado: construir la base técnica de una práctica independiente de IA aplicada. Está en fase de prototipos y validación. Todavía no hay clientes de pago.',
           },
         ],
       },
@@ -199,20 +183,20 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
             kind: 'cards',
             items: [
               {
-                title: 'Práctica de consultoría · en construcción',
-                detail: 'Ofertas, patrones de despliegue, arquitectura de cliente, mantenibilidad, observabilidad y entrega repetible para agentes de IA de empresa.',
+                title: 'Sistemas de IA aplicada · prototipos',
+                detail: 'Servicios en Python y FastAPI con recuperación, límites de herramientas tipados, flujos de aprobación y despliegues observables.',
               },
               {
-                title: 'Agente de portafolio · vivo',
+                title: 'Agente de portafolio · en producción',
                 detail: 'El chat de este sitio: RAG híbrido, evals, guardrails y observabilidad, funcionando en público contra preguntas reales.',
               },
               {
-                title: 'Casicornio · en marcha',
-                detail: 'Una publicación sobre fundadores y tecnología, y una forma de aprender distribución y sistemas editoriales haciéndolo.',
+                title: 'Casicornio · por lanzar',
+                detail: 'Una publicación independiente en español sobre startups, tecnología e IA. Los primeros números están en preparación.',
               },
               {
                 title: 'Abierta a roles',
-                detail: 'Roles senior de software e IA aplicada, y conversaciones con empresas que tengan flujos operativos que merezcan convertirse en sistemas agénticos fiables.',
+                detail: 'Roles senior de ingeniería de software y de IA aplicada.',
               },
             ],
           },
@@ -223,26 +207,26 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
       heading: 'Preguntas frecuentes',
       items: [
         {
-          q: '¿Por qué hay un hueco después de Moody\'s?',
-          a: 'No hay hueco. Desde agosto de 2025 está en una fase deliberada de construcción y validación: diseñar una práctica de consultoría en IA agéntica, prototipar servicios de agente en Python/FastAPI con RAG, memoria, integraciones de herramientas y patrones de aprobación humana, estudiar material de Anthropic con las manos y llevar Casicornio. Es pre-escala a propósito.',
+          q: '¿Por qué dejó Moody\'s?',
+          a: 'Se fue en agosto de 2025 porque se mudaba de país. La mudanza la llevó por Perú, Italia, China, Escocia y España antes de establecerse en Berlín.',
         },
         {
-          q: '¿Por qué dejar un rol senior para hacer esto?',
-          a: 'Porque la pregunta que quería responder —qué aspecto tiene una instalación profesional de agentes de IA después de la demo— exigía construir el sistema entero, no estudiarlo en paralelo. Se fue por decisión propia en agosto de 2025.',
+          q: '¿Qué ha hecho desde entonces?',
+          a: 'Construir sistemas de IA aplicada y proyectos de software propios. Desde marzo de 2026 desarrolla la base técnica de una práctica independiente de IA aplicada, todavía en fase de prototipos y validación. También busca su siguiente puesto de ingeniería de software.',
         },
         {
           q: '¿Qué está funcionando hoy realmente?',
-          a: 'El agente de chat del portafolio de este sitio está vivo. Todo lo demás del capítulo actual es investigación, arquitectura, prototipos, decisiones de infraestructura y experimentos de implementación, más Casicornio como proyecto en marcha. No se afirman métricas a escala de cliente.',
+          a: 'El agente de chat de este portafolio. El resto del trabajo actual es arquitectura, prototipos, infraestructura desplegada y experimentación con productos, más Casicornio, que está preparando sus primeros números.',
         },
       ],
     },
     cta: {
-      heading: 'Construir algo difícil',
-      body: 'Interesada en roles senior de software e IA aplicada, y en empresas con flujos operativos que merezcan convertirse en sistemas agénticos fiables.',
+      heading: 'Hablemos',
+      body: 'Abierta a roles senior de ingeniería de software y de IA aplicada, y a conversaciones sobre sistemas donde la corrección importa.',
       ctaLabel: 'Conectar en LinkedIn',
       ctaHref: 'https://www.linkedin.com/in/brendastephanie/',
-      secondaryLabel: 'El build log de consultoría',
-      secondaryHref: '/consultoria-ia-agentica',
+      secondaryLabel: 'El build log de IA aplicada',
+      secondaryHref: '/ia-aplicada',
     },
   },
 }

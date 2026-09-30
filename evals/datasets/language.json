@@ -14,7 +14,7 @@
         },
         {
           "type": "llm_judge",
-          "criteria": "Responde en español y describe la práctica de consultoría en construcción, el agente de chat vivo, el estudio práctico y Casicornio."
+          "criteria": "Responde en español y describe los prototipos de IA aplicada, el agente de chat en producción y Casicornio por lanzar."
         }
       ]
     },
@@ -47,9 +47,9 @@
       ]
     },
     {
-      "id": "es-moodys-metrics-identical",
-      "description": "Hard metrics must not drift between languages",
-      "input": "¿Qué resultados tuvo el overlay cualitativo en bloque en Moody's?",
+      "id": "es-moodys-attribution-identical",
+      "description": "Team attribution must not drift between languages",
+      "input": "¿Qué hizo exactamente en el overlay cualitativo de Moody's?",
       "lang": "es",
       "assertions": [
         {
@@ -57,23 +57,19 @@
           "expected": "es"
         },
         {
-          "type": "contains_any",
-          "values": [
-            "5.000",
-            "5,000",
-            "5000"
-          ]
+          "type": "not_contains",
+          "value": "5.000"
         },
         {
           "type": "llm_judge",
-          "criteria": "Cita unas 5.000 PDs de scorecard y dos días laborables. No añade ninguna otra métrica."
+          "criteria": "Dice que construyó partes del flujo de overlay cualitativo como parte del equipo de ingeniería de Predictive Analytics. No le atribuye el sistema entero y no cita ninguna métrica."
         }
       ]
     },
     {
       "id": "es-consulting-boundary-identical",
-      "description": "The pre-scale boundary must not soften in translation",
-      "input": "Háblame de su negocio de consultoría de IA.",
+      "description": "The no-clients boundary must not soften in translation",
+      "input": "Háblame de su práctica independiente de IA.",
       "lang": "es",
       "assertions": [
         {
@@ -82,7 +78,7 @@
         },
         {
           "type": "llm_judge",
-          "criteria": "Describe la práctica como pre-escala, en fase de construcción y validación. No la presenta como un negocio en marcha con clientes."
+          "criteria": "Describe la práctica como en fase de prototipos y validación, sin clientes de pago. No la presenta como un negocio en marcha con clientes."
         }
       ]
     }

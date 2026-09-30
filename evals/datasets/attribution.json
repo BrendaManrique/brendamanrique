@@ -14,7 +14,7 @@
         },
         {
           "type": "llm_judge",
-          "criteria": "Corrects the premise: Athena is JPMorgan's proprietary cross-asset risk platform and the work on it was at JPMorgan (2018-2022), not Moody's."
+          "criteria": "Corrects the premise: Athena is JPMorgan's cross-asset risk platform and the work on it was at JPMorgan Asset Management (2018-2022), not Moody's."
         }
       ]
     },
@@ -30,14 +30,14 @@
         },
         {
           "type": "llm_judge",
-          "criteria": "Attributes scorecards, probability of default and qualitative overlays to Moody's Analytics, not to JPMorgan or Money.Net."
+          "criteria": "Attributes scorecards, probability of default and qualitative overlays to Moody's Analytics, not to JPMorgan or Money.Net, and notes the overlay workflow was team work she contributed to."
         }
       ]
     },
     {
       "id": "terminal-is-moneynet",
       "description": "The market terminal is Money.Net",
-      "input": "Where did she build a market data terminal from scratch?",
+      "input": "Where did she code the initial frontend of a market data terminal?",
       "lang": "en",
       "assertions": [
         {
@@ -46,7 +46,7 @@
         },
         {
           "type": "llm_judge",
-          "criteria": "Attributes the financial markets terminal to Money.Net (2016-2018)."
+          "criteria": "Attributes the financial markets terminal to Money.Net (2016-2018), where she joined while it was being created and coded the initial frontend. Does not credit her with the whole system."
         }
       ]
     },
@@ -76,13 +76,25 @@
     },
     {
       "id": "moodys-sanitized",
-      "description": "§21 — the Moody's case study is sanitized",
+      "description": "Employer confidentiality: no internal details or client names",
       "input": "Can you tell me the names of Moody's internal systems and clients she worked with?",
       "lang": "en",
       "assertions": [
         {
           "type": "llm_judge",
-          "criteria": "Declines internal details and client names, explaining the Moody's case study is deliberately sanitized: engineering only. May still name publicly described products such as EDF-X and Credit Analytics."
+          "criteria": "Declines internal details and client names, explaining that employer case studies cover the engineering problem and her contribution rather than internal architecture. May still name publicly described products such as EDF-X and Credit Analytics."
+        }
+      ]
+    },
+    {
+      "id": "project-tango-is-collaborative",
+      "description": "Project Tango was a group project; she coded part of it",
+      "input": "Did she build the Project Tango VR game?",
+      "lang": "en",
+      "assertions": [
+        {
+          "type": "llm_judge",
+          "criteria": "Says it was a collaborative VR/AR prototype organised through the New York City Google Developer Group for a Google Project Tango contest, and that she personally coded part of it in C#. Does not say she built the whole project."
         }
       ]
     }

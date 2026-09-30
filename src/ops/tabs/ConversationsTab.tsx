@@ -8,7 +8,7 @@ import type { TabProps } from '../types'
 export default function ConversationsTab({ loading: _statsLoading }: TabProps) {
   const [filters, setFilters] = useState<TraceFilters>({ days: 7 })
   const [selected, setSelected] = useState<string | null>(null)
-  const { traces, total, loading, loadMore, resetFilters } = useTraces(filters)
+  const { traces, total, hasMore, loading, loadMore, resetFilters } = useTraces(filters)
 
   useEffect(() => {
     resetFilters()
@@ -30,7 +30,7 @@ export default function ConversationsTab({ loading: _statsLoading }: TabProps) {
             onSelect={setSelected}
             loading={loading}
           />
-          {traces.length < total && (
+          {hasMore && (
             <button
               onClick={loadMore}
               disabled={loading}

@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback, useMemo, useReducer, useRef } from 'react'
-import { useLocation, Link } from 'react-router-dom'
+import { Fragment, useState, useEffect, useCallback, useMemo, useReducer, useRef, useSyncExternalStore } from 'react'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'motion/react'
-import { ExternalLink, Briefcase, GraduationCap, Bot, BadgeCheck, FolderGit2, Sparkles, Github, AlertTriangle, ChevronRight, List, SkipForward, Clock, Wrench, Mail } from 'lucide-react'
+import { ExternalLink, Briefcase, Bot, FolderGit2, Github, FlaskConical, ChevronRight, List, SkipForward, Mail, ArrowRight, CalendarDays } from 'lucide-react'
 import { translations, seo, type Lang } from './i18n'
 import { useHomeSeo } from './articles/use-article-seo'
-import { AVATAR, AVATAR_ALT, AVATAR_SM, GITHUB_URL, LINKEDIN_URL } from './site'
+import { AVATAR, AVATAR_ALT, AVATAR_SM, BOOKING_URL, GITHUB_URL, LANG_REDIRECT_KEY, LINKEDIN_URL } from './site'
 
 
 function LinkedInLogo({ className = "w-4 h-4" }: { className?: string }) {
@@ -15,10 +15,97 @@ function LinkedInLogo({ className = "w-4 h-4" }: { className?: string }) {
   )
 }
 
+/**
+ * "/" is the Spanish home; "/en" is the English one. A visitor who types the
+ * bare domain (a recruiter following a CV link, say) lands on Spanish whatever
+ * their browser asks for, so a non-Spanish browser is sent to /en once per
+ * session — replace(), so Back still leaves the site.
+ *
+ * Deliberately narrow: only from "/", never from an explicit /en or a deep
+ * article link, and never for crawlers. Googlebot reports an English locale,
+ * and bouncing it off the Spanish canonical root would undercut the hreflang
+ * alternates in index.html. The banner in GlobalNav still covers the rest.
+ */
+const BOT_UA = /bot|crawl|spider|slurp|mediapartners|lighthouse|headless|preview/i
+
+function useBrowserLanguageRedirect(lang: Lang) {
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (lang !== 'es') return
+    if (typeof navigator === 'undefined') return
+    if (BOT_UA.test(navigator.userAgent)) return
+    if (navigator.language.toLowerCase().startsWith('es')) return
+    try {
+      if (sessionStorage.getItem(LANG_REDIRECT_KEY)) return
+      sessionStorage.setItem(LANG_REDIRECT_KEY, '1')
+    } catch {
+      // Private mode or blocked storage: redirect once and accept that a
+      // manual switch back to "/" may bounce again this session.
+    }
+    navigate('/en', { replace: true })
+  }, [lang, navigate])
+}
+
 function useHydrated() {
   const [hydrated, setHydrated] = useState(false)
   useEffect(() => setHydrated(true), [])
   return hydrated
+}
+
+// Types a role, pauses, deletes it, moves to the next. Holds on the first role
+// when the visitor prefers reduced motion.
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
+function subscribeReducedMotion(onChange: () => void) {
+  const mq = window.matchMedia(REDUCED_MOTION_QUERY)
+  mq.addEventListener('change', onChange)
+  return () => mq.removeEventListener('change', onChange)
+}
+
+function useTypewriterRotation(roles: readonly string[], { typeSpeed = 80, deleteSpeed = 60, pauseAfterType = 2000, pauseAfterDelete = 300 } = {}) {
+  const [roleIndex, setRoleIndex] = useState(0)
+  const [displayText, setDisplayText] = useState(roles[0])
+  const [isDeleting, setIsDeleting] = useState(false)
+  const reducedMotion = useSyncExternalStore(
+    subscribeReducedMotion,
+    () => window.matchMedia(REDUCED_MOTION_QUERY).matches,
+    () => false,
+  )
+
+  // A language switch swaps the role list; start over from its first role.
+  const [prevRoles, setPrevRoles] = useState(roles)
+  if (roles !== prevRoles) {
+    setPrevRoles(roles)
+    setRoleIndex(0)
+    setDisplayText(roles[0])
+    setIsDeleting(false)
+  }
+
+  const currentRole = roles[roleIndex]
+
+  useEffect(() => {
+    if (reducedMotion) return
+    let timeout: ReturnType<typeof setTimeout>
+
+    if (!isDeleting && displayText === currentRole) {
+      // Finished typing — pause then start deleting
+      timeout = setTimeout(() => setIsDeleting(true), pauseAfterType)
+    } else if (isDeleting && displayText === '') {
+      // Finished deleting — move to next role and start typing
+      timeout = setTimeout(() => {
+        setRoleIndex(i => (i + 1) % roles.length)
+        setIsDeleting(false)
+      }, pauseAfterDelete)
+    } else if (isDeleting) {
+      timeout = setTimeout(() => setDisplayText(displayText.slice(0, -1)), deleteSpeed)
+    } else {
+      // Typing character by character
+      timeout = setTimeout(() => setDisplayText(currentRole.slice(0, displayText.length + 1)), typeSpeed)
+    }
+
+    return () => clearTimeout(timeout)
+  }, [displayText, isDeleting, currentRole, roles, reducedMotion, typeSpeed, deleteSpeed, pauseAfterType, pauseAfterDelete])
+
+  return { displayText: reducedMotion ? roles[0] : displayText, animating: !reducedMotion }
 }
 
 function useInView(threshold = 0.1) {
@@ -95,150 +182,11 @@ function useHeroStyles() {
   }, [])
 }
 
-// ---------------------------------------------------------------------------
-// GridSnakes — subtle animated trails on the dot grid (hero only)
-// ---------------------------------------------------------------------------
-const GRID = 24                // matches CSS dot grid size
-const SNAKE_COUNT = 3
-const SNAKE_LENGTH = 8         // dots per trail
-const TICK_MS = 180            // movement speed (lower = faster)
-const DIRS: [number, number][] = [[1,0],[-1,0],[0,1],[0,-1]]
-
-function GridSnakes() {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const parent = canvas.parentElement
-    if (!parent) return
-
-    const resize = () => {
-      canvas.width = parent.clientWidth
-      canvas.height = parent.clientHeight
-    }
-    resize()
-    window.addEventListener('resize', resize)
-
-    // Initialize snakes at random grid positions
-    const cols = () => Math.floor(canvas.width / GRID)
-    const rows = () => Math.floor(canvas.height / GRID)
-
-    type Snake = { trail: [number, number][]; dir: [number, number] }
-    const snakes: Snake[] = Array.from({ length: SNAKE_COUNT }, () => {
-      const x = Math.floor(Math.random() * cols())
-      const y = Math.floor(Math.random() * rows())
-      return { trail: [[x, y]], dir: DIRS[Math.floor(Math.random() * 4)] }
-    })
-
-    const tick = () => {
-      const c = cols()
-      const r = rows()
-
-      for (const snake of snakes) {
-        // 30% chance to turn
-        if (Math.random() < 0.3) {
-          snake.dir = DIRS[Math.floor(Math.random() * 4)]
-        }
-        const [hx, hy] = snake.trail[snake.trail.length - 1]
-        let nx = hx + snake.dir[0]
-        let ny = hy + snake.dir[1]
-
-        // Wrap around edges
-        if (nx < 0) nx = c - 1
-        if (nx >= c) nx = 0
-        if (ny < 0) ny = r - 1
-        if (ny >= r) ny = 0
-
-        snake.trail.push([nx, ny])
-        if (snake.trail.length > SNAKE_LENGTH) snake.trail.shift()
-      }
-
-      // Draw
-      const ctx = canvas.getContext('2d')
-      if (!ctx) return
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-      for (const snake of snakes) {
-        for (let i = 0; i < snake.trail.length; i++) {
-          const [gx, gy] = snake.trail[i]
-          const alpha = ((i + 1) / snake.trail.length) * 0.5
-          ctx.beginPath()
-          ctx.arc(gx * GRID + GRID / 2, gy * GRID + GRID / 2, 1.5, 0, Math.PI * 2)
-          ctx.fillStyle = `rgba(0, 217, 255, ${alpha})`
-          ctx.fill()
-        }
-      }
-    }
-
-    let interval: ReturnType<typeof setInterval> | null = null
-    const start = () => { if (!interval) interval = setInterval(tick, TICK_MS) }
-    const stop = () => { if (interval) { clearInterval(interval); interval = null } }
-
-    // Only animate when canvas is in viewport AND tab is visible
-    const io = new IntersectionObserver(
-      entries => { entries[0].isIntersecting && document.visibilityState === 'visible' ? start() : stop() },
-      { threshold: 0 },
-    )
-    io.observe(canvas)
-
-    const onVisibility = () => { document.visibilityState === 'visible' && canvas.getBoundingClientRect().top < window.innerHeight ? start() : stop() }
-    document.addEventListener('visibilitychange', onVisibility)
-
-    return () => {
-      stop()
-      io.disconnect()
-      document.removeEventListener('visibilitychange', onVisibility)
-      window.removeEventListener('resize', resize)
-    }
-  }, [])
-
-  return <canvas ref={canvasRef} className="absolute inset-0 pointer-events-none z-[1]" />
-}
-
-
-function useTypewriterRotation(roles: readonly string[], { typeSpeed = 80, deleteSpeed = 60, pauseAfterType = 2000, pauseAfterDelete = 300 } = {}) {
-  const [roleIndex, setRoleIndex] = useState(0)
-  const [displayText, setDisplayText] = useState(roles[0])
-  const [isDeleting, setIsDeleting] = useState(false)
-  const currentRole = roles[roleIndex]
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>
-
-    if (!isDeleting && displayText === currentRole) {
-      // Finished typing — pause then start deleting
-      timeout = setTimeout(() => setIsDeleting(true), pauseAfterType)
-    } else if (isDeleting && displayText === '') {
-      // Finished deleting — move to next role and start typing
-      timeout = setTimeout(() => {
-        setRoleIndex(i => (i + 1) % roles.length)
-        setIsDeleting(false)
-      }, pauseAfterDelete)
-    } else if (isDeleting) {
-      // Deleting word by word (ctrl+backspace style)
-      timeout = setTimeout(() => {
-        const words = displayText.trimEnd().split(' ')
-        words.pop()
-        setDisplayText(words.length > 0 ? words.join(' ') + ' ' : '')
-      }, deleteSpeed)
-    } else {
-      // Typing character by character
-      timeout = setTimeout(() => {
-        setDisplayText(currentRole.slice(0, displayText.length + 1))
-      }, typeSpeed)
-    }
-
-    return () => clearTimeout(timeout)
-  }, [displayText, isDeleting, currentRole, roles, typeSpeed, deleteSpeed, pauseAfterType, pauseAfterDelete])
-
-  return { displayText, roleIndex, isDeleting }
-}
 
 const HOME_TOC_SECTIONS = [
   { id: 'experience', es: 'Experiencia', en: 'Experience' },
-  { id: 'projects', es: 'Proyectos', en: 'Projects' },
-  { id: 'building-now', es: 'Construyendo ahora', en: 'Building now' },
+  { id: 'projects', es: 'Proyectos independientes', en: 'Independent Projects' },
+  { id: 'earlier-projects', es: 'Proyectos anteriores', en: 'Earlier Projects' },
   { id: 'education', es: 'Formación', en: 'Education' },
   { id: 'tech', es: 'Skills & Stack', en: 'Skills & Stack' },
   { id: 'contact', es: 'Contacto', en: 'Contact' },
@@ -378,7 +326,7 @@ function HomeToc({ lang }: { lang: Lang }) {
           {tocOpen && (
             <>
               <div className="2xl:hidden fixed inset-0 bg-background/60 backdrop-blur-sm z-40" onClick={() => setTocOpen(false)} />
-              <div className="2xl:hidden fixed bottom-20 right-6 z-50 w-64 max-h-[70vh] overflow-y-auto bg-card border border-border rounded-xl shadow-xl p-4">
+              <div className="2xl:hidden fixed bottom-20 right-6 z-50 w-64 max-h-[70vh] overflow-y-auto bg-card rounded-xl shadow-xl p-4">
                 {tocNav}
               </div>
             </>
@@ -1174,7 +1122,7 @@ function StorySection({ t }: { t: (typeof translations)[Lang] }) {
     // Secuencia de animación post-typewriter:
     // 1. Esperar a que Tipo B (Construir) termine de desvanecerse (~2.5s transición)
     // 2. Dimmed: todo se atenúa
-    // 3. FinalReveal: Tipo C se enciende con gradiente (+15 años + sistemas)
+    // 3. FinalReveal: Tipo C se enciende con gradiente
     // 4. Revealed: resto del texto se enciende, Tipo C MANTIENE gradiente
 
     // Step 1: Dim everything (2500ms - espera a que Tipo B haya perdido gradiente)
@@ -1250,7 +1198,7 @@ function StorySection({ t }: { t: (typeof translations)[Lang] }) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 onClick={() => skipRef.current?.()}
-                className="absolute bottom-0 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm text-muted-foreground border border-border/50 bg-card backdrop-blur-sm cursor-pointer hover:bg-primary/10 hover:border-primary/30 hover:text-foreground transition-colors duration-200"
+                className="absolute bottom-0 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm text-muted-foreground glass-card cursor-pointer hover:bg-primary/10 hover:text-foreground transition-colors duration-200"
               >
                 <SkipForward className="w-3.5 h-3.5" />
                 {t.story.skipButton}
@@ -1275,50 +1223,12 @@ function StorySection({ t }: { t: (typeof translations)[Lang] }) {
           }
           style={{ overflow: 'hidden' }}
         >
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={typewriterComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-            transition={{ duration: 0.6, delay: typewriterComplete ? 0.1 : 0, ease: [0.25, 0.46, 0.45, 0.94] }}
-          >
-            <p className={`text-base md:text-lg text-muted-foreground leading-relaxed text-center max-w-3xl mx-auto transition-opacity duration-[2500ms] ease-in-out ${textDimmed ? (textRevealed ? 'opacity-50' : 'opacity-15') : 'opacity-100'}`}>
-              {t.story.why}
-            </p>
-          </motion.div>
-
-          <div className="mt-6 text-center max-w-3xl mx-auto">
-            {t.story.seeking.map((line, i) => {
-              // Spotlight: lines 0 and 2 light up with finalReveal, line 1 stays as background
-              const isSpotlit = i === 0 || i === 2
-              const dimOpacity = textDimmed
-                ? (isSpotlit ? (finalReveal ? 'opacity-100' : 'opacity-15') : (textRevealed ? 'opacity-50' : 'opacity-15'))
-                : 'opacity-100'
-
-              return (
-                <motion.p
-                  key={i}
-                  initial={{ opacity: 0, y: 15 }}
-                  animate={typewriterComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-                  transition={{ duration: 0.6, delay: typewriterComplete ? 0.3 + i * 0.2 : 0, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  className={`transition-opacity duration-[2500ms] ease-in-out ${dimOpacity} ${
-                    i === 2
-                      ? 'font-display text-lg md:text-2xl font-bold text-gradient-theme leading-snug'
-                      : i === 1
-                        ? 'font-display text-lg md:text-2xl text-muted-foreground leading-snug'
-                        : 'font-display text-lg md:text-2xl font-bold text-foreground leading-snug'
-                  }`}
-                >
-                  {line}
-                </motion.p>
-              )
-            })}
-          </div>
-
           {/* Burbujas de navegación - delays sincronizados */}
           <motion.div
             initial={{ opacity: 0, y: 15 }}
             animate={typewriterComplete ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-            transition={{ duration: 0.6, delay: typewriterComplete ? 0.9 : 0, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className={`flex flex-wrap justify-center gap-3 mt-10 mb-12 transition-opacity duration-[2500ms] ease-in-out ${textDimmed && !textRevealed ? 'opacity-15' : 'opacity-100'}`}
+            transition={{ duration: 0.6, delay: typewriterComplete ? 0.3 : 0, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className={`flex flex-wrap justify-center gap-3 mt-2 mb-12 transition-opacity duration-[2500ms] ease-in-out ${textDimmed && !textRevealed ? 'opacity-15' : 'opacity-100'}`}
           >
           {t.story.nav.map((item) => {
             const icons: Record<string, React.ReactNode> = {
@@ -1340,8 +1250,8 @@ function StorySection({ t }: { t: (typeof translations)[Lang] }) {
                 href={item.href}
                 onClick={handleClick}
                 className={isHighlight
-                  ? "flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-theme text-white border border-transparent hover:brightness-110 hover:shadow-xl hover:shadow-primary/30 active:brightness-95 transition-all duration-200 text-sm font-medium shadow-lg shadow-primary/25"
-                  : "flex items-center gap-2 px-4 py-2 rounded-full bg-card border border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 text-sm font-medium"
+                  ? "btn-green flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
+                  : "glass-card glass-card-lift flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
                 }
               >
                 {icons[item.icon]}
@@ -1358,16 +1268,11 @@ function StorySection({ t }: { t: (typeof translations)[Lang] }) {
 
 
 // ---------------------------------------------------------------------------
-// Section shell — heading with icon, shared by every content section
+// Section shell — heading shared by every content section
 // ---------------------------------------------------------------------------
-function SectionHeading({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
+function SectionHeading({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="font-display text-2xl font-semibold mb-4 flex items-center gap-3">
-      <span className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-        {icon}
-      </span>
-      {children}
-    </h2>
+    <h2 className="section-heading font-display text-2xl md:text-3xl font-semibold">{children}</h2>
   )
 }
 
@@ -1375,9 +1280,10 @@ function App() {
   const location = useLocation()
   const lang: Lang = location.pathname === '/en' ? 'en' : 'es'
   const t = translations[lang]
+  useBrowserLanguageRedirect(lang)
   const hydrated = useHydrated()
   useHeroStyles()
-  const { displayText: roleText } = useTypewriterRotation(t.greetingRoles)
+  const { displayText: roleText, animating: roleAnimating } = useTypewriterRotation(t.greetingRoles)
 
   const seoData = seo[lang]
   useHomeSeo({ lang, title: seoData.title, description: seoData.description })
@@ -1401,112 +1307,114 @@ function App() {
       {/* ------------------------------------------------------------------ */}
       {/* Hero                                                                */}
       {/* ------------------------------------------------------------------ */}
-      <header id="main-content" className="relative overflow-hidden">
-        <GridSnakes />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-accent/5 to-transparent" />
-        <div className="absolute top-0 right-[max(0px,calc(50%-40rem))] w-[600px] h-[600px] rounded-full blur-3xl -translate-y-1/3 translate-x-1/3 hidden sm:block animate-[hero-glow_8s_ease-in-out_infinite]" style={{ backgroundColor: 'hsl(var(--hero-orb-primary))' }} />
-        <div className="absolute bottom-0 left-[max(0px,calc(50%-40rem))] w-[550px] h-[550px] rounded-full blur-3xl translate-y-1/3 -translate-x-1/3 hidden sm:block animate-[hero-glow_11s_ease-in-out_infinite_reverse]" style={{ backgroundColor: 'hsl(var(--hero-orb-accent))' }} />
-
-        <div className="relative max-w-5xl mx-auto px-6 pt-20 pb-12 md:pt-32 md:pb-16">
-          <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-            {/* Portrait */}
-            <motion.div
-              initial={hydrated ? { opacity: 0, scale: 0.8 } : false}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="relative"
-            >
-              <div className="relative w-40 h-40 md:w-48 md:h-48">
-                <div className="absolute inset-0 rounded-full bg-gradient-theme-30 blur-xl" />
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-white/5 md:backdrop-blur-sm border border-white/20 shadow-2xl" />
-                <div className="absolute inset-2 rounded-full bg-gradient-theme-50 p-[2px]">
-                  <div className="w-full h-full rounded-full overflow-hidden">
-                    <img
-                      src={AVATAR_SM}
-                      srcSet={`${AVATAR_SM} 96w, ${AVATAR} 227w`}
-                      sizes="(max-width: 768px) 160px, 192px"
-                      alt={AVATAR_ALT}
-                      className="w-full h-full object-cover"
-                      width={192}
-                      height={192}
-                      fetchPriority="high"
-                    />
-                  </div>
-                </div>
-                {/* Anchored to the portrait box, not the column — the CTA below must not move it. */}
-                <motion.div
-                  initial={hydrated ? { scale: 0 } : false}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
-                  className="absolute -bottom-1 -right-1 w-10 h-10 rounded-full bg-gradient-theme flex items-center justify-center shadow-lg border-2 border-background"
-                >
-                  <BadgeCheck className="w-6 h-6 text-white" />
-                </motion.div>
-              </div>
-              <button
-                onClick={openChat}
-                className="mt-4 flex mx-auto items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-theme-r text-white font-medium text-sm hover:brightness-110 transition-all shadow-lg shadow-primary/20"
-              >
-                <Bot className="w-4 h-4" />
-                {t.agentCard.cta}
-              </button>
-            </motion.div>
-
-            <motion.div
-              initial={hydrated ? { opacity: 0, x: -20 } : false}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-center md:text-left"
-            >
-              <p className="text-lg text-muted-foreground mb-2">
-                {t.greeting}{' '}
-                <Link to={lang === 'es' ? '/sobre-mi' : '/about'} className="text-gradient-theme font-semibold hover:opacity-80 transition-opacity">
-                  Brenda Manrique
-                </Link>
-                .
-              </p>
-              <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4 leading-tight">
-                <span className="text-gradient-theme">{hydrated ? roleText : t.greetingRoles[0]}</span>
-                {hydrated && <span className="inline-block w-[3px] h-[0.85em] bg-primary ml-1 rounded-sm translate-y-[2px]" style={{ animation: 'blink 1s step-end infinite' }} />}
-                <br />
-                {t.heroLines[0]}
-                <br />
-                {t.heroLines[1]}
-              </h1>
-
-              <p className="text-base md:text-lg text-muted-foreground leading-relaxed max-w-2xl mb-6">
-                {t.heroSubtitle}
-              </p>
-
-              <div className="flex flex-wrap justify-center md:justify-start gap-3">
-                {t.pillLabels.map((label) => (
-                  <span
-                    key={label}
-                    className="px-4 py-2 rounded-full text-sm font-medium border border-[#20d6ee]/30 bg-background/80 text-muted-foreground backdrop-blur-sm"
-                  >
-                    {label}
-                  </span>
-                ))}
-              </div>
-            </motion.div>
+      <header id="main-content" className="portfolio-hero">
+        {/* Editorial construction drawing; see .hero-construct in index.css */}
+        <div className="hero-construct" aria-hidden="true" />
+        <div className="hero-shell">
+          <div className="hero-nav">
+            <span className="hero-wordmark">BRENDA MANRIQUE</span>
+            <nav className="hero-nav-links" aria-label={lang === 'en' ? 'Primary navigation' : 'Navegación principal'}>
+              <a href="#experience">{t.heroNav.work}</a>
+              <a href="#projects">{t.heroNav.projects}</a>
+              <Link to={lang === 'es' ? '/sobre-mi' : '/about'}>{t.heroNav.about}</Link>
+              <a href={GITHUB_URL} target="_blank" rel="noreferrer">GitHub</a>
+            </nav>
           </div>
 
-          {/* Credibility strip — places studied/built at, no logos, no claims */}
-          <AnimatedSection delay={0.1}>
-            <div className="mt-12 pt-8 border-t border-border/50">
-              <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground/70 text-center mb-4">
-                {t.credibility.label}
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-                {t.credibility.items.map((item) => (
-                  <span key={item} className="text-sm font-medium tracking-wide text-muted-foreground">
-                    {item}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </AnimatedSection>
+          <div className="hero-stage">
+            <div className="hero-center">
+              {/* Portrait */}
+              <motion.div
+                initial={hydrated ? { opacity: 0, scale: 0.8 } : false}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                className="hero-portrait"
+              >
+                <img
+                  src={AVATAR_SM}
+                  srcSet={`${AVATAR_SM} 96w, ${AVATAR} 227w`}
+                  sizes="(max-width: 900px) 140px, 172px"
+                  alt={AVATAR_ALT}
+                  width={172}
+                  height={172}
+                  fetchPriority="high"
+                />
+                {/* AI presence badge, anchored to the portrait box so nothing below can move it. */}
+                <motion.button
+                  type="button"
+                  onClick={openChat}
+                  initial={hydrated ? { scale: 0, opacity: 0 } : false}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.4, type: 'spring', stiffness: 200 }}
+                  className="hero-ai-status"
+                  aria-label={t.agentCard.cta}
+                >
+                  <span className="status-live-dot" aria-hidden="true" />
+                  {t.aiOnline}
+                </motion.button>
+              </motion.div>
 
+              <motion.div
+                initial={hydrated ? { opacity: 0, y: 16 } : false}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="flex flex-col items-center w-full"
+              >
+                <p className="hero-eyebrow">
+                  {t.greeting}{' '}
+                  <Link
+                    to={lang === 'es' ? '/sobre-mi' : '/about'}
+                    className="font-semibold underline-offset-4 decoration-1 hover:underline"
+                  >
+                    Brenda Manrique
+                  </Link>
+                  .
+                </p>
+
+                {/* Crawlers read the pre-hydration text (the first role); screen
+                    readers get the label instead of the typing. */}
+                <h1 className="hero-title" id="portfolio-hero-title" aria-label={t.heroRole}>
+                  <span className="hero-title-rotator">
+                    <span>
+                      <span className="text-gradient-theme">{hydrated ? roleText : t.greetingRoles[0]}</span>
+                      {hydrated && roleAnimating && <span className="hero-title-caret" />}
+                    </span>
+                  </span>
+                </h1>
+
+                <p className="hero-subtitle">{t.heroLine}</p>
+
+                <div className="hero-actions">
+                  <button onClick={openChat} className="hero-primary-cta">
+                    <span className="status-live-dot" aria-hidden="true" />
+                    {t.agentCard.cta}
+                    <ArrowRight className="hero-primary-cta-arrow w-[18px] h-[18px]" aria-hidden="true" />
+                  </button>
+                  <a className="hero-secondary-cta" href="#experience">
+                    {t.heroSecondaryCta}
+                  </a>
+                </div>
+
+                <div className="hero-tags" aria-label={lang === 'en' ? 'Areas of focus' : 'Áreas de enfoque'}>
+                  {t.pillLabels.map((label) => (
+                    <span key={label} className="hero-tag">{label}</span>
+                  ))}
+                </div>
+
+                <p className="hero-credits">
+                  <span className="hero-credits-label">{t.credibility.label}</span>
+                  <span className="hero-credits-names">
+                    {t.credibility.items.map((item, i) => (
+                      <Fragment key={item}>
+                        {i > 0 && <span className="hero-credits-sep" aria-hidden="true">·</span>}
+                        <span>{item}</span>
+                      </Fragment>
+                    ))}
+                  </span>
+                </p>
+              </motion.div>
+            </div>
+          </div>
         </div>
       </header>
 
@@ -1516,10 +1424,10 @@ function App() {
       {/* ------------------------------------------------------------------ */}
       {/* Experience                                                          */}
       {/* ------------------------------------------------------------------ */}
-      <section id="experience" className="py-16 md:py-24 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 2000px' }}>
+      <section id="experience" className="glass-stage py-16 md:py-24 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 2000px' }}>
         <div className="max-w-5xl mx-auto px-6">
           <AnimatedSection>
-            <SectionHeading icon={<Briefcase className="w-5 h-5" />}>{t.experience.title}</SectionHeading>
+            <SectionHeading>{t.experience.title}</SectionHeading>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-10 max-w-3xl">
               {t.experience.lead}
             </p>
@@ -1528,20 +1436,13 @@ function App() {
           <div className="space-y-6">
             {t.experience.items.map((job, i) => (
               <AnimatedSection key={job.company + job.period} delay={i * 0.05}>
-                <article className="bg-card border border-border rounded-xl p-6 hover:border-primary/20 transition-colors">
+                <article className="glass-card rounded-2xl p-6">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-1">
                     <h3 className="font-display text-lg font-semibold text-foreground">{job.company}</h3>
                     <span className="text-sm font-mono text-primary whitespace-nowrap">{job.period}</span>
                   </div>
                   <p className="text-sm font-medium text-foreground/90">{job.role}</p>
                   <p className="text-sm text-muted-foreground mb-3">{job.location}</p>
-
-                  {'status' in job && job.status && (
-                    <span className="inline-flex items-center gap-1.5 mb-4 px-3 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary border border-primary/20">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-                      {job.status}
-                    </span>
-                  )}
 
                   {'summary' in job && job.summary && (
                     <p className="text-base text-muted-foreground leading-relaxed mb-4">{job.summary}</p>
@@ -1555,23 +1456,6 @@ function App() {
                       </li>
                     ))}
                   </ul>
-
-                  {'metrics' in job && job.metrics && (
-                    <div className="grid sm:grid-cols-3 gap-3 mb-4">
-                      {job.metrics.map((m) => (
-                        <div key={m.label} className="bg-muted/30 border border-border rounded-lg p-3 text-center">
-                          <p className="text-xl font-bold text-primary mb-0.5">{m.value}</p>
-                          <p className="text-xs text-muted-foreground leading-snug">{m.label}</p>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {'callout' in job && job.callout && (
-                    <p className="bg-primary/5 border-l-4 border-primary/40 rounded-r-lg pl-4 pr-3 py-3 text-sm text-foreground leading-relaxed mb-4">
-                      {job.callout}
-                    </p>
-                  )}
 
                   {'caseStudyUrl' in job && job.caseStudyUrl && (
                     <Link
@@ -1590,25 +1474,71 @@ function App() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* Projects                                                            */}
+      {/* Independent projects                                                */}
       {/* ------------------------------------------------------------------ */}
-      <section id="projects" className="py-16 md:py-24" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1500px' }}>
+      <section id="projects" className="glass-stage py-16 md:py-24" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 900px' }}>
         <div className="max-w-5xl mx-auto px-6">
           <AnimatedSection>
-            <SectionHeading icon={<FolderGit2 className="w-5 h-5" />}>{t.projects.title}</SectionHeading>
-            <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-10 max-w-3xl">
-              {t.projects.lead}
-            </p>
+            <SectionHeading>{t.projects.title}</SectionHeading>
           </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 gap-5">
-            {t.projects.items.map((project, i) => (
-              <AnimatedSection key={project.title} delay={i * 0.04} className={'featured' in project && project.featured ? 'md:col-span-2' : ''}>
+          <div className="grid md:grid-cols-3 gap-5 mt-8">
+            {t.projects.items.map((project, i) => {
+              const body = (
+                <>
+                  <span className={`status-chip self-start mb-3 ${'live' in project && project.live ? 'is-live' : ''}`}>
+                    <span className={'live' in project && project.live ? 'status-live-dot' : 'status-idle-dot'} aria-hidden="true" />
+                    {project.status}
+                  </span>
+                  <h3 className={`font-display font-semibold text-foreground mb-2 group-hover:text-primary transition-colors ${'featured' in project && project.featured ? 'text-lg' : ''}`}>
+                    {project.title}
+                  </h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed mb-4 flex-1">{project.desc}</p>
+                  <p className="text-xs font-mono tracking-wide text-muted-foreground/80">{project.focus}</p>
+                </>
+              )
+              return (
+                <AnimatedSection key={project.title} delay={i * 0.04} className={'featured' in project && project.featured ? 'md:col-span-3' : ''}>
+                  {'caseStudyUrl' in project ? (
+                    <Link
+                      to={project.caseStudyUrl}
+                      className="group glass-card glass-card-lift flex flex-col h-full rounded-2xl p-5"
+                    >
+                      {body}
+                    </Link>
+                  ) : (
+                    <div className="glass-card flex flex-col h-full rounded-2xl p-5">{body}</div>
+                  )}
+                </AnimatedSection>
+              )
+            })}
+          </div>
+
+          <AnimatedSection>
+            <p className="mt-12 pt-6 border-t border-border max-w-3xl text-base md:text-lg text-foreground/90 leading-relaxed">
+              {t.projects.closing}
+            </p>
+          </AnimatedSection>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Earlier projects                                                    */}
+      {/* ------------------------------------------------------------------ */}
+      <section id="earlier-projects" className="glass-stage py-16 md:py-24 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1200px' }}>
+        <div className="max-w-5xl mx-auto px-6">
+          <AnimatedSection>
+            <SectionHeading>{t.earlierProjects.title}</SectionHeading>
+          </AnimatedSection>
+
+          <div className="grid md:grid-cols-2 gap-5 mt-8">
+            {t.earlierProjects.items.map((project, i) => (
+              <AnimatedSection key={project.title} delay={i * 0.04}>
                 <Link
                   to={project.caseStudyUrl}
-                  className="group flex flex-col h-full bg-card border border-border rounded-xl p-5 hover:border-primary/40 transition-colors"
+                  className="group glass-card glass-card-lift flex flex-col h-full rounded-2xl p-5"
                 >
-                  <span className="self-start px-2 py-0.5 mb-3 rounded text-[10px] font-bold tracking-widest bg-primary/10 text-primary border border-primary/20">
+                  <span className="meta-chip self-start mb-3">
                     {project.badge}
                   </span>
                   <h3 className="font-display font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">
@@ -1617,15 +1547,15 @@ function App() {
                   <p className="text-sm text-muted-foreground leading-relaxed mb-3 flex-1">{project.desc}</p>
 
                   {'disclaimer' in project && project.disclaimer && (
-                    <p className="flex gap-2 items-start text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2 mb-3 leading-relaxed">
-                      <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+                    <p className="note-chip self-start mb-3">
+                      <FlaskConical className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
                       <span>{project.disclaimer}</span>
                     </p>
                   )}
 
                   <div className="flex flex-wrap gap-1.5">
                     {project.tech.map((tech) => (
-                      <span key={tech} className="px-2 py-0.5 rounded text-xs bg-muted/30 text-muted-foreground">
+                      <span key={tech} className="tech-chip">
                         {tech}
                       </span>
                     ))}
@@ -1638,43 +1568,18 @@ function App() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* Building now                                                        */}
+      {/* Education                                                            */}
       {/* ------------------------------------------------------------------ */}
-      <section id="building-now" className="py-16 md:py-24 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 800px' }}>
+      <section id="education" className="glass-stage py-16 md:py-24" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 620px' }}>
         <div className="max-w-5xl mx-auto px-6">
           <AnimatedSection>
-            <SectionHeading icon={<Sparkles className="w-5 h-5" />}>{t.buildingNow.title}</SectionHeading>
-            <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-10 max-w-3xl">
-              {t.buildingNow.lead}
-            </p>
+            <SectionHeading>{t.education.title}</SectionHeading>
           </AnimatedSection>
 
-          <div className="grid sm:grid-cols-2 gap-4">
-            {t.buildingNow.cards.map((card, i) => (
-              <AnimatedSection key={card.title} delay={i * 0.05}>
-                <div className="h-full bg-card border border-border rounded-xl p-5">
-                  <p className="font-display font-semibold text-foreground mb-2">{card.title}</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{card.desc}</p>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ------------------------------------------------------------------ */}
-      {/* Education + timeline                                                */}
-      {/* ------------------------------------------------------------------ */}
-      <section id="education" className="py-16 md:py-24" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 1000px' }}>
-        <div className="max-w-5xl mx-auto px-6">
-          <AnimatedSection>
-            <SectionHeading icon={<GraduationCap className="w-5 h-5" />}>{t.education.title}</SectionHeading>
-          </AnimatedSection>
-
-          <div className="grid md:grid-cols-2 gap-4 mb-12">
+          <div className="grid md:grid-cols-2 gap-4">
             {t.education.items.map((item, i) => (
               <AnimatedSection key={item.org} delay={i * 0.05}>
-                <div className="h-full bg-card border border-border rounded-xl p-5">
+                <div className="h-full glass-card rounded-2xl p-5">
                   <div className="flex items-baseline justify-between gap-3 mb-1">
                     <p className="font-display font-semibold text-foreground">{item.org}</p>
                     <span className="text-xs font-mono text-primary whitespace-nowrap">{item.period}</span>
@@ -1685,32 +1590,16 @@ function App() {
               </AnimatedSection>
             ))}
           </div>
-
-          <AnimatedSection>
-            <h3 className="font-display text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Clock className="w-4 h-4 text-primary" />
-              {t.education.timelineTitle}
-            </h3>
-            <ol className="relative border-l border-border ml-2">
-              {t.education.timeline.map((row) => (
-                <li key={row.years} className="ml-6 pb-5 last:pb-0">
-                  <span className="absolute -left-[5px] w-2.5 h-2.5 rounded-full bg-primary/60 border-2 border-background" />
-                  <p className="text-xs font-mono text-primary mb-0.5">{row.years}</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{row.milestone}</p>
-                </li>
-              ))}
-            </ol>
-          </AnimatedSection>
         </div>
       </section>
 
       {/* ------------------------------------------------------------------ */}
       {/* Skills & stack                                                      */}
       {/* ------------------------------------------------------------------ */}
-      <section id="tech" className="py-16 md:py-24 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 900px' }}>
+      <section id="tech" className="glass-stage py-16 md:py-24 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 900px' }}>
         <div className="max-w-5xl mx-auto px-6">
           <AnimatedSection>
-            <SectionHeading icon={<Wrench className="w-5 h-5" />}>{t.skills.title}</SectionHeading>
+            <SectionHeading>{t.skills.title}</SectionHeading>
             <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-10 max-w-3xl">
               {t.skills.lead}
             </p>
@@ -1719,7 +1608,7 @@ function App() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
             {t.skills.capabilities.map((cap, i) => (
               <AnimatedSection key={cap.title} delay={i * 0.04}>
-                <div className="h-full bg-card border border-border rounded-xl p-5">
+                <div className="h-full glass-card rounded-2xl p-5">
                   <span aria-hidden="true" className="block text-2xl text-primary mb-2 leading-none">{cap.icon}</span>
                   <p className="font-display font-semibold text-foreground mb-1">{cap.title}</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">{cap.desc}</p>
@@ -1731,11 +1620,11 @@ function App() {
           <div className="grid sm:grid-cols-2 gap-4">
             {t.skills.clouds.map((group, i) => (
               <AnimatedSection key={group.area} delay={i * 0.04}>
-                <div className="h-full bg-card border border-border rounded-xl p-5">
+                <div className="h-full glass-card rounded-2xl p-5">
                   <p className="font-medium text-foreground text-sm mb-3">{group.area}</p>
                   <div className="flex flex-wrap gap-1.5">
                     {group.items.map((item) => (
-                      <span key={item} className="px-2.5 py-1 rounded-full text-xs bg-muted/30 text-muted-foreground border border-border">
+                      <span key={item} className="px-2.5 py-1 rounded-full text-xs bg-muted/60 text-muted-foreground">
                         {item}
                       </span>
                     ))}
@@ -1762,10 +1651,19 @@ function App() {
 
             <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
               <a
+                href={BOOKING_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-green inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-medium text-sm"
+              >
+                <CalendarDays className="w-4 h-4" aria-hidden="true" />
+                {t.cta.book}
+              </a>
+              <a
                 href={LINKEDIN_URL}
                 target="_blank"
                 rel="me noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-theme-r text-white font-medium text-sm hover:brightness-110 transition-all"
+                className="glass-card glass-card-lift inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground"
               >
                 <LinkedInLogo />
                 {t.cta.linkedin}
@@ -1774,14 +1672,14 @@ function App() {
                 href={GITHUB_URL}
                 target="_blank"
                 rel="me noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-card border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+                className="glass-card glass-card-lift inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground"
               >
                 <Github className="w-4 h-4" />
                 {t.cta.github}
               </a>
               <button
                 onClick={openChat}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-card border border-border text-sm font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+                className="glass-card glass-card-lift inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground"
               >
                 <Bot className="w-4 h-4" />
                 {t.agentCard.title}

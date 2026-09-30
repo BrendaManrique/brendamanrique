@@ -27,7 +27,7 @@ import AboutPage from '../src/AboutPage.tsx';
 import { aboutContent } from '../src/about-i18n.ts';
 import PrivacyPolicy from '../src/PrivacyPolicy.tsx';
 import { seo } from '../src/i18n.ts';
-import { SITE_URL, AUTHOR_NAME, AUTHOR_JOB_TITLE, LINKEDIN_URL, GITHUB_URL, AVATAR } from '../src/site.ts';
+import { SITE_URL, AUTHOR_NAME, AUTHOR_JOB_TITLE, LINKEDIN_URL, GITHUB_URL, AVATAR, AVATAR_SM } from '../src/site.ts';
 import { moodysContent } from '../src/articles/moodys-i18n.ts';
 import { financialSystemsContent } from '../src/articles/financial-systems-i18n.ts';
 import { consultingContent } from '../src/articles/consulting-i18n.ts';
@@ -145,7 +145,7 @@ const enSeo = seo.en;
 
 let enPage = indexHtml
   .replace('<div id="root"></div>', `<div id="root">${enHtml}</div>`)
-  .replace('<html lang="es" class="dark">', '<html lang="en" class="dark">')
+  .replace('<html lang="es" class="light">', '<html lang="en" class="light">')
   .replace(/<title>[^<]*<\/title>/, `<title>${esc(enSeo.title)}</title>`)
   .replace(/<meta name="title" content="[^"]*" \/>/, `<meta name="title" content="${esc(enSeo.title)}" />`)
   .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${esc(enSeo.description)}" />`)
@@ -174,7 +174,7 @@ const aboutPersonProfile = {
     image: `${SITE_URL}${AVATAR}`,
     jobTitle: AUTHOR_JOB_TITLE,
     description:
-      'Brenda Manrique is a full-stack and financial-systems engineer with 15+ years in production software, now building agentic AI systems and an AI consulting practice from Berlin. The practice is deliberately pre-scale: no client-scale or production AI metrics are claimed.',
+      'Brenda Manrique is a senior software engineer in Berlin working across full-stack product engineering, financial systems and applied AI. Previously Moody\'s Analytics, JPMorgan Asset Management and Money.Net.',
     address: { '@type': 'PostalAddress', addressLocality: 'Berlin', addressCountry: 'DE' },
     knowsLanguage: ['en', 'es', 'de'],
     sameAs: [LINKEDIN_URL, GITHUB_URL],
@@ -183,7 +183,7 @@ const aboutPersonProfile = {
       { '@type': 'CollegeOrUniversity', name: 'Universidad Católica de Santa María' },
     ],
     knowsAbout: [
-      'Agentic AI',
+      'Applied AI',
       'Retrieval-Augmented Generation',
       'LLM evaluation',
       'Credit risk analytics',
@@ -257,7 +257,7 @@ for (const lang of ['es', 'en'] as const) {
 
   let result = indexHtml
     .replace('<div id="root"></div>', `<div id="root">${renderedHtml}</div>`)
-    .replace('<html lang="es" class="dark">', `<html lang="${lang}" class="dark">`)
+    .replace('<html lang="es" class="light">', `<html lang="${lang}" class="light">`)
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(t.seo.title)}</title>`)
     .replace(/<meta name="title" content="[^"]*" \/>/, `<meta name="title" content="${esc(t.seo.title)}" />`)
     .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${esc(t.seo.description)}" />`)
@@ -322,7 +322,7 @@ function buildArticlePage(
 
   let result = indexHtml
     .replace('<div id="root"></div>', `<div id="root">${renderedHtml}</div>`)
-    .replace('<html lang="es" class="dark">', `<html lang="${htmlLang}" class="dark">`)
+    .replace('<html lang="es" class="light">', `<html lang="${htmlLang}" class="light">`)
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(articleSeo.title)}</title>`)
     .replace(/<meta name="title" content="[^"]*" \/>/, `<meta name="title" content="${esc(articleSeo.title)}" />`)
     .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${esc(articleSeo.description)}" />`)
@@ -432,8 +432,15 @@ const critters = new Critters({
   reduceInlineStyles: true,
 });
 
+/** Escape a literal string so it can be embedded in a RegExp. */
+const reEscape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 function dedupePreloads(html: string): string {
-  return html.replace(/<link rel="preload" as="image" href="\/foto-avatar\.webp">/g, '');
+  // Built from AVATAR so renaming the portrait can't silently turn this into a no-op.
+  return html.replace(
+    new RegExp(`<link rel="preload" as="image" href="${reEscape(AVATAR)}">`, 'g'),
+    '',
+  );
 }
 
 /**
@@ -462,7 +469,7 @@ function swapLcpPreload(html: string, isArticle: boolean): string {
   ].filter(Boolean).join(' ');
   const newPreload = `<link ${attrs} />`;
   return html.replace(
-    /<link rel="preload" href="\/foto-avatar-sm\.webp"[^>]*>/,
+    new RegExp(`<link rel="preload" href="${reEscape(AVATAR_SM)}"[^>]*>`),
     newPreload,
   );
 }
@@ -521,7 +528,7 @@ for (const [lang, slug, altSlug] of [['es', 'privacidad', 'privacy'], ['en', 'pr
 
   let result = indexHtml
     .replace('<div id="root"></div>', `<div id="root">${renderedHtml}</div>`)
-    .replace('<html lang="es" class="dark">', `<html lang="${lang}" class="dark">`)
+    .replace('<html lang="es" class="light">', `<html lang="${lang}" class="light">`)
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`)
     .replace(/<meta name="title" content="[^"]*" \/>/, `<meta name="title" content="${esc(title)}" />`)
     .replace(/<meta name="description" content="[^"]*" \/>/, `<meta name="description" content="${esc(description)}" />`)

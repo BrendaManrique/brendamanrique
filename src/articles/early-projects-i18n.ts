@@ -8,62 +8,62 @@ export const earlyProjectsContent: Record<CaseStudyLang, CaseStudyContent> = {
     seo: {
       title: 'Early projects archive — thesis, Aquolity and experiments',
       description:
-        'An Android data-acquisition framework thesis with honorable mention, the Aquolity water-quality concept, a Project Tango VR experiment, a 2022 blockchain marketplace, and an honest note about the older portfolios.',
+        'A thesis framework for dynamic graphical components with honorable mention, the Aquolity MVP, a Project Tango prototype, and a Solana NFT marketplace prototype.',
     },
     header: {
       kicker: 'Archive · Early projects',
       h1: 'Early projects archive',
       subtitle:
-        'The point is not to make every old project look modern. It is to show that experimentation with intelligent systems has been part of the path for a long time.',
+        'Dated work, presented as history: a thesis, an MVP and two prototypes.',
       date: 'Sep 1, 2026',
     },
     nav: { breadcrumbHome: 'Home', breadcrumbCurrent: 'Early projects' },
     directAnswer:
-      'This archive collects Brenda Manrique\'s pre-2015 and side work: a 2013 Android data-acquisition framework thesis that received an honorable mention, the Aquolity water-quality crowdsourcing concept, a Project Tango VR contest entry, a 2022 Germany-based blockchain marketplace, and an honest note about which archived portfolio projects are hers and which are template placeholders.',
+      'This archive collects Brenda Manrique\'s earlier and side work: a 2013 undergraduate thesis framework that received an honorable mention, a software MVP for the Aquolity crowdsourcing concept, a collaborative Project Tango VR/AR prototype she coded part of in C#, and a Solana-based NFT marketplace prototype.',
     sections: {
       android: {
-        heading: 'Android data-acquisition framework — 2013 thesis',
+        heading: 'Dynamic graphical-component framework — 2013 thesis',
         blocks: [
           {
             kind: 'prose',
-            text: 'Her undergraduate thesis: a framework for implementing mobile data-acquisition applications on Android through dynamic creation of graphical components. Instead of rebuilding the same acquisition scaffolding for every app, the framework provided a reusable conceptual and technical structure, reducing implementation time.',
+            text: 'Her undergraduate thesis: she designed and implemented a framework for dynamically generating graphical components for a particular class of business applications, then evaluated it experimentally. The trials measured a reduction in implementation time against building the same scaffolding by hand.',
           },
           {
             kind: 'callout',
-            text: 'The thesis received an honorable mention — a felicitación pública.',
+            text: 'The thesis received an honorable mention.',
           },
           {
             kind: 'prose',
-            text: 'It is an early instance of the same instinct that shows up throughout her career: notice a process being repeated by hand, then turn the repetition into structure.',
+            text: 'An early instance of the same instinct that shows up throughout her career: notice a process being repeated by hand, then turn the repetition into structure.',
           },
         ],
       },
       aquolity: {
-        heading: 'Aquolity — social tech',
+        heading: 'Aquolity — MVP',
         blocks: [
           {
             kind: 'prose',
-            text: 'A crowdsourcing concept for monitoring water quality worldwide, focused especially on communities where potable and usable water quality is a development issue.',
+            text: 'She built a software MVP for Aquolity, an early crowdsourcing concept for monitoring water quality, focused on communities where usable water quality is a development issue.',
           },
           {
             kind: 'prose',
-            text: 'It was also a marketplace and coordination layer: connect the people who detect a problem with the organizations or individuals capable of delivering an effective solution. Detection alone does not fix water.',
+            text: 'The idea included a coordination layer connecting the people who detect a problem with those able to deliver a solution. It was an MVP, never a deployed platform.',
           },
         ],
       },
       experiments: {
-        heading: 'Project Tango and a blockchain marketplace',
+        heading: 'Two prototypes',
         blocks: [
           {
             kind: 'cards',
             items: [
               {
-                title: 'Project Tango VR game',
-                detail: 'A C# virtual-reality game built for a Google Project Tango contest through the NYC Google Developer Group.',
+                title: 'Project Tango · VR/AR prototype',
+                detail: 'A collaborative spatial-computing project organised through the New York City Google Developer Group for a Google Project Tango contest. She coded part of it in C#.',
               },
               {
-                title: 'Blockchain marketplace · 2022 · Germany',
-                detail: 'Smart contracts plus a marketplace for NFT minting and wallet display.',
+                title: 'Solana NFT marketplace · prototype',
+                detail: 'She wrote the smart contracts and built the minting flow, marketplace logic and wallet UI. A concept prototype; it did not become a business.',
               },
             ],
           },
@@ -87,7 +87,7 @@ export const earlyProjectsContent: Record<CaseStudyLang, CaseStudyContent> = {
         blocks: [
           {
             kind: 'quote',
-            text: 'The point is not to make every old project look modern. It is to show that experimentation with intelligent systems has been part of the path for a long time.',
+            text: 'The point is not to make every old project look modern. It is that experimenting with intelligent systems has been part of the path for a long time.',
           },
         ],
       },
@@ -97,11 +97,11 @@ export const earlyProjectsContent: Record<CaseStudyLang, CaseStudyContent> = {
       items: [
         {
           q: 'Are these projects still active?',
-          a: 'No. This is an archive. These are dated pieces of work — a 2013 thesis, a concept, a contest entry, a 2022 side project — presented as history rather than as live products.',
+          a: 'No. This is an archive: a 2013 thesis, an MVP and two prototypes, presented as history rather than as live products.',
         },
         {
           q: 'What was the thesis award?',
-          a: 'The Android data-acquisition framework thesis received an honorable mention (felicitación pública) at Universidad Católica de Santa María, where she completed a BSc in Systems Engineering with an Artificial Intelligence concentration between 2007 and 2013.',
+          a: 'The thesis received an honorable mention at Universidad Católica de Santa María, where she completed a BSc in Systems Engineering with an Artificial Intelligence concentration between 2007 and 2013.',
         },
         {
           q: 'Why mention the old portfolio repositories?',
@@ -111,7 +111,7 @@ export const earlyProjectsContent: Record<CaseStudyLang, CaseStudyContent> = {
     },
     cta: {
       heading: 'The trajectory is the point',
-      body: 'From an AI-concentration degree and a fractal research award to agentic systems today.',
+      body: 'From an AI-concentration degree and a 2010 research award to applied AI now.',
       ctaLabel: 'The fractal research',
       ctaHref: '/fractal-dimension',
       secondaryLabel: 'About Brenda',
@@ -125,62 +125,62 @@ export const earlyProjectsContent: Record<CaseStudyLang, CaseStudyContent> = {
     seo: {
       title: 'Archivo de proyectos iniciales — tesis, Aquolity y experimentos',
       description:
-        'Una tesis de framework de adquisición de datos en Android con mención honorífica, el concepto Aquolity de calidad del agua, un experimento de VR para Project Tango, un marketplace blockchain de 2022 y una nota honesta sobre los portafolios antiguos.',
+        'Una tesis de framework de componentes gráficos dinámicos con mención honorífica, el MVP de Aquolity, un prototipo de Project Tango y un prototipo de marketplace NFT en Solana.',
     },
     header: {
       kicker: 'Archivo · Proyectos iniciales',
       h1: 'Archivo de proyectos iniciales',
       subtitle:
-        'El objetivo no es hacer que todo proyecto antiguo parezca moderno. Es mostrar que experimentar con sistemas inteligentes lleva mucho tiempo formando parte del camino.',
+        'Trabajo fechado, presentado como historia: una tesis, un MVP y dos prototipos.',
       date: '1 sep 2026',
     },
     nav: { breadcrumbHome: 'Inicio', breadcrumbCurrent: 'Proyectos iniciales' },
     directAnswer:
-      'Este archivo reúne el trabajo anterior a 2015 y los proyectos paralelos de Brenda Manrique: una tesis de 2013 sobre un framework de adquisición de datos en Android que recibió mención honorífica, el concepto de crowdsourcing Aquolity para calidad del agua, una entrada a un concurso de Project Tango, un marketplace blockchain en Alemania en 2022, y una nota honesta sobre qué proyectos de los portafolios archivados son suyos y cuáles son plantillas de ejemplo.',
+      'Este archivo reúne el trabajo anterior y los proyectos paralelos de Brenda Manrique: una tesis de licenciatura de 2013 que recibió mención honorífica, un MVP de software para el concepto de crowdsourcing Aquolity, un prototipo colaborativo de VR/AR para Project Tango del que programó una parte en C#, y un prototipo de marketplace NFT en Solana.',
     sections: {
       android: {
-        heading: 'Framework de adquisición de datos en Android — tesis de 2013',
+        heading: 'Framework de componentes gráficos dinámicos — tesis de 2013',
         blocks: [
           {
             kind: 'prose',
-            text: 'Su tesis de licenciatura: un framework para implementar aplicaciones móviles de adquisición de datos en Android mediante la creación dinámica de componentes gráficos. En lugar de reconstruir el mismo andamiaje de adquisición en cada app, el framework aportaba una estructura conceptual y técnica reutilizable, reduciendo el tiempo de implementación.',
+            text: 'Su tesis de licenciatura: diseñó e implementó un framework para generar dinámicamente componentes gráficos en una clase concreta de aplicaciones de negocio, y lo evaluó experimentalmente. Los ensayos midieron una reducción del tiempo de implementación frente a construir el mismo andamiaje a mano.',
           },
           {
             kind: 'callout',
-            text: 'La tesis recibió una mención honorífica: una felicitación pública.',
+            text: 'La tesis recibió una mención honorífica.',
           },
           {
             kind: 'prose',
-            text: 'Es una instancia temprana del mismo instinto que aparece en toda su carrera: detectar un proceso que se repite a mano y convertir la repetición en estructura.',
+            text: 'Una instancia temprana del mismo instinto que aparece en toda su carrera: detectar un proceso que se repite a mano y convertir la repetición en estructura.',
           },
         ],
       },
       aquolity: {
-        heading: 'Aquolity — tecnología social',
+        heading: 'Aquolity — MVP',
         blocks: [
           {
             kind: 'prose',
-            text: 'Un concepto de crowdsourcing para monitorizar la calidad del agua en todo el mundo, centrado especialmente en comunidades donde la calidad del agua potable y de uso es un problema de desarrollo.',
+            text: 'Construyó un MVP de software para Aquolity, un concepto temprano de crowdsourcing para monitorizar la calidad del agua, centrado en comunidades donde la calidad del agua de uso es un problema de desarrollo.',
           },
           {
             kind: 'prose',
-            text: 'También era una capa de marketplace y coordinación: conectar a quienes detectan un problema con las organizaciones o personas capaces de aportar una solución efectiva. Detectar por sí solo no arregla el agua.',
+            text: 'La idea incluía una capa de coordinación que conectaba a quien detecta un problema con quien puede aportar una solución. Fue un MVP, nunca una plataforma desplegada.',
           },
         ],
       },
       experiments: {
-        heading: 'Project Tango y un marketplace blockchain',
+        heading: 'Dos prototipos',
         blocks: [
           {
             kind: 'cards',
             items: [
               {
-                title: 'Juego VR para Project Tango',
-                detail: 'Un juego de realidad virtual en C# construido para un concurso de Google Project Tango a través del NYC Google Developer Group.',
+                title: 'Project Tango · prototipo VR/AR',
+                detail: 'Un proyecto colaborativo de computación espacial organizado a través del New York City Google Developer Group para un concurso de Google Project Tango. Ella programó parte del proyecto en C#.',
               },
               {
-                title: 'Marketplace blockchain · 2022 · Alemania',
-                detail: 'Smart contracts más un marketplace para acuñación de NFTs y visualización de wallets.',
+                title: 'Marketplace NFT en Solana · prototipo',
+                detail: 'Escribió los smart contracts y construyó el flujo de minteo, la lógica de marketplace y la UI de wallet. Un prototipo conceptual; no llegó a ser un negocio.',
               },
             ],
           },
@@ -204,7 +204,7 @@ export const earlyProjectsContent: Record<CaseStudyLang, CaseStudyContent> = {
         blocks: [
           {
             kind: 'quote',
-            text: 'El objetivo no es hacer que todo proyecto antiguo parezca moderno. Es mostrar que experimentar con sistemas inteligentes lleva mucho tiempo formando parte del camino.',
+            text: 'El objetivo no es hacer que todo proyecto antiguo parezca moderno. Es que experimentar con sistemas inteligentes lleva mucho tiempo formando parte del camino.',
           },
         ],
       },
@@ -214,11 +214,11 @@ export const earlyProjectsContent: Record<CaseStudyLang, CaseStudyContent> = {
       items: [
         {
           q: '¿Estos proyectos siguen activos?',
-          a: 'No. Esto es un archivo. Son piezas de trabajo fechadas —una tesis de 2013, un concepto, una entrada a un concurso, un proyecto paralelo de 2022— presentadas como historia, no como productos vivos.',
+          a: 'No. Esto es un archivo: una tesis de 2013, un MVP y dos prototipos, presentados como historia, no como productos vivos.',
         },
         {
           q: '¿Cuál fue el premio de la tesis?',
-          a: 'La tesis del framework de adquisición de datos en Android recibió una mención honorífica (felicitación pública) en la Universidad Católica de Santa María, donde completó la licenciatura en Ingeniería de Sistemas con concentración en Inteligencia Artificial entre 2007 y 2013.',
+          a: 'La tesis recibió una mención honorífica en la Universidad Católica de Santa María, donde completó la licenciatura en Ingeniería de Sistemas con concentración en Inteligencia Artificial entre 2007 y 2013.',
         },
         {
           q: '¿Por qué mencionar los repositorios de portafolios antiguos?',
@@ -228,7 +228,7 @@ export const earlyProjectsContent: Record<CaseStudyLang, CaseStudyContent> = {
     },
     cta: {
       heading: 'La trayectoria es lo que cuenta',
-      body: 'De una carrera con concentración en IA y un premio de investigación fractal a los sistemas agénticos de hoy.',
+      body: 'De una carrera con concentración en IA y un premio de investigación en 2010 a la IA aplicada de ahora.',
       ctaLabel: 'La investigación fractal',
       ctaHref: '/dimension-fractal',
       secondaryLabel: 'Sobre Brenda',

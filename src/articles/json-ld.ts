@@ -72,7 +72,7 @@ const PERSON = {
   url: SITE_URL,
   jobTitle: AUTHOR_JOB_TITLE,
   description:
-    'Brenda Manrique is a full-stack and financial-systems engineer with 15+ years in production software, now building agentic AI systems and an AI consulting practice from Berlin. Her portfolio deliberately claims no client scale or production AI metrics that do not yet exist.',
+    'Brenda Manrique is a senior software engineer in Berlin working across full-stack product engineering, financial systems and applied AI. Previously Moody\'s Analytics, JPMorgan Asset Management and Money.Net.',
   address: { '@type': 'PostalAddress', addressLocality: 'Berlin', addressCountry: 'DE' },
   knowsLanguage: ['en', 'es', 'de'],
   sameAs: [LINKEDIN_URL, GITHUB_URL],
@@ -81,7 +81,7 @@ const PERSON = {
     { '@type': 'CollegeOrUniversity', name: 'Universidad Católica de Santa María' },
   ],
   knowsAbout: [
-    'Agentic AI',
+    'Applied AI',
     'Retrieval-Augmented Generation',
     'LLM evaluation',
     'Credit risk analytics',

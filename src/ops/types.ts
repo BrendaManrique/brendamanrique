@@ -91,6 +91,8 @@ export interface OpsRagStats {
   totalChunks: number
   byArticle: Array<{ articleId: string; slug: string; chunkCount: number }>
   voiceRateLimits: Array<{ ip: string; count: number; windowStart: string }>
+  /** Chat question counters, same shape. Returned by the API; no panel yet. */
+  chatRateLimits?: Array<{ ip: string; count: number; windowStart: string }>
 }
 
 // === Hook interfaces ===

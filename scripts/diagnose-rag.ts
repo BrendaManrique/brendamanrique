@@ -12,10 +12,9 @@
 import { config } from 'dotenv'
 config({ path: '.env.local' })
 
-const LANGFUSE_PUBLIC_KEY = process.env.LANGFUSE_PUBLIC_KEY!
-const LANGFUSE_SECRET_KEY = process.env.LANGFUSE_SECRET_KEY!
-const LANGFUSE_BASE_URL = process.env.LANGFUSE_BASE_URL || 'https://cloud.langfuse.com'
-const AUTH = Buffer.from(`${LANGFUSE_PUBLIC_KEY}:${LANGFUSE_SECRET_KEY}`).toString('base64')
+import { fetchTraces as listTraces } from './langfuse-read'
+
+// Credentials are read by ./langfuse-read from the same env vars.
 
 // ─── Article keyword map ───
 // Maps keywords to articles that SHOULD be found when those keywords appear.
@@ -23,7 +22,7 @@ const AUTH = Buffer.from(`${LANGFUSE_PUBLIC_KEY}:${LANGFUSE_SECRET_KEY}`).toStri
 const ARTICLE_KEYWORDS: Record<string, string[]> = {
   'moodys': ['moody', 'edf-x', 'scorecard', 'probability of default', 'qualitative overlay', 'credit analytics', 'stateful api'],
   'financial-systems': ['jpmorgan', 'money.net', 'athena', 'derivatives', 'terminal', 'websockets', 'grpc', 'market data'],
-  'consulting': ['consulting', 'consultoría', 'fastapi', 'hitl', 'human-in-the-loop', 'installation', 'delivery model', 'pre-scale'],
+  'consulting': ['consulting', 'consultoría', 'fastapi', 'hitl', 'human-in-the-loop', 'installation', 'delivery model', 'applied ai'],
   'portfolio-agent': ['chat agent', 'portfolio agent', 'rag', 'evals', 'guardrails', 'observability', 'pgvector', 'reciprocal rank fusion'],
   'casicornio': ['casicornio', 'publication', 'media', 'editorial', 'distribution'],
   'invip': ['invip', 'accessibility', 'visually impaired', 'speech interface', 'alexa'],
@@ -64,19 +63,17 @@ interface Trace {
 }
 
 async function fetchTraces(days: number, limit: number): Promise<Trace[]> {
-  const from = new Date(Date.now() - days * 86400000).toISOString()
-  const res = await fetch(
-    `${LANGFUSE_BASE_URL}/api/public/traces?limit=${limit}&fromTimestamp=${from}&tags=rag:yes`,
-    { headers: { Authorization: `Basic ${AUTH}` } },
-  )
-  if (!res.ok) {
-    console.error(`Langfuse error: ${res.status}`)
+  // GET /api/public/traces is deprecated; traces are read as their root
+  // observations through the shared v4 helper.
+  try {
+    const traces = await listTraces({ days, limit, tag: 'rag:yes' })
+    return traces.filter(t =>
+      t.name === 'chat' && !(t.tags || []).some(tag => tag.startsWith('source:')),
+    ) as unknown as Trace[]
+  } catch (err) {
+    console.error(`Langfuse error: ${err instanceof Error ? err.message : 'unknown'}`)
     return []
   }
-  const data = await res.json()
-  return (data.data || []).filter((t: Trace) =>
-    t.name === 'chat' && !(t.tags || []).some(tag => tag.startsWith('source:')),
-  )
 }
 
 // ─── Colors ───

@@ -80,13 +80,16 @@ button, a, [role="button"], summary { cursor: pointer; }
 @theme {
   --font-sans: "DM Sans", system-ui, sans-serif;
   --font-display: "Space Grotesk", system-ui, sans-serif;
+  /* Hero display serif + margin-note hand — system stacks, no extra fetch */
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Baskerville, Georgia, serif;
+  --font-hand: "Bradley Hand", "Segoe Script", "Segoe Print", "Snell Roundhand", "Brush Script MT", cursive;
 }
 
 /* ============================================
    COLOR PROFILES - Change theme class on :root
    ============================================
 
-   Profile 1: "theme-cyber" (default) - Cyan/Purple
+   Profile 1: "paper" (default) - Ink / Paper / Green
    Profile 2: "theme-warm" - Orange monochrome
 
    To switch: add class to <html> element
@@ -94,129 +97,174 @@ button, a, [role="button"], summary { cursor: pointer; }
    ============================================ */
 
 @layer base {
-  /* ========== PROFILE: CYBER (Default) - Cyan/Purple ========== */
+  /* ========== PROFILE: PAPER (Default) — Navy / White / Forest ==========
+     Light: white ground, navy #102a3a type, forest #175b45 accent,
+       secondary text #5b6773, sage #aab9ac hairlines, and #21d979
+       reserved for the live AI status dot.
+     Dark mode is the same hues inverted (ink ground, paper type,
+     brighter green). */
   :root {
-    --background: 220 6% 96%;
-    --foreground: 240 10% 4%;
-    --muted: 220 6% 86%;
-    --muted-foreground: 240 5% 28%;
-    --primary: 187 74% 28%;
+    --background: 0 0% 100%;         /* #ffffff */
+    --foreground: 203 57% 15%;       /* #102a3a navy */
+    --muted: 140 12% 96%;            /* sage-tinted off-white, section bands */
+    --muted-foreground: 210 12% 40%; /* #5b6773 secondary text */
+    --primary: 161 60% 22%;          /* #175b45 forest green */
     --primary-foreground: 0 0% 100%;
-    --accent: 270 70% 38%;
+    --accent: 203 57% 15%;           /* navy — the solid CTA colour */
     --accent-foreground: 0 0% 100%;
-    --border: 240 6% 85%;
+    --border: 135 8% 87%;            /* very light sage hairline */
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 4%;
+    --card-foreground: 203 57% 15%;
     /* Gradient colors for chat/buttons */
-    --gradient-from: 187 86% 53%; /* cyan-400 */
-    --gradient-to: 270 91% 65%;   /* purple-500 */
-    /* Semantic accent colors */
-    --gold: 43 76% 38%;
-    --success: 142 72% 29%;
-    --tool: 187 72% 30%;
-    --linkedin: 210 91% 40%;       /* #0A66C2 */
-    --codeblock: 210 17% 95%;      /* #F1F5F9 - slate-100 */
-    --codeblock-text: 215 25% 17%; /* #1E293B - slate-800 */
-    --code-keyword: 210 60% 40%;   /* blue */
-    --code-string: 25 70% 45%;     /* orange */
-    --code-comment: 210 10% 55%;   /* gray */
-    --code-number: 30 70% 45%;     /* amber */
-    --code-heading: 190 60% 35%;   /* teal */
-    --code-var: 270 50% 45%;       /* purple */
-    --hero-orb-primary: 187 74% 28% / 0.15;
-    --hero-orb-accent: 270 70% 38% / 0.12;
-    --dot-grid: 240 5% 35% / 0.25;
+    --gradient-from: 161 60% 22%;    /* forest */
+    --gradient-to: 203 57% 20%;      /* navy */
+    /* Semantic accent colors (no gold in this palette: --gold maps to forest) */
+    --gold: 161 45% 28%;
+    --success: 161 60% 22%;
+    --tool: 161 60% 22%;
+    --linkedin: 210 91% 32%;
+    --codeblock: 140 10% 97%;
+    --codeblock-text: 203 45% 18%;
+    --code-keyword: 203 55% 32%;
+    --code-string: 18 55% 38%;
+    --code-comment: 210 12% 50%;
+    --code-number: 161 45% 28%;
+    --code-heading: 161 60% 22%;
+    --code-var: 265 35% 42%;
+    --hero-orb-primary: 161 60% 22% / 0.10;
+    --hero-orb-accent: 203 57% 15% / 0.07;
+    --dot-grid: 203 25% 35% / 0.22;
+    /* Hero decoration (see HERO section at the bottom of this file) */
+    --hero-glow: 0 0% 100%;
+    --sage: 128 10% 70%;             /* #aab9ac */
+    --construct: 128 10% 70%;
+    --construct-alpha: 1;
+    --status-live: 149 71% 49%;      /* #21d979 — live AI status only */
+    --surface-shadow: 0 0 0 1px hsl(135 8% 87%), 0 1px 2px hsl(203 57% 15% / .04);
+    --surface-shadow-lift: 0 0 0 1px hsl(135 8% 87%), 0 10px 22px -16px hsl(203 57% 15% / .2);
   }
 
   /* Dark mode via system preference — CSS-first, no JS needed = 0ms flash */
   @media (prefers-color-scheme: dark) {
     :root:not(.light) {
-      --background: 240 6% 10%;
-      --foreground: 0 0% 93%;
-      --muted: 240 4% 14%;
-      --muted-foreground: 240 5% 65%;
-      --primary: 187 86% 53%;
-      --primary-foreground: 240 10% 4%;
-      --accent: 270 91% 78%;
-      --accent-foreground: 0 0% 100%;
-      --border: 240 4% 20%;
-      --card: 240 5% 13%;
-      --card-foreground: 0 0% 93%;
-      --gradient-from: 187 86% 53%;
-      --gradient-to: 270 91% 78%;
-      --gold: 45 97% 49%;
-      --success: 142 71% 45%;
-      --tool: 187 92% 50%;
-      --linkedin: 210 88% 71%;
-      --codeblock: 215 19% 5%;       /* #0D1117 - GitHub Dark */
-      --codeblock-text: 213 14% 90%; /* #E6EDF3 */
-      --code-keyword: 210 100% 75%;  /* #79C0FF */
-      --code-string: 24 80% 65%;     /* #FFA657 */
-      --code-comment: 213 10% 55%;   /* #8B949E */
-      --code-number: 30 85% 65%;     /* #E3B341 */
-      --code-heading: 210 100% 75%;  /* #79C0FF */
-      --code-var: 270 70% 75%;       /* #D2A8FF */
-      --hero-orb-primary: 187 86% 53% / 0.08;
-      --hero-orb-accent: 270 91% 70% / 0.10;
-      --dot-grid: 240 5% 65% / 0.15;
+      --background: 205 35% 9%;
+      --foreground: 40 30% 92%;
+      --muted: 205 28% 14%;
+      --muted-foreground: 40 12% 68%;
+      --primary: 158 42% 58%;
+      --primary-foreground: 205 40% 8%;
+      --accent: 38 40% 82%;
+      --accent-foreground: 205 40% 8%;
+      --border: 205 20% 22%;
+      --card: 205 30% 12%;
+      --card-foreground: 40 30% 92%;
+      --gradient-from: 158 42% 58%;
+      --gradient-to: 38 45% 78%;
+      --gold: 40 75% 60%;
+      --success: 158 50% 55%;
+      --tool: 158 42% 58%;
+      --linkedin: 210 80% 70%;
+      --codeblock: 205 35% 6%;
+      --codeblock-text: 40 20% 88%;
+      --code-keyword: 195 70% 70%;
+      --code-string: 24 70% 70%;
+      --code-comment: 205 12% 55%;
+      --code-number: 40 75% 65%;
+      --code-heading: 158 50% 60%;
+      --code-var: 265 45% 76%;
+      --hero-orb-primary: 158 42% 58% / 0.08;
+      --hero-orb-accent: 38 40% 82% / 0.06;
+      --dot-grid: 40 15% 70% / 0.13;
+      --hero-glow: 205 30% 20%;
+      --sage: 128 10% 70%;
+      --construct: 128 8% 62%;
+      --construct-alpha: .32;
+      --status-live: 149 71% 49%;
+      --surface-shadow: 0 1px 2px hsl(205 50% 3% / .45), 0 12px 26px -14px hsl(205 50% 3% / .6), inset 0 1px 0 hsl(40 30% 92% / .045);
+    --surface-shadow-lift: 0 2px 4px hsl(205 50% 3% / .5), 0 20px 36px -16px hsl(205 50% 3% / .72), inset 0 1px 0 hsl(40 30% 92% / .07);
     }
   }
 
   /* Manual dark override (user toggled) */
   .dark {
-    --background: 240 6% 10%;       /* #18181b - soft dark like VS Code */
-    --foreground: 0 0% 93%;         /* off-white, easier on eyes */
-    --muted: 240 4% 14%;            /* slightly lighter for hierarchy */
-    --muted-foreground: 240 5% 65%;
-    --primary: 187 86% 53%;
-    --primary-foreground: 240 10% 4%;
-    --accent: 270 91% 70%;
-    --accent-foreground: 0 0% 100%;
-    --border: 240 4% 20%;           /* more visible borders */
-    --card: 240 5% 13%;             /* elevated above background */
-    --card-foreground: 0 0% 93%;
-    --gradient-from: 187 86% 53%;
-    --gradient-to: 270 91% 78%;
+    --background: 205 35% 9%;        /* deep ink ground */
+    --foreground: 40 30% 92%;        /* warm paper type */
+    --muted: 205 28% 14%;
+    --muted-foreground: 40 12% 68%;
+    --primary: 158 42% 58%;          /* green, lifted for dark */
+    --primary-foreground: 205 40% 8%;
+    --accent: 38 40% 82%;            /* paper accent */
+    --accent-foreground: 205 40% 8%;
+    --border: 205 20% 22%;
+    --card: 205 30% 12%;
+    --card-foreground: 40 30% 92%;
+    --gradient-from: 158 42% 58%;
+    --gradient-to: 38 45% 78%;
     /* Semantic accent colors */
-    --gold: 45 97% 49%;
-    --success: 142 71% 45%;
-    --tool: 187 92% 50%;
-    --linkedin: 210 88% 71%;       /* #70B5F9 - lighter for dark bg */
-    --hero-orb-primary: 187 86% 53% / 0.08;
-    --hero-orb-accent: 270 91% 70% / 0.10;
-    --dot-grid: 240 5% 65% / 0.15;
-    --codeblock: 215 19% 5%;       /* #0D1117 - GitHub Dark */
-    --codeblock-text: 213 14% 90%; /* #E6EDF3 */
-    --code-keyword: 210 100% 75%;  /* #79C0FF */
-    --code-string: 24 80% 65%;     /* #FFA657 */
-    --code-comment: 213 10% 55%;   /* #8B949E */
-    --code-number: 30 85% 65%;     /* #E3B341 */
-    --code-heading: 210 100% 75%;  /* #79C0FF */
-    --code-var: 270 70% 75%;       /* #D2A8FF */
+    --gold: 40 75% 60%;
+    --success: 158 50% 55%;
+    --tool: 158 42% 58%;
+    --linkedin: 210 80% 70%;
+    --hero-orb-primary: 158 42% 58% / 0.08;
+    --hero-orb-accent: 38 40% 82% / 0.06;
+    --dot-grid: 40 15% 70% / 0.13;
+    --codeblock: 205 35% 6%;
+    --codeblock-text: 40 20% 88%;
+    --code-keyword: 195 70% 70%;
+    --code-string: 24 70% 70%;
+    --code-comment: 205 12% 55%;
+    --code-number: 40 75% 65%;
+    --code-heading: 158 50% 60%;
+    --code-var: 265 45% 76%;
+    --hero-glow: 205 30% 20%;
+    --sage: 128 10% 70%;
+    --construct: 128 8% 62%;
+    --construct-alpha: .32;
+    --status-live: 149 71% 49%;
+    --surface-shadow: 0 1px 2px hsl(205 50% 3% / .45), 0 12px 26px -14px hsl(205 50% 3% / .6), inset 0 1px 0 hsl(40 30% 92% / .045);
+    --surface-shadow-lift: 0 2px 4px hsl(205 50% 3% / .5), 0 20px 36px -16px hsl(205 50% 3% / .72), inset 0 1px 0 hsl(40 30% 92% / .07);
   }
 
   /* Manual light override (user toggled when system is dark) */
   .light {
-    --background: 220 6% 96%;
-    --foreground: 240 10% 4%;
-    --muted: 220 6% 86%;
-    --muted-foreground: 240 5% 28%;
-    --primary: 187 74% 28%;
+    --background: 0 0% 100%;         /* #ffffff */
+    --foreground: 203 57% 15%;       /* #102a3a navy */
+    --muted: 140 12% 96%;            /* sage-tinted off-white, section bands */
+    --muted-foreground: 210 12% 40%; /* #5b6773 secondary text */
+    --primary: 161 60% 22%;          /* #175b45 forest green */
     --primary-foreground: 0 0% 100%;
-    --accent: 270 70% 38%;
+    --accent: 203 57% 15%;           /* navy — the solid CTA colour */
     --accent-foreground: 0 0% 100%;
-    --border: 240 6% 85%;
+    --border: 135 8% 87%;            /* very light sage hairline */
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 4%;
-    --gradient-from: 187 86% 53%;
-    --gradient-to: 270 91% 65%;
-    --gold: 43 76% 38%;
-    --success: 142 72% 29%;
-    --tool: 187 72% 30%;
-    --linkedin: 210 91% 40%;
-    --hero-orb-primary: 187 74% 28% / 0.15;
-    --hero-orb-accent: 270 70% 38% / 0.12;
-    --dot-grid: 240 5% 35% / 0.25;
+    --card-foreground: 203 57% 15%;
+    /* Gradient colors for chat/buttons */
+    --gradient-from: 161 60% 22%;    /* forest */
+    --gradient-to: 203 57% 20%;      /* navy */
+    /* Semantic accent colors (no gold in this palette: --gold maps to forest) */
+    --gold: 161 45% 28%;
+    --success: 161 60% 22%;
+    --tool: 161 60% 22%;
+    --linkedin: 210 91% 32%;
+    --codeblock: 140 10% 97%;
+    --codeblock-text: 203 45% 18%;
+    --code-keyword: 203 55% 32%;
+    --code-string: 18 55% 38%;
+    --code-comment: 210 12% 50%;
+    --code-number: 161 45% 28%;
+    --code-heading: 161 60% 22%;
+    --code-var: 265 35% 42%;
+    --hero-orb-primary: 161 60% 22% / 0.10;
+    --hero-orb-accent: 203 57% 15% / 0.07;
+    --dot-grid: 203 25% 35% / 0.22;
+    /* Hero decoration (see HERO section at the bottom of this file) */
+    --hero-glow: 0 0% 100%;
+    --sage: 128 10% 70%;             /* #aab9ac */
+    --construct: 128 10% 70%;
+    --construct-alpha: 1;
+    --status-live: 149 71% 49%;      /* #21d979 — live AI status only */
+    --surface-shadow: 0 0 0 1px hsl(135 8% 87%), 0 1px 2px hsl(203 57% 15% / .04);
+    --surface-shadow-lift: 0 0 0 1px hsl(135 8% 87%), 0 10px 22px -16px hsl(203 57% 15% / .2);
   }
 
   /* ========== PROFILE: WARM - Orange/Teal ========== */
@@ -413,6 +461,18 @@ button, a, [role="button"], summary { cursor: pointer; }
   .text-card-foreground { color: hsl(var(--card-foreground)); }
 
   .border-border { border-color: hsl(var(--border)); }
+
+  /* Cards and pills are held by a soft shadow, not an outline. */
+  .shadow-surface { box-shadow: var(--surface-shadow); }
+  /* Same, for boxes that are links and should answer the pointer. */
+  .shadow-surface-lift {
+    box-shadow: var(--surface-shadow);
+    transition: box-shadow .22s ease, transform .22s ease;
+  }
+  .shadow-surface-lift:hover {
+    box-shadow: var(--surface-shadow-lift);
+    transform: translateY(-2px);
+  }
   .border-primary { border-color: hsl(var(--primary)); }
   .border-primary\/20 { border-color: hsl(var(--primary) / 0.2); }
   .border-primary\/30 { border-color: hsl(var(--primary) / 0.3); }
@@ -684,4 +744,583 @@ section[id], footer[id] {
 }
 .dark .press-caption {
   color: rgba(255, 255, 255, 0.32);
+}
+
+/* =============================================================
+   HERO — centred copy on white, construction drawing in the margins.
+   Lives outside @layer so it wins over Tailwind utilities.
+   All colour comes from the theme tokens, so the hero follows the
+   light/dark toggle. Spacing sits on an 8px grid.
+   ============================================================= */
+
+.portfolio-hero {
+  position: relative;
+  min-height: clamp(640px, 88vh, 904px);
+  overflow: hidden;
+  isolation: isolate;
+  /* Same grid as <main>, painted here so the drawing can blend onto it. */
+  background-color: hsl(var(--background));
+  background-image: radial-gradient(circle, hsl(var(--dot-grid)) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* --- construction drawing ----------------------------------- */
+
+/* A white-ground raster whose line work sits in its outer thirds, so
+   the centred copy always lands on the clean middle. Sized per
+   breakpoint below: whole on desktop, edge-cropped on tablets, a short
+   band above the portrait on phones. */
+.hero-construct {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: url("/hero-construction.jpg");
+  background-image: image-set(url("/hero-construction.webp") type("image/webp"), url("/hero-construction.jpg") type("image/jpeg"));
+  background-repeat: no-repeat;
+  background-position: center 58%;
+  background-size: contain;
+}
+
+/* Light: multiply, so the white paper drops out and the dots show through. */
+:root:not(.dark) .hero-construct { mix-blend-mode: multiply; }
+
+/* Dark: invert the drawing and screen it, so the white paper drops out
+   and the lines read as pale ink on the dark ground. */
+.dark .hero-construct {
+  filter: invert(1) hue-rotate(180deg);
+  mix-blend-mode: screen;
+  opacity: .5;
+}
+
+.hero-shell {
+  width: min(1380px, calc(100% - 64px));
+  margin: 0 auto;
+  min-height: inherit;
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  z-index: 1;
+}
+
+/* --- nav ---------------------------------------------------- */
+
+.hero-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 28px 0 16px;
+  /* GlobalNav's language + theme controls are fixed at the top right;
+     reserve their footprint so the links never slide underneath. */
+  padding-right: 9rem;
+}
+
+.hero-wordmark {
+  color: hsl(var(--foreground));
+  text-decoration: none;
+  font-weight: 650;
+  letter-spacing: .17em;
+  font-size: 17px;
+  white-space: nowrap;
+}
+
+.hero-nav-links {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.hero-nav-links a {
+  color: hsl(var(--foreground));
+  text-decoration: none;
+  font-size: 15px;
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.hero-nav-links a:hover { opacity: .58; transform: translateY(-1px); }
+
+/* --- stage -------------------------------------------------- */
+
+.hero-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 24px 0 96px;
+}
+
+.hero-center {
+  width: min(800px, 64vw);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-portrait {
+  position: relative;
+  width: 172px;
+  aspect-ratio: 1;
+  margin-bottom: 24px;
+  border-radius: 50%;
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 16px 40px -24px hsl(var(--foreground) / .45);
+}
+
+.hero-portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 15%;
+  transform: scale(1.03);
+  display: block;
+  border-radius: 50%;
+}
+
+.hero-eyebrow {
+  margin: 0 0 8px;
+  font-size: clamp(19px, 1.6vw, 26px);
+  font-weight: 430;
+  line-height: 1.2;
+  letter-spacing: -.02em;
+  color: hsl(var(--foreground));
+}
+
+.hero-title {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 500;
+  letter-spacing: -.04em;
+  font-size: clamp(40px, 4.4vw, 64px);
+  line-height: 1.06;
+  color: hsl(var(--foreground));
+  text-wrap: balance;
+}
+
+/* Two lines reserved so the typewriter never pushes the page around;
+   short roles sit centred in the box. */
+.hero-title-rotator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.12em;
+}
+
+.hero-title-caret {
+  display: inline-block;
+  width: 3px;
+  height: .8em;
+  margin-left: 4px;
+  border-radius: 2px;
+  vertical-align: -.06em;
+  background: hsl(var(--primary));
+  animation: blink 1s step-end infinite;
+}
+
+.hero-subtitle {
+  margin: 16px 0 0;
+  max-width: 720px;
+  font-size: clamp(17px, 1.35vw, 21px);
+  line-height: 1.45;
+  color: hsl(var(--muted-foreground));
+  letter-spacing: -.012em;
+  text-wrap: balance;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 32px;
+}
+
+.hero-primary-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  min-width: 232px;
+  min-height: 58px;
+  padding: 0 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, hsl(var(--primary)), color-mix(in hsl, hsl(var(--primary)), hsl(var(--status-live)) 30%));
+  color: hsl(var(--primary-foreground));
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 600;
+  border: none;
+  box-shadow: var(--cta-shadow);
+  animation: cta-halo 2.6s ease-out infinite;
+  transition: transform .2s ease, filter .2s ease;
+}
+
+/* A soft light sweep every few seconds, under the label. */
+.hero-primary-cta::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 35%, hsl(0 0% 100% / .3) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: cta-shine 5s ease-in-out 1.2s infinite;
+}
+
+.hero-primary-cta:hover {
+  transform: translateY(-2px) scale(1.02);
+  filter: brightness(1.08);
+}
+
+.hero-primary-cta:active { transform: translateY(0) scale(.99); }
+
+.hero-primary-cta-arrow { transition: transform .2s ease; }
+.hero-primary-cta:hover .hero-primary-cta-arrow { transform: translateX(4px); }
+
+.hero-primary-cta .status-live-dot { box-shadow: 0 0 0 3px hsl(0 0% 100% / .25); }
+
+:root { --cta-shadow: 0 14px 32px -12px hsl(var(--primary) / .75), inset 0 1px 0 hsl(0 0% 100% / .18); }
+
+@keyframes cta-halo {
+  0% { box-shadow: var(--cta-shadow), 0 0 0 0 hsl(var(--status-live) / .45); }
+  70%, 100% { box-shadow: var(--cta-shadow), 0 0 0 16px hsl(var(--status-live) / 0); }
+}
+
+@keyframes cta-shine {
+  0% { transform: translateX(-120%); }
+  35%, 100% { transform: translateX(120%); }
+}
+
+.hero-secondary-cta {
+  color: hsl(var(--foreground));
+  font-size: 17px;
+  font-weight: 550;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 3px;
+  transition: opacity .2s ease;
+}
+
+.hero-secondary-cta:hover { opacity: .65; }
+
+/* The one place the bright AI green appears: "this is live". */
+.status-live-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  position: relative;
+  background: hsl(var(--status-live));
+  box-shadow: 0 0 0 3px hsl(var(--status-live) / .22);
+}
+
+.status-live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: hsl(var(--status-live));
+  animation: live-ping 2s cubic-bezier(0, 0, .2, 1) infinite;
+}
+
+@keyframes live-ping {
+  75%, 100% { transform: scale(2.6); opacity: 0; }
+}
+
+/* "AI online" presence badge on the portrait; opens the chat. */
+.hero-ai-status {
+  position: absolute;
+  right: -30px;
+  bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 13px 7px 11px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  color: hsl(var(--foreground));
+  background: var(--glass-bg-strong);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow-lift);
+}
+
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 32px;
+}
+
+.hero-tag {
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  color: hsl(var(--foreground));
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(10px) saturate(150%);
+  backdrop-filter: blur(10px) saturate(150%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+  white-space: nowrap;
+}
+
+/* --- credibility line --------------------------------------- */
+
+.hero-credits {
+  margin: 40px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 8px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.hero-credits-label {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: hsl(var(--muted-foreground));
+}
+
+.hero-credits-names {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 10px;
+  font-weight: 500;
+  color: hsl(var(--foreground));
+}
+
+.hero-credits-names > span { white-space: nowrap; }
+.hero-credits-sep { color: hsl(var(--sage)); }
+
+/* Tablet: roughly 40% less drawing — ticks, dashed rings and the side
+   dot column go, the frame and nodes stay. */
+@media (min-width: 901px) and (max-width: 1199px) {
+  .hero-construct { background-size: 132% auto; background-position: center 60%; }
+}
+
+/* Mobile: one column; the drawing becomes a band above the portrait. */
+@media (max-width: 900px) {
+  .portfolio-hero { min-height: auto; }
+  .hero-shell { width: min(100% - 32px, 700px); }
+  .hero-nav { padding: 20px 0 16px; padding-right: 8.5rem; }
+  .hero-nav-links { display: none; }
+  .hero-wordmark { font-size: 14px; letter-spacing: .13em; }
+  .hero-stage { padding: 40px 0 88px; }
+  .hero-center { width: 100%; }
+  .hero-portrait { width: 140px; }
+  .hero-title { font-size: clamp(34px, 8vw, 46px); }
+  .hero-subtitle { max-width: 520px; font-size: 17px; }
+  .hero-actions { gap: 24px; margin-top: 32px; }
+  .hero-primary-cta { min-width: 192px; min-height: 52px; font-size: 15px; }
+  .hero-secondary-cta { font-size: 15px; }
+  .hero-tag { padding: 8px 14px; font-size: 13px; }
+  .hero-construct {
+    background-image: url("/hero-construction-sm.jpg");
+    background-image: image-set(url("/hero-construction-sm.webp") type("image/webp"), url("/hero-construction-sm.jpg") type("image/jpeg"));
+    background-size: max(480px, 100vw) auto;
+    background-position: center 64px;
+    /* Fade the band out before the name and headline start. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 200px, transparent 262px);
+    mask-image: linear-gradient(to bottom, #000 200px, transparent 262px);
+  }
+}
+
+@media (max-width: 560px) {
+  .hero-shell { width: min(100% - 32px, 520px); }
+  .hero-stage { padding-top: 32px; }
+  .hero-portrait { width: 128px; }
+  .hero-eyebrow { font-size: 18px; }
+  .hero-title { font-size: 31px; }
+  .hero-subtitle { font-size: 16px; line-height: 1.5; }
+  .hero-actions { flex-direction: column; gap: 16px; width: 100%; }
+  .hero-primary-cta { width: min(100%, 320px); }
+  .hero-credits { flex-direction: column; align-items: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-nav-links a,
+  .hero-primary-cta,
+  .hero-primary-cta-arrow,
+  .hero-secondary-cta { transition: none; }
+  .hero-primary-cta,
+  .hero-primary-cta::after,
+  .status-live-dot::after,
+  .hero-title-caret { animation: none; }
+  .hero-primary-cta::after { display: none; }
+}
+
+/* =============================================================
+   SECTION HEADINGS
+   ============================================================= */
+
+.section-heading {
+  margin-bottom: 16px;
+  letter-spacing: -.015em;
+  color: hsl(var(--foreground));
+}
+
+/* =============================================================
+   GLASS SURFACES — frosted cards that let the dot grid blur
+   through, held by shadow and a light edge instead of an outline.
+   ============================================================= */
+
+:root {
+  --glass-bg: hsl(0 0% 100% / .6);
+  --glass-bg-strong: hsl(0 0% 100% / .82);
+  --glass-bg-hover: hsl(0 0% 100% / .8);
+  --glass-edge: hsl(0 0% 100% / .9);
+  --glass-shadow:
+    0 0 0 1px hsl(203 57% 15% / .04),
+    0 1px 2px hsl(203 57% 15% / .04),
+    0 10px 30px -14px hsl(203 57% 15% / .16);
+  --glass-shadow-lift:
+    0 0 0 1px hsl(161 60% 22% / .08),
+    0 2px 4px hsl(203 57% 15% / .05),
+    0 22px 44px -18px hsl(203 57% 15% / .28);
+}
+
+.dark {
+  --glass-bg: hsl(205 30% 14% / .5);
+  --glass-bg-strong: hsl(205 30% 14% / .82);
+  --glass-bg-hover: hsl(205 30% 17% / .65);
+  --glass-edge: hsl(40 30% 92% / .08);
+  --glass-shadow:
+    inset 0 1px 0 hsl(40 30% 92% / .06),
+    0 1px 2px hsl(205 50% 3% / .4),
+    0 16px 32px -16px hsl(205 50% 3% / .6);
+  --glass-shadow-lift:
+    inset 0 1px 0 hsl(40 30% 92% / .09),
+    0 2px 4px hsl(205 50% 3% / .5),
+    0 24px 44px -18px hsl(205 50% 3% / .75);
+}
+
+/* Faint colour behind a section, so the frosted cards have something
+   to blur; plain white behind glass just reads as white. */
+.glass-stage { position: relative; isolation: isolate; }
+.glass-stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 32% at 10% 22%, hsl(var(--primary) / .09), transparent 72%),
+    radial-gradient(34% 30% at 90% 72%, hsl(var(--status-live) / .08), transparent 72%);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-card-lift {
+  transition: transform .25s ease, box-shadow .25s ease, background-color .25s ease;
+}
+
+.glass-card-lift:hover {
+  background: var(--glass-bg-hover);
+  box-shadow: var(--glass-shadow-lift);
+  transform: translateY(-3px);
+}
+
+/* Solid green action (Book a call, Ask the AI). */
+.btn-green {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: 0 10px 24px -12px hsl(var(--primary) / .8), inset 0 1px 0 hsl(0 0% 100% / .16);
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+}
+
+.btn-green:hover {
+  filter: brightness(1.1);
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px -12px hsl(var(--primary) / .9), inset 0 1px 0 hsl(0 0% 100% / .16);
+}
+
+/* Project status: a soft pill with a presence dot. */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--foreground) / .05);
+}
+
+.status-chip.is-live {
+  color: hsl(var(--primary));
+  background: hsl(var(--status-live) / .13);
+}
+
+.status-idle-dot {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1.5px solid hsl(var(--muted-foreground) / .6);
+}
+
+/* Year / type label on earlier projects. */
+.meta-chip {
+  display: inline-flex;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .04em;
+  line-height: 1.3;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--foreground) / .05);
+}
+
+/* Quiet caveat, e.g. "Research, not a clinical diagnostic system". */
+.note-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px 5px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  line-height: 1.35;
+  color: hsl(var(--muted-foreground));
+  background: hsl(38 90% 50% / .09);
+}
+
+.note-chip svg { color: hsl(35 75% 42%); }
+.dark .note-chip svg { color: hsl(40 80% 65%); }
+
+.tech-chip {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: hsl(var(--muted-foreground));
+  background: hsl(var(--foreground) / .045);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-card-lift,
+  .btn-green { transition: none; }
+  .glass-card-lift:hover { transform: none; }
 }

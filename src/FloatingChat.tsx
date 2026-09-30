@@ -13,11 +13,12 @@ import {
   Mic,
   MessageSquare,
   PhoneOff,
+  CalendarDays,
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { translations } from './i18n';
-import { AVATAR_SM, AVATAR_ALT, LINKEDIN_URL } from './site';
+import { AVATAR_SM, AVATAR_ALT, LINKEDIN_URL, BOOKING_URL } from './site';
 import { getSectionLabels, getPageTitles } from './articles/registry';
 import { useVoiceMode } from './useVoiceMode';
 import VoiceOrb from './VoiceOrb';
@@ -30,6 +31,12 @@ import VoiceOrb from './VoiceOrb';
 // server half, hand-crafted POSTs could still mint Realtime tokens and bill the
 // OpenAI account.
 const VOICE_ENABLED = import.meta.env.VITE_VOICE_ENABLED === 'true';
+
+// Mirrors CHAT_LIMIT.max in api/_shared/ratelimit.js. The server is the only
+// thing that actually enforces the cap; this exists so the last question ends
+// on a booking card rather than on a refused request the visitor never asked
+// for. If the two ever drift, the server wins and the 429 path below covers it.
+const CHAT_QUESTION_LIMIT = 5;
 
 interface RagSource {
   article_id: string;
@@ -112,26 +119,44 @@ function linkifyUrls(text: string): string {
 
 const STORAGE_KEY = 'portfolio-chat';
 
-function loadSession(fallbackGreeting: string): { messages: Message[]; sessionId: string; showPrompts: boolean } {
+function loadSession(fallbackGreeting: string): {
+  messages: Message[];
+  sessionId: string;
+  showPrompts: boolean;
+  limitReached: boolean;
+} {
   try {
     const raw = sessionStorage.getItem(STORAGE_KEY);
     if (raw) {
       const data = JSON.parse(raw);
       if (Array.isArray(data.messages) && data.messages.length > 0 && typeof data.sessionId === 'string') {
         const hasUserMessages = data.messages.some((m: Message) => m.role === 'user');
-        return { messages: data.messages, sessionId: data.sessionId, showPrompts: !hasUserMessages };
+        return {
+          messages: data.messages,
+          sessionId: data.sessionId,
+          showPrompts: !hasUserMessages,
+          limitReached: data.limitReached === true,
+        };
       }
     }
   } catch { /* ignore corrupt storage */ }
   const sessionId = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-  return { messages: [{ role: 'assistant', content: fallbackGreeting }], sessionId, showPrompts: true };
+  return {
+    messages: [{ role: 'assistant', content: fallbackGreeting }],
+    sessionId,
+    showPrompts: true,
+    limitReached: false,
+  };
 }
 
-function saveSession(messages: Message[], sessionId: string) {
+// `limitReached` is persisted so a reload does not put the input back and walk
+// the visitor into a refusal. Clearing storage restores the input, which is
+// fine: the cap is enforced per IP on the server, not here.
+function saveSession(messages: Message[], sessionId: string, limitReached: boolean) {
   try {
     // Don't persist empty assistant messages (loading placeholders)
     const clean = messages.filter((m) => m.content !== '');
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ messages: clean, sessionId }));
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ messages: clean, sessionId, limitReached }));
   } catch { /* storage full or unavailable */ }
 }
 
@@ -164,6 +189,11 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
   const [sessionId] = useState(session.sessionId);
   const [mode, setMode] = useState<'text' | 'voice'>('text');
 
+  // Rate limit state. `remaining` is whatever the server last reported via
+  // X-RateLimit-Remaining; null means we have not asked yet.
+  const [limitReached, setLimitReached] = useState(session.limitReached);
+  const [remaining, setRemaining] = useState<number | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
@@ -191,6 +221,10 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
   }, [isOpen]);
 
   const userMessageCount = messages.filter((m) => m.role === 'user').length;
+
+  // Prefer the server's number; fall back to counting this session's questions
+  // so a fresh tab still shows a sensible countdown before the first response.
+  const questionsLeft = remaining ?? Math.max(0, CHAT_QUESTION_LIMIT - userMessageCount);
 
   // Cleanup drain timer on unmount
   useEffect(() => {
@@ -265,9 +299,9 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
   // Persist messages to sessionStorage
   useEffect(() => {
     if (!isLoading) {
-      saveSession(messages, sessionId);
+      saveSession(messages, sessionId, limitReached);
     }
-  }, [messages, isLoading, sessionId]);
+  }, [messages, isLoading, sessionId, limitReached]);
 
   // Update greeting when lang changes — only if no conversation has started
   useEffect(() => {
@@ -365,11 +399,11 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
   };
 
   // Can toggle to voice?
-  const canStartVoice = VOICE_ENABLED && !isLoading && !isStreaming && voiceMode.isSupported;
+  const canStartVoice = VOICE_ENABLED && !isLoading && !isStreaming && !limitReached && voiceMode.isSupported;
 
   const sendMessage = async (messageText?: string) => {
     const text = messageText || input.trim();
-    if (!text || isLoading) return;
+    if (!text || isLoading || limitReached) return;
 
     setInput('');
     setShowPrompts(false);
@@ -413,7 +447,38 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
         }),
       });
 
+      // The cap is spent. Not an error path: the visitor gets the booking card
+      // rather than a red failure bubble, and the input closes for the day.
+      if (response.status === 429) {
+        const body = await response.json().catch(() => ({}));
+        setLimitReached(true);
+        setRemaining(0);
+        setMessages((prev) => {
+          const limitMessage: Message = {
+            role: 'assistant',
+            content: body.message || t.limitBody,
+          };
+          const last = prev[prev.length - 1];
+          if (last?.role === 'assistant' && last.content === '') {
+            return [...prev.slice(0, -1), limitMessage];
+          }
+          return [...prev, limitMessage];
+        });
+        return;
+      }
+
       if (!response.ok) throw new Error('Failed to send message');
+
+      // Sent on every accepted answer, so the card appears on the last reply
+      // instead of one refused request later.
+      const remainingHeader = response.headers.get('X-RateLimit-Remaining');
+      if (remainingHeader !== null) {
+        const left = Number(remainingHeader);
+        if (Number.isFinite(left)) {
+          setRemaining(left);
+          if (left <= 0) setLimitReached(true);
+        }
+      }
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -860,8 +925,11 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
                     </motion.div>
                   )}
 
-                  {/* Contact CTA after 2+ exchanges */}
-                  {userMessageCount >= 2 && !isLoading && (
+                  {/* Contact CTA — a soft offer once the conversation is
+                      going, and the only way forward once the day's questions
+                      are spent. Booking leads, since a call is the thing the
+                      chat is ultimately trying to produce. */}
+                  {(limitReached || userMessageCount >= 2) && !isLoading && (
                     <motion.div
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -869,18 +937,34 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
                       className="pt-3"
                     >
                       <div className="p-3 rounded-xl bg-gradient-theme-10 border border-primary/20 text-center">
-                        <p className="text-sm font-medium text-foreground mb-2">
-                          {t.contactCtaTitle}
+                        <p className="text-sm font-medium text-foreground">
+                          {limitReached ? t.limitTitle : t.contactCtaTitle}
                         </p>
-                        <a
-                          href={LINKEDIN_URL}
-                          target="_blank"
-                          rel="me noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-theme-r text-white text-sm font-medium hover:brightness-110 hover:shadow-lg hover:shadow-primary/25 active:brightness-95 transition-all duration-200"
-                        >
-                          <Mail className="w-4 h-4" aria-hidden="true" />
-                          {t.contactCtaLabel}
-                        </a>
+                        {limitReached && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {t.limitBody}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap gap-2 justify-center mt-2.5">
+                          <a
+                            href={BOOKING_URL}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn-green inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium"
+                          >
+                            <CalendarDays className="w-4 h-4" aria-hidden="true" />
+                            {t.bookCtaLabel}
+                          </a>
+                          <a
+                            href={LINKEDIN_URL}
+                            target="_blank"
+                            rel="me noopener noreferrer"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-muted border border-border text-foreground text-sm font-medium hover:text-primary hover:border-primary/30 transition-colors duration-200"
+                          >
+                            <Mail className="w-4 h-4" aria-hidden="true" />
+                            {t.contactCtaLabel}
+                          </a>
+                        </div>
                       </div>
                     </motion.div>
                   )}
@@ -977,6 +1061,7 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
               }
             >
               {mode === 'text' ? (
+                <div className="flex flex-col gap-2">
                 <div className="flex gap-2">
                   <input
                     ref={inputRef}
@@ -984,9 +1069,9 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={t.placeholder}
-                    aria-label={t.placeholder}
-                    disabled={isLoading}
+                    placeholder={limitReached ? t.limitPlaceholder : t.placeholder}
+                    aria-label={limitReached ? t.limitPlaceholder : t.placeholder}
+                    disabled={isLoading || limitReached}
                     enterKeyHint="send"
                     autoComplete="off"
                     autoCorrect="off"
@@ -1015,7 +1100,7 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={() => sendMessage()}
-                    disabled={isLoading || !input.trim()}
+                    disabled={isLoading || limitReached || !input.trim()}
                     aria-label={lang === 'en' ? 'Send message' : 'Enviar mensaje'}
                     className={`rounded-xl bg-gradient-theme flex items-center justify-center text-white disabled:opacity-50 disabled:cursor-not-allowed transition-opacity ${
                       isMobile ? 'w-12 h-12' : 'w-10 h-10'
@@ -1023,6 +1108,12 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
                   >
                     <Send className={isMobile ? 'w-5 h-5' : 'w-4 h-4'} aria-hidden="true" />
                   </motion.button>
+                </div>
+                {!limitReached && questionsLeft > 0 && questionsLeft <= 2 && (
+                  <p className="text-[11px] text-muted-foreground text-center">
+                    {t.questionsLeft(questionsLeft)}
+                  </p>
+                )}
                 </div>
               ) : (
                 /* Voice mode controls */

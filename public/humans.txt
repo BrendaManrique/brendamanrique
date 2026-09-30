@@ -1,6 +1,6 @@
 /* TEAM */
 Builder: Brenda Manrique
-Role: Agentic AI Systems Builder · Full-stack and financial-systems engineer
+Role: Senior Software Engineer · Full-stack, financial systems, applied AI
 Contact: https://www.linkedin.com/in/brendastephanie/
 Site: https://brendamanrique.com
 Location: Berlin, Germany (remote)
@@ -25,5 +25,5 @@ Accessibility: Semantic HTML, ARIA labels, keyboard navigation
 SEO: Programmatic meta tags, structured data, sitemap, hreflang
 
 /* BOUNDARY */
-The consulting practice is pre-scale, in a build and validation phase.
-No client-scale or production AI metrics are claimed anywhere on this site.
+The independent practice is in the prototype and validation stage. No clients,
+revenue or production-adoption claims anywhere on this site.

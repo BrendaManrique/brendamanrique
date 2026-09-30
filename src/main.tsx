@@ -111,7 +111,7 @@ console.log(`%c${ASCII_ART}`, 'color: #f97316; font-size: 12px; font-family: mon
 console.log('%c Most people scroll. You inspect. I like that. ', 'background: #f97316; color: #1a1a1a; font-size: 14px; font-weight: bold; padding: 4px 8px; border-radius: 3px;')
 console.log('%cThe %chard %cpart %cis %cnever "produce an answer".', 'color: #94a3b8; font-size: 13px;', 'color: #7e8d9d; font-size: 13px;', 'color: #687882; font-size: 13px;', 'color: #526268; font-size: 13px;', 'color: #3d4d52; font-size: 13px;')
 console.log('%cIt is state, reliability and what happens when the clean path breaks.', 'color: #94a3b8; font-size: 13px;')
-console.log(`%c Build something difficult ${LINKEDIN_URL} `, 'background: #f97316; color: #1a1a1a; font-size: 13px; font-weight: bold; padding: 4px 8px; border-radius: 3px;')
+console.log(`%c Let's talk ${LINKEDIN_URL} `, 'background: #f97316; color: #1a1a1a; font-size: 13px; font-weight: bold; padding: 4px 8px; border-radius: 3px;')
 
 // Debug API for technical recruiters — type window.__portfolio in console
 Object.defineProperty(window, '__portfolio', {
@@ -124,7 +124,7 @@ Object.defineProperty(window, '__portfolio', {
     evals: 'factual, boundary, attribution, status, retrieval, language — CI-gated',
     observability: 'Langfuse (traces, LLM-as-judge, intent tags)',
     render: 'Pre-rendered HTML + critical CSS inlined + client hydration',
-    truth_boundary: 'Pre-scale. No client roster or production AI metrics are claimed.',
+    truth_boundary: 'Constrained to portfolio evidence. No clients, revenue or production-adoption claims.',
     perf: () => { const n = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming; console.table({ TTFB: `${Math.round(n.responseStart - n.requestStart)}ms`, DOMContentLoaded: `${Math.round(n.domContentLoadedEventEnd - n.startTime)}ms`, Load: `${Math.round(n.loadEventEnd - n.startTime)}ms` }); },
     contact: LINKEDIN_URL,
   }),

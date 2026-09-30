@@ -1,6 +1,10 @@
 /**
- * Contract tests: validates that Langfuse trace metadata matches what the ops dashboard expects.
+ * Contract tests: validates that Langfuse trace data matches what the ops dashboard expects.
  * If someone changes chat.js metadata format, these tests catch it BEFORE deploy.
+ *
+ * Reads through the v4 APIs (Observations v2 / Scores v3). Under v4 a trace's
+ * overall input/output and metadata live on its ROOT OBSERVATION — trace-level
+ * input/output is deprecated — so these assertions target root observations.
  *
  * Usage: npm run test:contract
  */
@@ -8,10 +12,10 @@
 import { config } from 'dotenv'
 config({ path: '.env.local' })
 
+import { fetchTraces as listTraces, fetchScores, type Trace } from '../scripts/langfuse-read'
+
 const LANGFUSE_PUBLIC_KEY = process.env.LANGFUSE_PUBLIC_KEY!
 const LANGFUSE_SECRET_KEY = process.env.LANGFUSE_SECRET_KEY!
-const LANGFUSE_BASE_URL = process.env.LANGFUSE_BASE_URL || 'https://cloud.langfuse.com'
-const AUTH = Buffer.from(`${LANGFUSE_PUBLIC_KEY}:${LANGFUSE_SECRET_KEY}`).toString('base64')
 
 // ---------------------------------------------------------------------------
 // Test runner
@@ -34,44 +38,8 @@ function skip(msg: string) {
 // Langfuse API helpers
 // ---------------------------------------------------------------------------
 
-interface LangfuseTrace {
-  id: string
-  timestamp: string
-  name: string
-  tags: string[]
-  metadata: Record<string, unknown>
-  input?: unknown
-  output?: unknown
-}
-
-interface LangfuseScore {
-  traceId: string
-  name: string
-  value: number
-}
-
-async function fetchTraces(params: Record<string, string> = {}): Promise<LangfuseTrace[]> {
-  const qs = new URLSearchParams({
-    limit: '30',
-    fromTimestamp: new Date(Date.now() - 7 * 86400000).toISOString(),
-    ...params,
-  })
-  const res = await fetch(`${LANGFUSE_BASE_URL}/api/public/traces?${qs}`, {
-    headers: { Authorization: `Basic ${AUTH}` },
-  })
-  if (!res.ok) throw new Error(`Langfuse traces: ${res.status}`)
-  const data = await res.json()
-  return data.data || []
-}
-
-async function fetchScores(fromMs: number): Promise<LangfuseScore[]> {
-  const from = new Date(fromMs).toISOString()
-  const res = await fetch(`${LANGFUSE_BASE_URL}/api/public/scores?fromTimestamp=${encodeURIComponent(from)}`, {
-    headers: { Authorization: `Basic ${AUTH}` },
-  })
-  if (!res.ok) return []
-  const data = await res.json()
-  return data.data || []
+async function fetchTraces(): Promise<Trace[]> {
+  return listTraces({ days: 7, limit: 30 })
 }
 
 // ---------------------------------------------------------------------------
@@ -192,15 +160,18 @@ async function main() {
     }
   }
 
-  // --- Input/Output on traces ---
-  console.log('\nTrace input/output:')
+  // --- Input/Output on the root observation ---
+  // v4 removed trace-level input/output; the root observation carries them, and
+  // the ops dashboard reads the assistant's answer from output.
+  console.log('\nRoot observation input/output:')
   const tracesWithIO = chatTraces.filter(t => t.input != null || t.output != null)
   if (tracesWithIO.length === 0) {
-    skip('No chat traces have input/output — possibly all pre-fix traces')
+    skip('No chat traces have root input/output — possibly all pre-migration traces')
   } else {
     for (const t of tracesWithIO.slice(0, 5)) {
-      assert(Array.isArray(t.input), `Trace ${t.id.slice(0, 8)} input is array of messages`)
-      assert(typeof t.output === 'string', `Trace ${t.id.slice(0, 8)} output is string`)
+      assert(typeof t.input === 'string' && t.input.length > 0,
+        `Trace ${t.id.slice(0, 8)} root input is the user message`)
+      assert(typeof t.output === 'string', `Trace ${t.id.slice(0, 8)} root output is string`)
     }
   }
 

@@ -1,4 +1,5 @@
-import { validateOpsAuth, langfuseAuth, langfuseBaseUrl } from '../_shared/ops-auth.js'
+import { validateOpsAuth } from '../_shared/ops-auth.js'
+import { fetchRootObservations, fetchScoresByTrace, parseMetadata } from '../_shared/langfuse-api.js'
 import evalResults from './_eval-results.js'
 
 export const config = { runtime: 'edge' }
@@ -13,45 +14,27 @@ export default async function handler(req) {
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '100', 10), 100)
     const includeEvals = url.searchParams.get('includeEvals') === 'true'
 
-    const lfAuth = langfuseAuth()
-    if (!lfAuth) {
-      return json({ error: 'Langfuse not configured' }, 503)
-    }
-
     const from = new Date(Date.now() - days * 86400000).toISOString()
     const to = new Date().toISOString()
-    const base = langfuseBaseUrl()
 
-    // Fetch traces and scores in parallel
-    const [tracesRes, scoresRes] = await Promise.all([
-      fetch(`${base}/api/public/traces?limit=${limit}&fromTimestamp=${from}`, {
-        headers: { Authorization: lfAuth },
-      }),
-      fetch(`${base}/api/public/scores?fromTimestamp=${from}`, {
-        headers: { Authorization: lfAuth },
-      }),
+    // One row per trace, via the trace's root observation. Replaces the
+    // deprecated GET /api/public/traces and GET /api/public/scores.
+    const [tracesResult, scoresByTrace] = await Promise.all([
+      fetchRootObservations({ from, to, limit }),
+      fetchScoresByTrace({ from, to }),
     ])
 
-    if (!tracesRes.ok) {
-      return json({ error: `Langfuse traces error: ${tracesRes.status}` }, 502)
+    if (tracesResult.error) {
+      return json({ error: tracesResult.error }, tracesResult.status)
     }
 
-    const tracesData = await tracesRes.json()
-    const traces = tracesData.data || []
-
-    // Scores — may fail (non-critical)
-    let scores = []
-    if (scoresRes.ok) {
-      const scoresData = await scoresRes.json()
-      scores = scoresData.data || []
-    }
+    const traces = tracesResult.data
 
     // Index safety scores by traceId
     const safetyByTrace = {}
-    for (const s of scores) {
-      if (s.name === 'safety' || s.name === 'safety_score') {
-        safetyByTrace[s.traceId] = s.value
-      }
+    for (const [traceId, named] of Object.entries(scoresByTrace)) {
+      const value = named.safety ?? named.safety_score
+      if (typeof value === 'number') safetyByTrace[traceId] = value
     }
 
     // Aggregate
@@ -71,26 +54,29 @@ export default async function handler(req) {
       const tags = t.tags || []
       // Skip synthetic traffic (evals, adversarial) unless explicitly included
       if (!includeEvals && tags.some(tag => tag.startsWith('source:'))) continue
-      const meta = t.metadata || {}
+      const meta = parseMetadata(t.metadata)
       const cost = meta.cost || {}
       const isVoice = tags.includes('voice')
 
       if (isVoice) voiceConvos++
       else textConvos++
 
-      // Cost
-      const traceTotalCost = cost.total || 0
+      // Cost: prefer the hand-rolled breakdown so the per-stage daily chart
+      // stays populated, and fall back to the cost Langfuse now derives from
+      // the observations' costDetails.
+      const traceTotalCost = cost.total || t.totalCost || 0
       totalCost += traceTotalCost
 
-      // Latency
+      // Latency. `latency` is a v2 field group value, in seconds.
       const latency = meta.latencyBreakdown?.totalMs || meta.latencyMs
+        || (typeof t.latency === 'number' ? Math.round(t.latency * 1000) : undefined)
       if (latency) {
         totalLatency += latency
         latencyCount++
       }
 
       // Safety
-      const safety = safetyByTrace[t.id]
+      const safety = safetyByTrace[t.traceId]
       if (safety != null) {
         safetySum += safety
         safetyCount++
@@ -112,7 +98,7 @@ export default async function handler(req) {
       else if (tags.includes('rag:no')) ragActivation.no++
 
       // Daily bucket
-      const date = t.timestamp?.slice(0, 10)
+      const date = t.startTime?.slice(0, 10)
       if (date) {
         if (!daily[date]) {
           daily[date] = {

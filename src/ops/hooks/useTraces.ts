@@ -12,25 +12,35 @@ export interface TraceFilters {
 
 const PAGE_SIZE = 20
 
+interface TracesResponse {
+  data: OpsTrace[]
+  nextCursor: string | null
+  total: number
+}
+
 export function useTraces(filters: TraceFilters) {
-  const [offset, setOffset] = useState(0)
+  // Langfuse's v2 observations API paginates by cursor, not offset, so "load
+  // more" carries the previous page's nextCursor instead of an offset. There is
+  // no total count to page against either — hasMore is simply "a cursor came back".
+  const [cursor, setCursor] = useState<string | null>(null)
   const [allTraces, setAllTraces] = useState<OpsTrace[]>([])
-  const prevDataRef = useRef<{ data: OpsTrace[]; total: number } | null>(null)
+  const [nextCursor, setNextCursor] = useState<string | null>(null)
+  const prevDataRef = useRef<TracesResponse | null>(null)
 
   const params = useMemo(() => {
     const p: Record<string, string> = {
       days: String(filters.days),
       limit: String(PAGE_SIZE),
-      offset: String(offset),
     }
+    if (cursor) p.cursor = cursor
     if (filters.lang) p.lang = filters.lang
     if (filters.mode) p.mode = filters.mode
     if (filters.rag) p.rag = filters.rag
     if (filters.jailbreak) p.jailbreak = 'true'
     return p
-  }, [filters, offset])
+  }, [filters, cursor])
 
-  const { data, loading } = useOpsApi<{ data: OpsTrace[]; total: number }>({
+  const { data, loading } = useOpsApi<TracesResponse>({
     endpoint: 'traces',
     params,
     cacheTtlMs: 15000,
@@ -40,8 +50,9 @@ export function useTraces(filters: TraceFilters) {
   useEffect(() => {
     if (!data || data === prevDataRef.current) return
     prevDataRef.current = data
+    setNextCursor(data.nextCursor ?? null)
 
-    if (offset === 0) {
+    if (!cursor) {
       setAllTraces(data.data)
     } else {
       setAllTraces(prev => {
@@ -50,21 +61,23 @@ export function useTraces(filters: TraceFilters) {
         return [...prev, ...newTraces]
       })
     }
-  }, [data, offset])
+  }, [data, cursor])
 
   const loadMore = useCallback(() => {
-    setOffset(prev => prev + PAGE_SIZE)
-  }, [])
+    setCursor(prev => (nextCursor && nextCursor !== prev ? nextCursor : prev))
+  }, [nextCursor])
 
   const resetFilters = useCallback(() => {
-    setOffset(0)
+    setCursor(null)
+    setNextCursor(null)
     setAllTraces([])
     prevDataRef.current = null
   }, [])
 
   return {
     traces: allTraces,
-    total: data?.total ?? 0,
+    total: allTraces.length,
+    hasMore: Boolean(nextCursor),
     loading,
     loadMore,
     resetFilters,

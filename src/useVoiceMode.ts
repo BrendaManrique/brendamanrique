@@ -58,6 +58,10 @@ export function useVoiceMode() {
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const workletNodeRef = useRef<AudioWorkletNode | ScriptProcessorNode | null>(null);
   const traceIdRef = useRef<string | null>(null);
+  // W3C traceparent for the voice session's root observation. Langfuse v4 has
+  // no "re-open a trace by id", so /api/rag-search and /api/voice-trace attach
+  // their observations to this parent span context instead of a bare trace id.
+  const traceparentRef = useRef<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const pendingListenTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const thinkingSoundStopRef = useRef<(() => void) | null>(null);
@@ -231,13 +235,13 @@ export function useVoiceMode() {
 
   // Send voice trace to backend
   const sendTrace = useCallback(async (transcriptData: TranscriptEntry[], lang: string, sessionId: string) => {
-    if (!traceIdRef.current) return;
+    if (!traceparentRef.current) return;
     try {
       await fetch('/api/voice-trace', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          traceId: traceIdRef.current,
+          traceparent: traceparentRef.current,
           sessionId,
           transcript: transcriptData,
           durationMs: Date.now() - sessionStartRef.current,
@@ -252,17 +256,18 @@ export function useVoiceMode() {
   // Ensure transcript is sent even if the user closes the tab/navigates away
   useEffect(() => {
     const sendBeaconTrace = () => {
-      if (!traceIdRef.current || transcriptRef.current.length === 0) return;
+      if (!traceparentRef.current || transcriptRef.current.length === 0) return;
       // sendBeacon works even during page unload
       const blob = new Blob([JSON.stringify({
-        traceId: traceIdRef.current,
+        traceparent: traceparentRef.current,
         sessionId: sessionIdRef.current,
         transcript: transcriptRef.current,
         durationMs: Date.now() - sessionStartRef.current,
         lang: langRef.current,
       })], { type: 'application/json' });
       navigator.sendBeacon('/api/voice-trace', blob);
-      traceIdRef.current = null; // Prevent duplicate sends
+      traceparentRef.current = null; // Prevent duplicate sends
+      traceIdRef.current = null;
     };
 
     window.addEventListener('beforeunload', sendBeaconTrace);
@@ -318,8 +323,9 @@ export function useVoiceMode() {
         throw new Error(data.error || 'Failed to get voice token');
       }
 
-      const { token, traceId } = await tokenRes.json();
+      const { token, traceId, traceparent } = await tokenRes.json();
       traceIdRef.current = traceId;
+      traceparentRef.current = traceparent;
       addDebug(`Token: ${token ? 'OK' : 'MISSING'}`);
 
       if (!token) throw new Error('No token received');
@@ -691,7 +697,7 @@ export function useVoiceMode() {
       const res = await fetch('/api/rag-search', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, traceId: traceIdRef.current, currentPage: currentPageRef.current }),
+        body: JSON.stringify({ query, traceparent: traceparentRef.current, currentPage: currentPageRef.current }),
       });
 
       const { context, sources } = await res.json();

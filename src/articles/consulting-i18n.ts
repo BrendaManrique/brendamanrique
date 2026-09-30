@@ -1,15 +1,13 @@
 import type { CaseStudyContent, CaseStudyLang } from './case-study'
 
-const INSTALLATION_LAYOUT = `client/
-  config/          # approved systems, business rules
-  knowledge/       # indexed, versioned sources
-  tools/           # allowed actions
-  policies/        # approval + escalation rules
+const INSTALLATION_LAYOUT = `config/          # approved systems, business rules
+knowledge/       # indexed, versioned sources
+tools/           # allowed actions, typed
+policies/        # approval + escalation rules
 runtime/
   agent service
-  memory / state
+  state
   telemetry
-  health checks
 ops/
   deployment version
   alerts
@@ -17,133 +15,106 @@ ops/
 
 export const consultingContent: Record<CaseStudyLang, CaseStudyContent> = {
   en: {
-    slug: 'agentic-ai-consulting',
-    altSlug: 'consultoria-ia-agentica',
-    readingTime: '7 min read',
+    slug: 'applied-ai',
+    altSlug: 'ia-aplicada',
+    readingTime: '5 min read',
     seo: {
-      title: 'Building an agentic AI consulting practice before pretending it is one',
+      title: 'Build log: small applied-AI systems',
       description:
-        'A build log: turning a year of self-directed AI work into a professional, supportable delivery model for company agents. Deliberately pre-scale, with the truth boundary stated on the page.',
+        'What I am building independently: Python and FastAPI services with retrieval, typed tool boundaries, approval flows and deployments you can observe and roll back.',
     },
     header: {
-      kicker: 'Build log · Agentic AI consulting',
-      h1: 'Building an agentic AI consulting practice before pretending it is one',
+      kicker: 'Build log · Applied AI',
+      h1: 'Build log: small applied-AI systems',
       subtitle:
-        'How I\'m turning a year of self-directed AI work into a professional, supportable delivery model for company agents.',
+        'What happens to an AI system once somebody has to operate it — and what I am building to find out.',
       date: 'Sep 1, 2026',
     },
-    nav: { breadcrumbHome: 'Home', breadcrumbCurrent: 'Consulting build log' },
-    status: 'Build & validation phase — intentionally pre-scale',
+    nav: { breadcrumbHome: 'Home', breadcrumbCurrent: 'Applied AI build log' },
+    status: 'Prototype and validation stage',
     directAnswer:
-      'This page documents an agentic AI consulting practice that is deliberately pre-scale. It exists today as research, architecture, prototypes, infrastructure decisions and implementation experiments — plus one live system, the portfolio chat agent. There is no client roster, no production-scale customer metrics and no fleet of enterprise installations, and none is claimed here.',
+      'This is a build log for the applied-AI work Brenda Manrique has been doing independently since moving to Berlin, and for the independent practice she began developing seriously around March 2026. It is in the prototype and validation stage: architecture, prototypes, deployed infrastructure and product experimentation, plus one system in production — the chat agent on this site. No paying clients yet.',
     sections: {
       why: {
-        heading: 'Why she\'s building it this way',
+        heading: 'The question',
         blocks: [
           {
             kind: 'quote',
-            text: 'I left Moody\'s in August 2025 with a specific question: what does a professional AI-agent installation look like after the demo? The interesting part is not whether an LLM can call a tool. The interesting part is ownership, deployment, observability, failure recovery, permissions, updates and the boundary between an agent and the company systems it is allowed to touch.',
+            text: 'The interesting part is not whether a model can call a tool. It is what happens next: deployment, permissions, failure recovery, updates, and the boundary between an agent and the systems it is allowed to touch.',
           },
           {
             kind: 'prose',
-            text: 'Answering that honestly takes building, not reading. So the sequence is deliberate: build the infrastructure, prove it on a system that is genuinely public and genuinely adversarial, then take it to companies.',
+            text: 'Those are ordinary software questions. They are also the ones that separate a demo from something a team can run on a Tuesday. Answering them takes building, so that is what this is.',
           },
         ],
       },
       'the-problems': {
-        heading: 'The kind of problem she wants to solve',
+        heading: 'The kind of problem',
         blocks: [
           {
             kind: 'prose',
-            text: 'Repetitive company workflows where humans spend their time moving information between inboxes, WhatsApp, calendars, CRMs, documents and internal tools. A useful agent should collect the right inputs, call approved systems, keep state, ask for approval when required, and leave an audit trail.',
+            text: 'Repetitive workflows where people spend their time moving information between inboxes, WhatsApp, calendars, documents and internal tools. A useful system collects the right inputs, calls approved systems, keeps state, asks for approval when it matters, and leaves a trail.',
           },
           {
             kind: 'flow',
-            steps: ['Message / event', 'Agent router', 'Tools + company data', 'Approval gate', 'Action', 'Audit / telemetry'],
-          },
-          {
-            kind: 'callout',
-            text: 'Agents that operate workflows — not generic chatbots.',
+            steps: ['Message / event', 'Router', 'Typed tools + data', 'Approval gate', 'Action', 'Audit / telemetry'],
           },
         ],
       },
       foundation: {
-        heading: 'The technical foundation',
+        heading: 'The stack',
         blocks: [
           {
             kind: 'cards',
             items: [
               {
                 title: 'Python + FastAPI',
-                detail: 'Services she can understand, test and deploy without hiding critical behaviour inside a visual workflow tool.',
+                detail: 'Services she can read, test and deploy, rather than critical behaviour hidden inside a visual workflow tool.',
               },
               {
-                title: 'Docker',
-                detail: 'Each installation can be versioned and reproduced.',
+                title: 'Docker + VPS',
+                detail: 'Each deployment can be versioned and reproduced.',
               },
               {
-                title: 'PostgreSQL',
-                detail: 'Durable state and memory where appropriate.',
+                title: 'PostgreSQL / Supabase',
+                detail: 'Durable state where it is needed.',
               },
               {
-                title: 'WhatsApp / voice interfaces',
-                detail: 'Many operational users will not live inside a new dashboard.',
+                title: 'Retrieval + typed tools',
+                detail: 'MCP-style boundaries, so "know something" and "do something" stay separate.',
               },
               {
-                title: 'RAG + tools',
-                detail: 'So the agent can distinguish "know something" from "do something".',
+                title: 'WhatsApp interfaces',
+                detail: 'Most operational users are not going to live inside a new dashboard.',
               },
               {
-                title: 'Observability and approvals',
-                detail: 'So a consulting company can support the system after go-live.',
+                title: 'Monitoring and approvals',
+                detail: 'Including the rollback path, because without one there is no support model.',
               },
             ],
           },
           {
             kind: 'stack',
-            items: ['Python', 'FastAPI', 'Docker', 'PostgreSQL', 'RAG', 'Tool use', 'WhatsApp / Voice', 'HITL'],
+            items: ['Python', 'FastAPI', 'Docker', 'PostgreSQL', 'Supabase', 'RAG', 'Tool calling', 'HITL'],
           },
         ],
       },
       'delivery-model': {
-        heading: 'A repeatable client installation',
+        heading: 'A shape that repeats',
         blocks: [
-          {
-            kind: 'quote',
-            text: 'The goal is to avoid a future where every client owns a mysterious script on a server.',
-          },
-          { kind: 'code', code: INSTALLATION_LAYOUT },
           {
             kind: 'prose',
-            text: 'The shape matters more than the file names. Configuration, knowledge, tools and policies are per-client and versioned. The runtime, telemetry and health checks are shared. Ops owns the deployment version, the alerts and the rollback path — because without a rollback path there is no support model, only a maintenance emergency waiting to happen.',
+            text: 'The goal is to avoid a future where every deployment is a mysterious script on a server. Configuration, knowledge, tools and policies are per-deployment and versioned. The runtime and telemetry are shared.',
           },
-        ],
-      },
-      'truth-boundary': {
-        heading: 'Truth boundary',
-        blocks: [
-          {
-            kind: 'table',
-            headers: ['Today', 'Not claimed'],
-            rows: [
-              ['Research and architecture', 'A large client base'],
-              ['Prototypes and implementation experiments', 'Production-scale customer metrics'],
-              ['Infrastructure decisions', 'A mature fleet of enterprise installations'],
-              ['One live system: the portfolio chat agent', 'Revenue or client names'],
-            ],
-          },
-          {
-            kind: 'callout',
-            text: 'Those belong on the page only after they exist.',
-          },
+          { kind: 'code', code: INSTALLATION_LAYOUT },
         ],
       },
       next: {
-        heading: 'What\'s next',
+        heading: 'Where it stands',
         blocks: [
           {
-            kind: 'quote',
-            text: 'The portfolio chat agent is the perfect internal proving ground. It forces me to build RAG, evaluation, security, observability and a user-facing agent without needing to pretend it is a client deployment. After that, the same lessons can feed the consulting platform.',
+            kind: 'prose',
+            text: 'The portfolio chat agent is the proving ground: a public, adversarial surface that forces retrieval, evaluation, security and observability to actually work. It is in production. The rest is prototypes and infrastructure, and there are no paying clients yet.',
           },
         ],
       },
@@ -152,26 +123,22 @@ export const consultingContent: Record<CaseStudyLang, CaseStudyContent> = {
       heading: 'Frequently asked questions',
       items: [
         {
-          q: 'How many clients does the consulting practice have?',
-          a: 'It is pre-scale, in a build and validation phase. There is no client roster to report, and this portfolio does not claim one. What exists today is research, architecture, prototypes, infrastructure decisions and implementation experiments — plus the portfolio chat agent, which is live.',
+          q: 'Does the practice have clients?',
+          a: 'Not yet. It is in the prototype and validation stage: architecture, prototypes, deployed infrastructure and product experimentation, plus the portfolio chat agent, which is in production.',
         },
         {
-          q: 'Does she have production AI systems running for clients?',
-          a: 'Not at scale, and that is stated plainly. The one system running in public today is this site\'s chat agent. Everything else is prototypes and infrastructure work.',
+          q: 'When did this start?',
+          a: 'The experimenting started after she moved to Berlin in 2025. Around March 2026 it became more deliberate: building the technical foundation for an independent applied-AI practice.',
         },
         {
-          q: 'Why publish a practice that has not scaled yet?',
-          a: 'Because the engineering is the evidence. A page that showed invented client logos would be worth less than one that shows the architecture, the delivery model and an explicit statement of where the practice actually is. The intent is that nothing on this site has to be walked back later.',
-        },
-        {
-          q: 'What kind of engagement is she looking for?',
-          a: 'Conversations with companies that have operational workflows worth turning into reliable agentic systems — the sort where humans currently move information between inboxes, WhatsApp, calendars, CRMs, documents and internal tools.',
+          q: 'Is she available for employment as well?',
+          a: 'Yes. She is looking for her next senior software-engineering or applied-AI role alongside this work.',
         },
       ],
     },
     cta: {
-      heading: 'Build something difficult',
-      body: 'If you have an operational workflow worth turning into a reliable agentic system, that is the conversation.',
+      heading: 'Let us talk',
+      body: 'Open to senior software engineering and applied-AI roles, and to conversations about workflows worth turning into reliable software.',
       ctaLabel: 'Connect on LinkedIn',
       ctaHref: 'https://www.linkedin.com/in/brendastephanie/',
       secondaryLabel: 'How the portfolio agent was built',
@@ -179,133 +146,106 @@ export const consultingContent: Record<CaseStudyLang, CaseStudyContent> = {
     },
   },
   es: {
-    slug: 'consultoria-ia-agentica',
-    altSlug: 'agentic-ai-consulting',
-    readingTime: '7 min de lectura',
+    slug: 'ia-aplicada',
+    altSlug: 'applied-ai',
+    readingTime: '5 min de lectura',
     seo: {
-      title: 'Construir una práctica de consultoría en IA agéntica antes de fingir que lo es',
+      title: 'Build log: sistemas pequeños de IA aplicada',
       description:
-        'Un build log: convertir un año de trabajo autodirigido en IA en un modelo de entrega profesional y mantenible para agentes de empresa. Deliberadamente pre-escala, con el límite de verdad escrito en la página.',
+        'Lo que construyo por mi cuenta: servicios en Python y FastAPI con recuperación, herramientas tipadas, flujos de aprobación y despliegues observables.',
     },
     header: {
-      kicker: 'Build log · Consultoría en IA agéntica',
-      h1: 'Construir una práctica de consultoría en IA agéntica antes de fingir que lo es',
+      kicker: 'Build log · IA aplicada',
+      h1: 'Build log: sistemas pequeños de IA aplicada',
       subtitle:
-        'Cómo estoy convirtiendo un año de trabajo autodirigido en IA en un modelo de entrega profesional y mantenible para agentes de empresa.',
+        'Qué le pasa a un sistema de IA cuando alguien tiene que operarlo, y qué estoy construyendo para averiguarlo.',
       date: '1 sep 2026',
     },
-    nav: { breadcrumbHome: 'Inicio', breadcrumbCurrent: 'Build log de consultoría' },
-    status: 'Fase de construcción y validación — pre-escala a propósito',
+    nav: { breadcrumbHome: 'Inicio', breadcrumbCurrent: 'Build log de IA aplicada' },
+    status: 'Fase de prototipos y validación',
     directAnswer:
-      'Esta página documenta una práctica de consultoría en IA agéntica deliberadamente pre-escala. Hoy existe como investigación, arquitectura, prototipos, decisiones de infraestructura y experimentos de implementación, más un sistema vivo: el agente de chat de este portafolio. No hay cartera de clientes, ni métricas de cliente a escala de producción, ni una flota madura de instalaciones enterprise, y aquí no se afirma ninguna.',
+      'Este es el build log del trabajo de IA aplicada que Brenda Manrique hace por su cuenta desde que se mudó a Berlín, y de la práctica independiente que empezó a desarrollar en serio hacia marzo de 2026. Está en fase de prototipos y validación: arquitectura, prototipos, infraestructura desplegada y experimentación con productos, más un sistema en producción, el agente de chat de este sitio. Todavía no hay clientes de pago.',
     sections: {
       why: {
-        heading: 'Por qué lo construye así',
+        heading: 'La pregunta',
         blocks: [
           {
             kind: 'quote',
-            text: 'Dejé Moody\'s en agosto de 2025 con una pregunta concreta: ¿qué aspecto tiene una instalación profesional de agentes de IA después de la demo? Lo interesante no es si un LLM puede llamar a una herramienta. Lo interesante es la propiedad, el despliegue, la observabilidad, la recuperación ante fallos, los permisos, las actualizaciones y el límite entre un agente y los sistemas de la empresa que se le permite tocar.',
+            text: 'Lo interesante no es si un modelo puede llamar a una herramienta. Es lo que viene después: despliegue, permisos, recuperación ante fallos, actualizaciones y el límite entre un agente y los sistemas que se le permite tocar.',
           },
           {
             kind: 'prose',
-            text: 'Responder eso con honestidad exige construir, no leer. Por eso la secuencia es deliberada: construir la infraestructura, probarla en un sistema genuinamente público y genuinamente adversarial, y después llevarla a empresas.',
+            text: 'Son preguntas de software normales. También son las que separan una demo de algo que un equipo puede tener funcionando un martes cualquiera. Responderlas exige construir, así que eso es esto.',
           },
         ],
       },
       'the-problems': {
-        heading: 'El tipo de problema que quiere resolver',
+        heading: 'El tipo de problema',
         blocks: [
           {
             kind: 'prose',
-            text: 'Flujos repetitivos de empresa donde las personas se pasan el tiempo moviendo información entre bandejas de entrada, WhatsApp, calendarios, CRMs, documentos y herramientas internas. Un agente útil debería recoger las entradas correctas, llamar a sistemas aprobados, mantener estado, pedir aprobación cuando toca y dejar un rastro auditable.',
+            text: 'Flujos repetitivos donde las personas se pasan el tiempo moviendo información entre bandejas de entrada, WhatsApp, calendarios, documentos y herramientas internas. Un sistema útil recoge las entradas correctas, llama a sistemas aprobados, mantiene estado, pide aprobación cuando toca y deja rastro.',
           },
           {
             kind: 'flow',
-            steps: ['Mensaje / evento', 'Router del agente', 'Herramientas + datos de empresa', 'Puerta de aprobación', 'Acción', 'Auditoría / telemetría'],
-          },
-          {
-            kind: 'callout',
-            text: 'Agentes que operan flujos de trabajo, no chatbots genéricos.',
+            steps: ['Mensaje / evento', 'Router', 'Herramientas tipadas + datos', 'Puerta de aprobación', 'Acción', 'Auditoría / telemetría'],
           },
         ],
       },
       foundation: {
-        heading: 'La base técnica',
+        heading: 'El stack',
         blocks: [
           {
             kind: 'cards',
             items: [
               {
                 title: 'Python + FastAPI',
-                detail: 'Servicios que puede entender, testear y desplegar sin esconder comportamiento crítico dentro de una herramienta visual de workflows.',
+                detail: 'Servicios que puede leer, testear y desplegar, en vez de comportamiento crítico escondido dentro de una herramienta visual de workflows.',
               },
               {
-                title: 'Docker',
-                detail: 'Cada instalación se puede versionar y reproducir.',
+                title: 'Docker + VPS',
+                detail: 'Cada despliegue se puede versionar y reproducir.',
               },
               {
-                title: 'PostgreSQL',
-                detail: 'Estado y memoria duraderos donde tenga sentido.',
+                title: 'PostgreSQL / Supabase',
+                detail: 'Estado duradero donde hace falta.',
               },
               {
-                title: 'Interfaces de WhatsApp / voz',
-                detail: 'Muchos usuarios operativos no van a vivir dentro de un dashboard nuevo.',
+                title: 'Recuperación + herramientas tipadas',
+                detail: 'Límites al estilo MCP, para que «saber algo» y «hacer algo» sigan separados.',
               },
               {
-                title: 'RAG + herramientas',
-                detail: 'Para que el agente distinga «saber algo» de «hacer algo».',
+                title: 'Interfaces de WhatsApp',
+                detail: 'La mayoría de usuarios operativos no van a vivir dentro de un dashboard nuevo.',
               },
               {
-                title: 'Observabilidad y aprobaciones',
-                detail: 'Para que una consultora pueda dar soporte al sistema después del go-live.',
+                title: 'Monitorización y aprobaciones',
+                detail: 'Incluido el camino de rollback, porque sin él no hay modelo de soporte.',
               },
             ],
           },
           {
             kind: 'stack',
-            items: ['Python', 'FastAPI', 'Docker', 'PostgreSQL', 'RAG', 'Tool use', 'WhatsApp / Voz', 'HITL'],
+            items: ['Python', 'FastAPI', 'Docker', 'PostgreSQL', 'Supabase', 'RAG', 'Tool calling', 'HITL'],
           },
         ],
       },
       'delivery-model': {
-        heading: 'Una instalación de cliente repetible',
+        heading: 'Una forma que se repite',
         blocks: [
-          {
-            kind: 'quote',
-            text: 'El objetivo es evitar un futuro donde cada cliente tenga un script misterioso en un servidor.',
-          },
-          { kind: 'code', code: INSTALLATION_LAYOUT },
           {
             kind: 'prose',
-            text: 'La forma importa más que los nombres de fichero. Configuración, conocimiento, herramientas y políticas son por cliente y versionadas. El runtime, la telemetría y los health checks se comparten. Ops es dueño de la versión desplegada, las alertas y el camino de rollback, porque sin camino de rollback no hay modelo de soporte, solo una emergencia de mantenimiento esperando a ocurrir.',
+            text: 'El objetivo es evitar un futuro donde cada despliegue sea un script misterioso en un servidor. Configuración, conocimiento, herramientas y políticas son por despliegue y versionadas. El runtime y la telemetría se comparten.',
           },
-        ],
-      },
-      'truth-boundary': {
-        heading: 'Límite de verdad',
-        blocks: [
-          {
-            kind: 'table',
-            headers: ['Hoy', 'No se afirma'],
-            rows: [
-              ['Investigación y arquitectura', 'Una base amplia de clientes'],
-              ['Prototipos y experimentos de implementación', 'Métricas de cliente a escala de producción'],
-              ['Decisiones de infraestructura', 'Una flota madura de instalaciones enterprise'],
-              ['Un sistema vivo: el agente de chat del portafolio', 'Ingresos o nombres de clientes'],
-            ],
-          },
-          {
-            kind: 'callout',
-            text: 'Eso solo debería aparecer en la página cuando exista.',
-          },
+          { kind: 'code', code: INSTALLATION_LAYOUT },
         ],
       },
       next: {
-        heading: 'Qué viene ahora',
+        heading: 'Dónde está',
         blocks: [
           {
-            kind: 'quote',
-            text: 'El agente de chat del portafolio es el banco de pruebas interno perfecto. Me obliga a construir RAG, evaluación, seguridad, observabilidad y un agente de cara al usuario sin tener que fingir que es un despliegue de cliente. Después, las mismas lecciones alimentan la plataforma de consultoría.',
+            kind: 'prose',
+            text: 'El agente de chat del portafolio es el banco de pruebas: una superficie pública y adversarial que obliga a que la recuperación, la evaluación, la seguridad y la observabilidad funcionen de verdad. Está en producción. El resto son prototipos e infraestructura, y todavía no hay clientes de pago.',
           },
         ],
       },
@@ -314,26 +254,22 @@ export const consultingContent: Record<CaseStudyLang, CaseStudyContent> = {
       heading: 'Preguntas frecuentes',
       items: [
         {
-          q: '¿Cuántos clientes tiene la práctica de consultoría?',
-          a: 'Está pre-escala, en fase de construcción y validación. No hay cartera de clientes que reportar y este portafolio no afirma tenerla. Lo que existe hoy es investigación, arquitectura, prototipos, decisiones de infraestructura y experimentos de implementación, más el agente de chat del portafolio, que está vivo.',
+          q: '¿Tiene clientes la práctica?',
+          a: 'Todavía no. Está en fase de prototipos y validación: arquitectura, prototipos, infraestructura desplegada y experimentación con productos, más el agente de chat del portafolio, que está en producción.',
         },
         {
-          q: '¿Tiene sistemas de IA en producción funcionando para clientes?',
-          a: 'No a escala, y se dice sin rodeos. El único sistema funcionando en público hoy es el agente de chat de este sitio. Todo lo demás son prototipos y trabajo de infraestructura.',
+          q: '¿Cuándo empezó esto?',
+          a: 'La experimentación empezó tras mudarse a Berlín en 2025. Hacia marzo de 2026 se volvió más deliberado: construir la base técnica de una práctica independiente de IA aplicada.',
         },
         {
-          q: '¿Por qué publicar una práctica que aún no ha escalado?',
-          a: 'Porque la ingeniería es la prueba. Una página con logos de clientes inventados valdría menos que una que enseña la arquitectura, el modelo de entrega y una declaración explícita de dónde está la práctica de verdad. La intención es que nada de este sitio haya que desdecirlo después.',
-        },
-        {
-          q: '¿Qué tipo de colaboración busca?',
-          a: 'Conversaciones con empresas que tengan flujos operativos que merezcan convertirse en sistemas agénticos fiables: esos donde hoy las personas mueven información entre bandejas de entrada, WhatsApp, calendarios, CRMs, documentos y herramientas internas.',
+          q: '¿Está disponible también para un empleo?',
+          a: 'Sí. Busca su siguiente rol senior de ingeniería de software o de IA aplicada en paralelo a este trabajo.',
         },
       ],
     },
     cta: {
-      heading: 'Construir algo difícil',
-      body: 'Si tienes un flujo operativo que merece convertirse en un sistema agéntico fiable, esa es la conversación.',
+      heading: 'Hablemos',
+      body: 'Abierta a roles senior de ingeniería de software y de IA aplicada, y a conversaciones sobre flujos que merecen convertirse en software fiable.',
       ctaLabel: 'Conectar en LinkedIn',
       ctaHref: 'https://www.linkedin.com/in/brendastephanie/',
       secondaryLabel: 'Cómo se construyó el agente del portafolio',
