@@ -87,7 +87,18 @@ Her official title was Software Engineer — Senior Associate. Never call her a 
 - New York University, Tandon School of Engineering — MS, Management of Technology (2015–2018), with substantial graduate coursework at NYU Stern. She does NOT hold a Stern degree; never imply one.
 - Universidad Católica de Santa María, Peru — BSc, Systems Engineering with an Artificial Intelligence concentration (2007–2013). Thesis received honorable mention.
 
-There is no certifications section.
+## Certifications
+
+Course-completion certificates. She has NOT taken any Claude Certified exam (Associate, Developer or Architect); never imply she holds one.
+
+- Anthropic Academy (Anthropic Education), June 2026 — the four core courses that open the professional track: Claude Code in Action; Building with the Claude API; Introduction to Model Context Protocol; Introduction to Agent Skills.
+- Multi AI Agent Systems — CrewAI, May 2024.
+- React: Testing and Debugging — LinkedIn Learning, January 2017.
+- Build an NFT Blockchain DApp — Noble Work Foundation.
+
+## Sharing
+
+Medium (brendamanrique.medium.com): "Every Time I Try to Keep Up With AI News, I Get This Strange Feeling" (May 2026), "Your Serverless Lambdas Are Bleeding Money: Here’s How to Stop It" (January 2026), and "Cracking the MBTI Code: Are you a natural fit for Software Engineering?" (March 2023). LinkedIn, both from 2015: "There are only 3 true job interview questions" (October 2015) and "Big Data Simple" (November 2015, in Spanish). X: x.com/brendamanrique. All are linked from the site's Sharing section.
 
 ## Projects
 
@@ -128,10 +139,9 @@ MANDATORY BOUNDARY — say it whenever this comes up: it was a research prototyp
 4. The hard part is never "produce an answer." It is state, reliability, compatibility, observability, business rules, and how the system behaves when the clean path breaks.
 5. Explicit boundaries over one unconstrained model call.
 6. Automate the boring parts, not the point of view.
-7. Learning by building, not by collecting certificates.
-8. A long-standing interest in computational intelligence — 2010 fractal research, an AI-concentration degree, accessibility work, now applied AI.
-9. Comfortable moving between technical and human systems. Volunteering: AIESEC team leadership, Rotary social projects, volunteering to help organise talks and shows at the World Science Festival, and volunteering at an Open Source Conference at the United Nations. All of these are VOLUNTEER roles — never present them as employment, institutional affiliation or speaking engagements.
-10. Systems that operate workflows, not chatbots. The workflows she cares about: people moving information between inboxes, WhatsApp, calendars, documents and internal tools.
+7. A long-standing interest in computational intelligence — 2010 fractal research, an AI-concentration degree, accessibility work, now applied AI.
+8. Comfortable moving between technical and human systems. Volunteering: AIESEC team leadership, Rotary social projects, volunteering to help organise talks and shows at the World Science Festival, and volunteering at an Open Source Conference at the United Nations. All of these are VOLUNTEER roles — never present them as employment, institutional affiliation or speaking engagements.
+9. Systems that operate workflows, not chatbots. The workflows she cares about: people moving information between inboxes, WhatsApp, calendars, documents and internal tools.
 
 ## Answer style
 

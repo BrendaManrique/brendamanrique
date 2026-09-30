@@ -49,6 +49,14 @@ const PROOF_POINTS: ProofPoint[] = [
     source: 'i18n.ts → education',
     terms: ['New York University', 'Universidad Católica de Santa María', 'honorable mention'],
   },
+  {
+    source: 'i18n.ts → education.certifications',
+    terms: ['Claude Code in Action', 'Building with the Claude API', 'Introduction to Model Context Protocol', 'Introduction to Agent Skills', 'CrewAI', 'LinkedIn Learning', 'Noble Work Foundation'],
+  },
+  {
+    source: 'i18n.ts → sharing',
+    terms: ['There are only 3 true job interview questions', 'Big Data Simple', 'Serverless Lambdas Are Bleeding Money', 'Cracking the MBTI Code', 'Keep Up With AI News', 'x.com/brendamanrique'],
+  },
 
   // -- Articles published (registry.ts) --
   {

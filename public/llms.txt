@@ -67,7 +67,37 @@ Applied AI Engineer.
 - Universidad Católica de Santa María, Peru — BSc, Systems Engineering with an Artificial
   Intelligence concentration, 2007–2013. Thesis received honorable mention.
 
-There is no certifications section.
+## Certifications
+
+Course-completion certificates. None of these is a Claude Certified exam credential.
+
+- Anthropic Academy (Anthropic Education), June 2026 — the four core courses that open the
+  professional track:
+  - Claude Code in Action
+  - Building with the Claude API
+  - Introduction to Model Context Protocol
+  - Introduction to Agent Skills
+- Multi AI Agent Systems — CrewAI, May 2024.
+- React: Testing and Debugging — LinkedIn Learning, January 2017.
+- Build an NFT Blockchain DApp — Noble Work Foundation.
+
+## Sharing
+
+Medium (https://brendamanrique.medium.com):
+- "Every Time I Try to Keep Up With AI News, I Get This Strange Feeling" (May 2026):
+  https://brendamanrique.medium.com/something-d9cdf8a2befc
+- "Your Serverless Lambdas Are Bleeding Money: Here’s How to Stop It" (January 2026):
+  https://brendamanrique.medium.com/your-serverless-lambdas-are-bleeding-money-heres-how-to-stop-it-3060b44e829f
+- "Cracking the MBTI Code: Are you a natural fit for Software Engineering?" (March 2023):
+  https://brendamanrique.medium.com/cracking-the-mbti-code-are-you-a-natural-fit-for-software-engineering-a8676d463387
+
+X: https://x.com/brendamanrique
+
+LinkedIn articles, both from 2015:
+- "There are only 3 true job interview questions" (October 2015):
+  https://www.linkedin.com/pulse/only-3-true-job-interview-questions-brenda-stephanie
+- "Big Data Simple" (November 2015, in Spanish):
+  https://es.linkedin.com/pulse/big-data-en-3-palabras-brenda-stephanie
 
 ## Volunteering
 

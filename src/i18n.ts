@@ -53,13 +53,13 @@ export const translations = {
 
     // --- Narrative (typewriter section) -----------------------------------
     story: {
-      context: '+Trabajo de sistemas+, desde dentro hacia fuera.',
+      context: 'Primero entender el proceso. +Después construir el sistema+.',
       reflections: ['Funciona. De verdad funciona.', '...¿y ahora qué?'],
       hookParagraphs: [
-        ['En 2025 dejé Moody\'s, me mudé de país y me instalé en Berlín *para aprender el nuevo stack de IA construyendo con él.*'],
+        ['En 2025 dejé Moody\'s y me mudé a Berlín *para aprender el nuevo stack de IA construyendo con él.*'],
         [
-          'El trabajo sigue siendo el mismo de siempre:',
-          'entender un proceso complicado lo bastante bien como para +convertirlo en software+.',
+          'Las herramientas son nuevas. La disciplina no:',
+          'entender cómo ocurre realmente el trabajo y luego +convertirlo en software en el que se pueda confiar+.',
         ],
       ],
       nav: [
@@ -235,12 +235,27 @@ export const translations = {
       ],
     },
 
+    // --- Sharing ----------------------------------------------------------
+    sharing: {
+      title: 'Lo que comparto',
+      lead: 'Notas que fui dejando en el camino.',
+      items: [
+        { platform: 'Medium', title: 'Every Time I Try to Keep Up With AI News, I Get This Strange Feeling', date: 'may 2026', url: 'https://brendamanrique.medium.com/something-d9cdf8a2befc' },
+        { platform: 'Medium', title: 'Your Serverless Lambdas Are Bleeding Money: Here’s How to Stop It', date: 'ene 2026', url: 'https://brendamanrique.medium.com/your-serverless-lambdas-are-bleeding-money-heres-how-to-stop-it-3060b44e829f' },
+        { platform: 'Medium', title: 'Cracking the MBTI Code: Are you a natural fit for Software Engineering?', date: 'mar 2023', url: 'https://brendamanrique.medium.com/cracking-the-mbti-code-are-you-a-natural-fit-for-software-engineering-a8676d463387' },
+        { platform: 'LinkedIn', title: 'Big Data Simple', date: 'nov 2015', url: 'https://es.linkedin.com/pulse/big-data-en-3-palabras-brenda-stephanie' },
+        { platform: 'LinkedIn', title: 'There are only 3 true job interview questions', date: 'oct 2015', url: 'https://www.linkedin.com/pulse/only-3-true-job-interview-questions-brenda-stephanie' },
+        { platform: 'X', title: '@brendamanrique', date: '', url: 'https://x.com/brendamanrique' },
+      ],
+    },
+
     // --- Education --------------------------------------------------------
     education: {
       title: 'Formación',
+      degreesTitle: 'Títulos',
       items: [
         {
-          org: 'New York University · Tandon School of Engineering',
+          org: 'New York University · Tandon School of Engineering · Stern School of Business',
           title: 'MS, Management of Technology',
           period: '2015–2018',
           desc: 'Gestión de proyectos, analítica de datos, contabilidad/finanzas y emprendimiento tecnológico, con una parte sustancial de los créditos cursada en NYU Stern.',
@@ -252,6 +267,30 @@ export const translations = {
           desc: 'Algoritmos y estructuras de datos, arquitectura de computadores, bases de datos e ingeniería de software. Tesis con mención honorífica.',
         },
       ],
+      certifications: {
+        title: 'Certificaciones',
+        groups: [
+          {
+            label: 'Anthropic Academy',
+            note: 'Los cuatro cursos base que abren el camino profesional.',
+            items: [
+              { name: 'Claude Code in Action', issuer: 'Anthropic', date: 'jun 2026', url: 'https://verify.skilljar.com/c/zmcwhtyfv7gq' },
+              { name: 'Building with the Claude API', issuer: 'Anthropic', date: 'jun 2026', url: 'https://verify.skilljar.com/c/hnme35owq5vi' },
+              { name: 'Introduction to Model Context Protocol', issuer: 'Anthropic', date: 'jun 2026', url: 'https://verify.skilljar.com/c/nprunad7gakc' },
+              { name: 'Introduction to Agent Skills', issuer: 'Anthropic', date: 'jun 2026', url: 'https://verify.skilljar.com/c/bsn72ocju8iw' },
+            ],
+          },
+          {
+            label: 'Otros cursos',
+            note: '',
+            items: [
+              { name: 'Multi AI Agent Systems', issuer: 'CrewAI', date: 'may 2024', url: 'https://www.deeplearning.ai/short-courses/multi-ai-agent-systems-with-crewai/' },
+              { name: 'React: Testing and Debugging', issuer: 'LinkedIn Learning', date: 'ene 2017', url: 'https://www.linkedin.com/learning/certificates/39b432b93ee74a81028abdc7ef1febfeb177d35b3f9dfa106ae28764e73c5a13' },
+              { name: 'Build an NFT Blockchain DApp', issuer: 'Noble Work Foundation', date: '', url: 'http://ude.my/UC-125577d8-61f5-47c9-bbf8-6c550e10a8ef' },
+            ],
+          },
+        ],
+      },
     },
 
     // --- Skills -----------------------------------------------------------
@@ -371,13 +410,13 @@ export const translations = {
 
     // --- Narrative (typewriter section) -----------------------------------
     story: {
-      context: '+Systems work+, from the inside out.',
+      context: 'Understand the process first. +Then build the system+.',
       reflections: ['It works. It actually works.', '...now what?'],
       hookParagraphs: [
-        ["In 2025 I left Moody's, moved countries and settled in Berlin *to learn the new AI stack by building with it.*"],
+        ["In 2025 I left Moody's and moved to Berlin *to learn the new AI stack by building with it.*"],
         [
-          'The job has stayed the same all along:',
-          'understand a complicated process well enough to +turn it into software+.',
+          'The tools are new. The discipline is not:',
+          'learn how the work actually happens, then +turn it into software people can rely on+.',
         ],
       ],
       nav: [
@@ -553,12 +592,27 @@ export const translations = {
       ],
     },
 
+    // --- Sharing ----------------------------------------------------------
+    sharing: {
+      title: 'Sharing',
+      lead: 'Notes left along the way.',
+      items: [
+        { platform: 'Medium', title: 'Every Time I Try to Keep Up With AI News, I Get This Strange Feeling', date: 'May 2026', url: 'https://brendamanrique.medium.com/something-d9cdf8a2befc' },
+        { platform: 'Medium', title: 'Your Serverless Lambdas Are Bleeding Money: Here’s How to Stop It', date: 'Jan 2026', url: 'https://brendamanrique.medium.com/your-serverless-lambdas-are-bleeding-money-heres-how-to-stop-it-3060b44e829f' },
+        { platform: 'Medium', title: 'Cracking the MBTI Code: Are you a natural fit for Software Engineering?', date: 'Mar 2023', url: 'https://brendamanrique.medium.com/cracking-the-mbti-code-are-you-a-natural-fit-for-software-engineering-a8676d463387' },
+        { platform: 'LinkedIn', title: 'Big Data Simple', date: 'Nov 2015', url: 'https://es.linkedin.com/pulse/big-data-en-3-palabras-brenda-stephanie' },
+        { platform: 'LinkedIn', title: 'There are only 3 true job interview questions', date: 'Oct 2015', url: 'https://www.linkedin.com/pulse/only-3-true-job-interview-questions-brenda-stephanie' },
+        { platform: 'X', title: '@brendamanrique', date: '', url: 'https://x.com/brendamanrique' },
+      ],
+    },
+
     // --- Education --------------------------------------------------------
     education: {
       title: 'Education',
+      degreesTitle: 'Degrees',
       items: [
         {
-          org: 'New York University · Tandon School of Engineering',
+          org: 'New York University · Tandon School of Engineering · Stern School of Business',
           title: 'MS, Management of Technology',
           period: '2015–2018',
           desc: 'Project management, data analytics, accounting/finance and technology entrepreneurship, with substantial graduate coursework at NYU Stern.',
@@ -570,6 +624,30 @@ export const translations = {
           desc: 'Algorithms/data structures, computer architecture, databases and software engineering. Thesis received honorable mention.',
         },
       ],
+      certifications: {
+        title: 'Certifications',
+        groups: [
+          {
+            label: 'Anthropic Academy',
+            note: 'The four core courses that open the professional track.',
+            items: [
+              { name: 'Claude Code in Action', issuer: 'Anthropic', date: 'Jun 2026', url: 'https://verify.skilljar.com/c/zmcwhtyfv7gq' },
+              { name: 'Building with the Claude API', issuer: 'Anthropic', date: 'Jun 2026', url: 'https://verify.skilljar.com/c/hnme35owq5vi' },
+              { name: 'Introduction to Model Context Protocol', issuer: 'Anthropic', date: 'Jun 2026', url: 'https://verify.skilljar.com/c/nprunad7gakc' },
+              { name: 'Introduction to Agent Skills', issuer: 'Anthropic', date: 'Jun 2026', url: 'https://verify.skilljar.com/c/bsn72ocju8iw' },
+            ],
+          },
+          {
+            label: 'Other courses',
+            note: '',
+            items: [
+              { name: 'Multi AI Agent Systems', issuer: 'CrewAI', date: 'May 2024', url: 'https://www.deeplearning.ai/short-courses/multi-ai-agent-systems-with-crewai/' },
+              { name: 'React: Testing and Debugging', issuer: 'LinkedIn Learning', date: 'Jan 2017', url: 'https://www.linkedin.com/learning/certificates/39b432b93ee74a81028abdc7ef1febfeb177d35b3f9dfa106ae28764e73c5a13' },
+              { name: 'Build an NFT Blockchain DApp', issuer: 'Noble Work Foundation', date: '', url: 'http://ude.my/UC-125577d8-61f5-47c9-bbf8-6c550e10a8ef' },
+            ],
+          },
+        ],
+      },
     },
 
     // --- Skills -----------------------------------------------------------

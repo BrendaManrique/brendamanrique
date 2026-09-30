@@ -188,6 +188,7 @@ const HOME_TOC_SECTIONS = [
   { id: 'experience', es: 'Experiencia', en: 'Experience' },
   { id: 'projects', es: 'Proyectos independientes', en: 'Independent Projects' },
   { id: 'earlier-projects', es: 'Proyectos anteriores', en: 'Earlier Projects' },
+  { id: 'sharing', es: 'Lo que comparto', en: 'Sharing' },
   { id: 'education', es: 'Formación', en: 'Education' },
   { id: 'tech', es: 'Skills & Stack', en: 'Skills & Stack' },
   { id: 'contact', es: 'Contacto', en: 'Contact' },
@@ -1425,7 +1426,7 @@ function App() {
       {/* ------------------------------------------------------------------ */}
       {/* Experience                                                          */}
       {/* ------------------------------------------------------------------ */}
-      <section id="experience" className="glass-stage py-16 md:py-24 bg-muted/30" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 2000px' }}>
+      <section id="experience" className="py-16 md:py-24" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 2000px' }}>
         <div className="max-w-5xl mx-auto px-6">
           <AnimatedSection>
             <SectionHeading>{t.experience.title}</SectionHeading>
@@ -1434,10 +1435,10 @@ function App() {
             </p>
           </AnimatedSection>
 
-          <div className="space-y-6">
+          <div className="space-y-12">
             {t.experience.items.map((job, i) => (
               <AnimatedSection key={job.company + job.period} delay={i * 0.05}>
-                <article className="glass-card rounded-2xl p-6">
+                <article>
                   <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 mb-1">
                     <h3 className="font-display text-lg font-semibold text-foreground">{job.company}</h3>
                     <span className="text-sm font-mono text-primary whitespace-nowrap">{job.period}</span>
@@ -1569,27 +1570,104 @@ function App() {
       </section>
 
       {/* ------------------------------------------------------------------ */}
-      {/* Education                                                            */}
+      {/* Sharing                                                              */}
       {/* ------------------------------------------------------------------ */}
-      <section id="education" className="glass-stage py-16 md:py-24" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 620px' }}>
+      <section id="sharing" className="glass-stage py-16 md:py-24" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 420px' }}>
+        <div className="max-w-5xl mx-auto px-6">
+          <AnimatedSection>
+            <SectionHeading>{t.sharing.title}</SectionHeading>
+            <p className="text-base md:text-lg text-muted-foreground leading-relaxed mb-10 max-w-3xl">
+              {t.sharing.lead}
+            </p>
+          </AnimatedSection>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {t.sharing.items.map((item, i) => (
+              <AnimatedSection key={item.url} delay={i * 0.05}>
+                <a
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group glass-card glass-card-lift flex flex-col h-full rounded-2xl p-5"
+                >
+                  <div className="flex items-baseline justify-between gap-3 mb-2">
+                    <span className="text-xs font-mono text-primary">{item.platform}</span>
+                    <span className="text-xs font-mono text-muted-foreground whitespace-nowrap">{item.date}</span>
+                  </div>
+                  <p className="font-display font-semibold text-foreground group-hover:text-primary transition-colors">
+                    {item.title}
+                    <ExternalLink className="inline-block w-3.5 h-3.5 ml-1.5 -mt-0.5 opacity-60" aria-hidden="true" />
+                  </p>
+                </a>
+              </AnimatedSection>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------------ */}
+      {/* Education + certifications                                           */}
+      {/* ------------------------------------------------------------------ */}
+      <section id="education" className="glass-stage py-16 md:py-24" style={{ contentVisibility: 'auto', containIntrinsicSize: 'auto 900px' }}>
         <div className="max-w-5xl mx-auto px-6">
           <AnimatedSection>
             <SectionHeading>{t.education.title}</SectionHeading>
           </AnimatedSection>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            {t.education.items.map((item, i) => (
-              <AnimatedSection key={item.org} delay={i * 0.05}>
-                <div className="h-full glass-card rounded-2xl p-5">
-                  <div className="flex items-baseline justify-between gap-3 mb-1">
-                    <p className="font-display font-semibold text-foreground">{item.org}</p>
-                    <span className="text-xs font-mono text-primary whitespace-nowrap">{item.period}</span>
-                  </div>
-                  <p className="text-sm font-medium text-foreground/90 mb-2">{item.title}</p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-                </div>
+          <div className="grid md:grid-cols-2 gap-10 md:gap-8">
+            <div>
+              <AnimatedSection>
+                <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">{t.education.degreesTitle}</p>
               </AnimatedSection>
-            ))}
+              <div className="space-y-4">
+                {t.education.items.map((item, i) => (
+                  <AnimatedSection key={item.org} delay={i * 0.05}>
+                    <div className="glass-card rounded-2xl p-5">
+                      <div className="flex items-baseline justify-between gap-3 mb-1">
+                        <p className="font-display font-semibold text-foreground">{item.org}</p>
+                        <span className="text-xs font-mono text-primary whitespace-nowrap">{item.period}</span>
+                      </div>
+                      <p className="text-sm font-medium text-foreground/90 mb-2">{item.title}</p>
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <AnimatedSection>
+                <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-4">{t.education.certifications.title}</p>
+              </AnimatedSection>
+              <div className="space-y-4">
+                {t.education.certifications.groups.map((group, i) => (
+                  <AnimatedSection key={group.label} delay={i * 0.05}>
+                    <div className="glass-card rounded-2xl p-5">
+                      <p className="font-display font-semibold text-foreground">{group.label}</p>
+                      {group.note && <p className="text-sm text-muted-foreground leading-relaxed mt-1">{group.note}</p>}
+                      <ul className="mt-3 space-y-2.5">
+                        {group.items.map((cert) => (
+                          <li key={cert.url} className="flex items-baseline justify-between gap-3">
+                            <a
+                              href={cert.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-sm font-medium text-foreground/90 hover:text-primary transition-colors"
+                            >
+                              {cert.name}
+                              {cert.issuer !== 'Anthropic' && (
+                                <span className="block text-xs font-normal text-muted-foreground">{cert.issuer}</span>
+                              )}
+                            </a>
+                            {cert.date && <span className="text-xs font-mono text-primary whitespace-nowrap">{cert.date}</span>}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </AnimatedSection>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
