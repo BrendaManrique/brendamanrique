@@ -58,8 +58,21 @@ export default async function handler(req) {
   let offlineLang = 'es'
   let offlineQuestion = ''
 
+  // Malformed bodies (bots, scanners, hand-rolled curls) are the caller's
+  // fault: answer 400 here, before rate limiting or tracing, instead of
+  // letting them crash deeper in and surface as error:handler in Langfuse.
+  let payload
   try {
-    const { messages, lang = 'es', sessionId, currentPage } = await req.json()
+    payload = await req.json()
+  } catch {
+    return badRequest('Invalid JSON body')
+  }
+  if (!isValidMessages(payload?.messages)) {
+    return badRequest('messages must be a non-empty array of { role, content } with string content')
+  }
+
+  try {
+    const { messages, lang = 'es', sessionId, currentPage } = payload
     offlineLang = lang
     offlineQuestion = messages?.filter?.(m => m.role === 'user').pop()?.content || ''
 
@@ -459,6 +472,21 @@ export default async function handler(req) {
       headers: { 'Content-Type': 'text/event-stream', 'Cache-Control': 'no-cache' },
     })
   }
+}
+
+function isValidMessages(messages) {
+  return Array.isArray(messages)
+    && messages.length > 0
+    && messages.every(m => m
+      && (m.role === 'user' || m.role === 'assistant')
+      && typeof m.content === 'string')
+}
+
+function badRequest(message) {
+  return new Response(JSON.stringify({ error: message }), {
+    status: 400,
+    headers: { 'Content-Type': 'application/json' },
+  })
 }
 
 // ---------------------------------------------------------------------------
