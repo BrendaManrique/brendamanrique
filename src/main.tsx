@@ -1,6 +1,6 @@
 import { StrictMode, lazy, Suspense, useState, useEffect, useRef, Component, type ReactNode, type ComponentType } from 'react'
 import { hydrateRoot, createRoot } from 'react-dom/client'
-import { BrowserRouter, Routes, Route, useLocation, Link } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation, Link } from 'react-router-dom'
 import './index.css'
 import App from './App.tsx'
 import GlobalNav from './GlobalNav.tsx'
@@ -9,7 +9,6 @@ import { articleRegistry, getEsSlugs } from './articles/registry'
 import { LINKEDIN_URL, SITE_NAME } from './site'
 
 const FloatingChat = lazy(() => import('./FloatingChat'))
-const MusicToggle = lazy(() => import('./MusicToggle'))
 const OpsDashboard = lazy(() => import('./ops/OpsDashboard'))
 const PrivacyPolicy = lazy(() => import('./PrivacyPolicy'))
 const AboutPage = lazy(() => import('./AboutPage'))
@@ -87,17 +86,6 @@ function GlobalChat() {
   )
 }
 
-function GlobalMusic() {
-  const { pathname } = useLocation()
-  const [hydrated, setHydrated] = useState(false)
-  useEffect(() => setHydrated(true), [])
-  if (!hydrated || pathname.startsWith('/ops')) return null
-  return (
-    <Suspense fallback={null}>
-      <MusicToggle />
-    </Suspense>
-  )
-}
 
 function ConditionalNav() {
   const { pathname } = useLocation()
@@ -133,7 +121,7 @@ Object.defineProperty(window, '__portfolio', {
 
 function NotFound() {
   const { pathname } = useLocation()
-  const isEn = pathname.startsWith('/en') || /^\/[a-z]+-[a-z]+-[a-z]+/.test(pathname)
+  const isEn = pathname !== '/es' && !pathname.startsWith('/es/')
 
   useEffect(() => {
     let robots = document.querySelector('meta[name="robots"]') as HTMLMetaElement
@@ -155,7 +143,7 @@ function NotFound() {
           : 'La página que buscas no existe o ha sido movida.'}
       </p>
       <Link
-        to={isEn ? '/en' : '/'}
+        to={isEn ? '/' : '/es'}
         className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-medium hover:bg-primary/90 transition-colors"
       >
         {isEn ? '← Back to home' : '← Volver al inicio'}
@@ -173,7 +161,9 @@ const app = (
         <Suspense fallback={null}>
           <Routes>
             <Route path="/" element={<App />} />
-            <Route path="/en" element={<App />} />
+            <Route path="/es" element={<App />} />
+            {/* English moved from /en to /; vercel.json 301s the server hit too */}
+            <Route path="/en" element={<Navigate to="/" replace />} />
             <Route path="/ops" element={<OpsDashboard />} />
             <Route path="/sobre-mi" element={<AboutPage lang="es" />} />
             <Route path="/about" element={<AboutPage lang="en" />} />
@@ -191,7 +181,6 @@ const app = (
         </Suspense>
       </PageTransition>
       <GlobalChat />
-      <GlobalMusic />
       <PrivacyConsent />
     </BrowserRouter>
   </StrictMode>

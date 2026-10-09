@@ -40,7 +40,7 @@ const content = {
       },
       {
         heading: 'Cookies y almacenamiento local',
-        body: 'Este sitio no usa cookies. El navegador guarda en su almacenamiento local solo lo necesario para funcionar: tu tema visual, tu preferencia de música, tu decisión sobre las analíticas y, durante la sesión, la conversación del chat y los avisos de idioma ya mostrados. Nada de esto se envía a terceros.',
+        body: 'Este sitio no usa cookies. El navegador guarda en su almacenamiento local solo lo necesario para funcionar: tu tema visual, tu decisión sobre las analíticas y, durante la sesión, la conversación del chat y los avisos de idioma ya mostrados. Nada de esto se envía a terceros.',
       },
       {
         heading: 'Cuánto tiempo se conservan',
@@ -115,7 +115,7 @@ const content = {
       },
       {
         heading: 'Cookies and local storage',
-        body: 'This site uses no cookies. Your browser keeps only what the site needs to work in local storage: your visual theme, your music preference, your analytics choice and, for the session, the chat conversation and which language prompts you have already seen. None of it is sent to third parties.',
+        body: 'This site uses no cookies. Your browser keeps only what the site needs to work in local storage: your visual theme, your analytics choice and, for the session, the chat conversation and which language prompts you have already seen. None of it is sent to third parties.',
       },
       {
         heading: 'How long data is kept',
@@ -248,7 +248,7 @@ export default function PrivacyPolicy({ lang = 'es' }: { lang?: 'es' | 'en' }) {
 
         <div className="mt-12 pt-8 border-t border-border">
           <Link
-            to={lang === 'es' ? '/' : '/en'}
+            to={lang === 'es' ? '/es' : '/'}
             className="inline-flex items-center gap-2 text-primary hover:underline font-medium"
           >
             {'← '}{t.backHome}

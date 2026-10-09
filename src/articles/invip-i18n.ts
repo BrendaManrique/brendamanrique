@@ -43,7 +43,7 @@ export const invipContent: Record<CaseStudyLang, CaseStudyContent> = {
           },
           {
             kind: 'prose',
-            text: 'A working prototype existed and was showcased. The work ran alongside her MS in Management of Technology at NYU Tandon, and the company was incorporated in the United States.',
+            text: 'A working prototype existed and was showcased. The work ran alongside her MS in Executive Management of Technology at NYU Tandon, and the company was incorporated in the United States.',
           },
         ],
       },
@@ -66,7 +66,7 @@ export const invipContent: Record<CaseStudyLang, CaseStudyContent> = {
       items: [
         {
           q: 'What was her role?',
-          a: 'Co-founder and CTO. Invip was a U.S.-incorporated accessibility startup and an award-winning NYU project, built between 2015 and 2018 alongside her MS in Management of Technology at NYU Tandon.',
+          a: 'Co-founder and CTO. Invip was a U.S.-incorporated accessibility startup and an award-winning NYU project, built between 2015 and 2018 alongside her MS in Executive Management of Technology at NYU Tandon.',
         },
         {
           q: 'Is Invip still running?',
@@ -129,7 +129,7 @@ export const invipContent: Record<CaseStudyLang, CaseStudyContent> = {
           },
           {
             kind: 'prose',
-            text: 'Hubo un prototipo funcional y se mostró en público. El trabajo transcurrió en paralelo a su MS en Management of Technology en NYU Tandon, y la empresa se constituyó en Estados Unidos.',
+            text: 'Hubo un prototipo funcional y se mostró en público. El trabajo transcurrió en paralelo a su MS en Executive Management of Technology en NYU Tandon, y la empresa se constituyó en Estados Unidos.',
           },
         ],
       },
@@ -152,7 +152,7 @@ export const invipContent: Record<CaseStudyLang, CaseStudyContent> = {
       items: [
         {
           q: '¿Cuál era su rol?',
-          a: 'Cofundadora y CTO. Invip fue una startup de accesibilidad constituida en EE. UU. y un proyecto premiado en NYU, construida entre 2015 y 2018 en paralelo a su MS en Management of Technology en NYU Tandon.',
+          a: 'Cofundadora y CTO. Invip fue una startup de accesibilidad constituida en EE. UU. y un proyecto premiado en NYU, construida entre 2015 y 2018 en paralelo a su MS en Executive Management of Technology en NYU Tandon.',
         },
         {
           q: '¿Invip sigue en marcha?',

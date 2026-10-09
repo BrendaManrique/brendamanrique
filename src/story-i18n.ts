@@ -8,21 +8,21 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
     altSlug: 'historia',
     readingTime: '4 min read',
     seo: {
-      title: 'Leaving, moving countries, starting again',
+      title: 'From financial systems to applied AI',
       description:
-        'Why Brenda Manrique left Moody\'s in 2025, relocated internationally to Berlin, and started building applied-AI systems independently.',
+        'How Brenda Manrique went from financial systems at JPMorgan and Moody\'s to building applied-AI systems through independent projects in Berlin.',
     },
     header: {
       kicker: 'The story',
-      h1: 'Leaving, moving countries, starting again',
+      h1: 'From financial systems to applied AI',
       subtitle:
-        'Why I left Moody\'s in 2025, what an international move actually took, and what I am building now.',
+        'The systems work that came first, and the applied-AI projects I am building now.',
       date: 'Sep 1, 2026',
     },
     nav: { breadcrumbHome: 'Home', breadcrumbCurrent: 'The story' },
     status: 'Independent projects since Aug 2025',
     directAnswer:
-      'Brenda Manrique left Moody\'s Analytics in August 2025 and relocated internationally, establishing herself in Berlin. Since then she has been building applied-AI systems and independent software projects, which since March 2026 have focused on deploying and operating small AI systems. She is also looking for her next software-engineering role.',
+      'After relocating to Berlin, Brenda Manrique began focusing more deeply on applied AI through independent software projects. She builds applied-AI systems, which since March 2026 have focused on deploying and operating small AI systems. She is also looking for her next software-engineering role.',
     sections: {
       'systems-work': {
         heading: 'The work before this',
@@ -38,24 +38,20 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
         ],
       },
       'the-turn': {
-        heading: 'Leaving Moody\'s',
+        heading: 'Berlin',
         blocks: [
           {
             kind: 'prose',
-            text: 'In August 2025 she left Moody\'s Analytics. She was moving countries, and that is not something you do around someone else\'s roadmap.',
-          },
-          {
-            kind: 'prose',
-            text: 'The move took a while: time in Peru with family, roughly three months around Italy, a month in China, and stops in Scotland and Spain. Then Berlin, and the paperwork and logistics of actually establishing yourself somewhere new.',
+            text: 'After relocating to Berlin, she began focusing more deeply on applied AI through independent software projects. These are her own projects: not consulting, with no clients and no revenue.',
           },
         ],
       },
       'build-phase': {
-        heading: 'Starting again',
+        heading: 'Building with AI',
         blocks: [
           {
             kind: 'prose',
-            text: 'Berlin is where the experimenting started: software products, and a lot of time inside the new AI tooling. The question worth answering was not whether a model can call a tool. It was what a small AI system looks like once someone has to operate it — deployment, permissions, approvals, monitoring, and a rollback path.',
+            text: 'It started with experimenting: software products, and a lot of time inside the new AI tooling. The question worth answering was not whether a model can call a tool. It was what a small AI system looks like once someone has to operate it — deployment, permissions, approvals, monitoring, and a rollback path.',
           },
           {
             kind: 'prose',
@@ -94,8 +90,8 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
       heading: 'Frequently asked questions',
       items: [
         {
-          q: 'Why did she leave Moody\'s?',
-          a: 'She left in August 2025 because she was relocating internationally. The move took her through Peru, Italy, China, Scotland and Spain before she established herself in Berlin.',
+          q: 'Is this consulting?',
+          a: 'No. These are independent software projects, built to learn what it takes to deploy and operate small AI systems. There are no clients and no revenue.',
         },
         {
           q: 'What has she been doing since?',
@@ -121,21 +117,21 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
     altSlug: 'story',
     readingTime: '4 min de lectura',
     seo: {
-      title: 'Irme, cambiar de país y volver a empezar',
+      title: 'De los sistemas financieros a la IA aplicada',
       description:
-        'Por qué Brenda Manrique dejó Moody\'s en 2025, se mudó de país hasta instalarse en Berlín y empezó a construir sistemas de IA aplicada por su cuenta.',
+        'Cómo Brenda Manrique pasó de los sistemas financieros en JPMorgan y Moody\'s a construir sistemas de IA aplicada con proyectos independientes en Berlín.',
     },
     header: {
       kicker: 'La historia',
-      h1: 'Irme, cambiar de país y volver a empezar',
+      h1: 'De los sistemas financieros a la IA aplicada',
       subtitle:
-        'Por qué dejé Moody\'s en 2025, lo que implicó de verdad mudarse de país y qué estoy construyendo ahora.',
+        'El trabajo de sistemas que vino antes y los proyectos de IA aplicada que construyo ahora.',
       date: '1 sep 2026',
     },
     nav: { breadcrumbHome: 'Inicio', breadcrumbCurrent: 'La historia' },
     status: 'Proyectos independientes desde ago 2025',
     directAnswer:
-      'Brenda Manrique dejó Moody\'s Analytics en agosto de 2025 y se mudó de país hasta establecerse en Berlín. Desde entonces construye sistemas de IA aplicada y proyectos de software propios, que desde marzo de 2026 se centran en desplegar y operar sistemas de IA pequeños. También busca su siguiente puesto de ingeniería de software.',
+      'Tras trasladarse a Berlín, Brenda Manrique empezó a centrarse más a fondo en la IA aplicada con proyectos de software independientes. Construye sistemas de IA aplicada y proyectos de software propios, que desde marzo de 2026 se centran en desplegar y operar sistemas de IA pequeños. También busca su siguiente puesto de ingeniería de software.',
     sections: {
       'systems-work': {
         heading: 'El trabajo anterior',
@@ -151,24 +147,20 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
         ],
       },
       'the-turn': {
-        heading: 'Dejar Moody\'s',
+        heading: 'Berlín',
         blocks: [
           {
             kind: 'prose',
-            text: 'En agosto de 2025 dejó Moody\'s Analytics. Se mudaba de país, y eso no se hace alrededor de la hoja de ruta de otra persona.',
-          },
-          {
-            kind: 'prose',
-            text: 'La mudanza llevó su tiempo: temporada en Perú con la familia, unos tres meses por Italia, un mes en China y paradas en Escocia y España. Después Berlín, con todo el papeleo y la logística de establecerse de verdad en un sitio nuevo.',
+            text: 'Tras trasladarse a Berlín, empezó a centrarse más a fondo en la IA aplicada con proyectos de software independientes. Son proyectos propios: no es consultoría, y no hay clientes ni ingresos.',
           },
         ],
       },
       'build-phase': {
-        heading: 'Volver a empezar',
+        heading: 'Construir con IA',
         blocks: [
           {
             kind: 'prose',
-            text: 'En Berlín empezó a experimentar: productos de software y mucho tiempo dentro del nuevo herramental de IA. La pregunta que valía la pena responder no era si un modelo puede llamar a una herramienta, sino cómo es un sistema de IA pequeño cuando alguien tiene que operarlo: despliegue, permisos, aprobaciones, monitorización y camino de rollback.',
+            text: 'Empezó experimentando: productos de software y mucho tiempo dentro del nuevo herramental de IA. La pregunta que valía la pena responder no era si un modelo puede llamar a una herramienta, sino cómo es un sistema de IA pequeño cuando alguien tiene que operarlo: despliegue, permisos, aprobaciones, monitorización y camino de rollback.',
           },
           {
             kind: 'prose',
@@ -207,8 +199,8 @@ export const storyContent: Record<StoryLang, CaseStudyContent> = {
       heading: 'Preguntas frecuentes',
       items: [
         {
-          q: '¿Por qué dejó Moody\'s?',
-          a: 'Se fue en agosto de 2025 porque se mudaba de país. La mudanza la llevó por Perú, Italia, China, Escocia y España antes de establecerse en Berlín.',
+          q: '¿Es consultoría?',
+          a: 'No. Son proyectos de software independientes, para aprender qué hace falta para desplegar y operar sistemas de IA pequeños. No hay clientes ni ingresos.',
         },
         {
           q: '¿Qué ha hecho desde entonces?',

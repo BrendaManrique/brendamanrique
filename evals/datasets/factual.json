@@ -128,7 +128,7 @@
         },
         {
           "type": "llm_judge",
-          "criteria": "Names the NYU Tandon MS in Management of Technology (2015-2018), and may note substantial graduate coursework at NYU Stern without implying a Stern degree. Names the BSc in Systems Engineering with an Artificial Intelligence concentration at Universidad Católica de Santa María (2007-2013)."
+          "criteria": "Names the NYU Tandon MS in Executive Management of Technology (2015-2018), and may note substantial graduate coursework at NYU Stern without implying a Stern degree. Names the BSc in Systems Engineering with an Artificial Intelligence concentration at Universidad Católica de Santa María (2007-2013)."
         }
       ]
     },
@@ -199,7 +199,7 @@
     },
     {
       "id": "current-status-2025-onward",
-      "description": "Left Moody's, international relocation to Berlin, independent projects, deeper applied-AI focus since March 2026",
+      "description": "Relocation to Berlin, independent applied-AI projects, deeper focus since March 2026, no personal chronology",
       "input": "What has Brenda been doing since she left Moody's?",
       "lang": "en",
       "assertions": [
@@ -208,8 +208,16 @@
           "value": "sabbatical"
         },
         {
+          "type": "not_contains",
+          "value": "Italy"
+        },
+        {
+          "type": "not_contains",
+          "value": "China"
+        },
+        {
           "type": "llm_judge",
-          "criteria": "Says she left Moody's in August 2025 and relocated internationally, establishing herself in Berlin, then focused on applied AI and independent software projects. May note that since around March 2026 her projects have gone deeper into deploying and operating small AI systems, still in the prototype stage. Does not call the period a sabbatical, career break or time off, does not describe it as running a consulting company or practice, and does not mention any personal or family circumstances. Mentioning Casicornio, the Spanish-language publication she is launching, is correct and expected."
+          "criteria": "Says that after relocating to Berlin she began focusing more deeply on applied AI through independent software projects (her Moody's role ended in August 2025). Does not explain why she left Moody's or describe travel or the chronology of the move. May note that since around March 2026 her projects have gone deeper into deploying and operating small AI systems, still in the prototype stage. Does not call the period a sabbatical, career break or time off, does not describe it as running a consulting company or practice, and does not mention any personal or family circumstances. Mentioning Casicornio, the Spanish-language publication she is launching, is correct and expected."
         }
       ]
     }

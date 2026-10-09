@@ -4,15 +4,14 @@
 > financial platforms, credit analytics and AI agents. Previously Moody's Analytics,
 > JPMorgan Asset Management and Money.Net.
 
-Available in English (/en) and Spanish (/).
+Available in English (/) and Spanish (/es).
 
 ## Identity
 
 - Name: Brenda Manrique (she/her)
 - Headline: Senior Software Engineer — full-stack, financial systems, applied AI
-- Location: Berlin, Germany — works remotely. Previously New York (JPMorgan, Money.Net, NYU) and Peru.
-- Languages: English and Spanish, fluent, works in both. German is A2 and still being learned;
-  she does not work in German. This site is published in Spanish and English only.
+- Location: Berlin, Germany — works remotely. Previously New York (JPMorgan, Money.Net, NYU).
+- Working languages: English and Spanish. This site is published in English and Spanish.
 - Contact: https://www.linkedin.com/in/brendastephanie/ and https://github.com/BrendaManrique
   Book a call about a role: https://cal.com/brendamanrique
   No personal email is published on this site.
@@ -30,39 +29,26 @@ Applied AI Engineer.
 
 ## Experience
 
-- Independent Software Engineering & AI Projects — Aug 2025 to present, Berlin, Germany. She
-  left Moody's because she was relocating internationally, established herself in Berlin, then
-  began focusing more deeply on applied AI and independent software projects:
-  small applied-AI systems in Python, FastAPI, Postgres/Supabase, with retrieval, tool
-  integrations, MCP-style typed tool boundaries, human approval flows, WhatsApp interfaces and
-  observable Docker/VPS deployments. Since around March 2026 these projects have gone deeper into
-  how small AI systems are deployed, monitored and operated. This is personal project work in the
-  prototype stage, not a business: she does not offer consulting or services, and has no clients.
+- Independent Software Engineering & AI Projects — Aug 2025 to present, Berlin, Germany. After
+  relocating to Berlin, she began focusing more deeply on applied AI through independent software
+  projects: small applied-AI systems in Python and FastAPI with Postgres/Supabase, retrieval and
+  RAG, tool integrations with MCP-style typed tool boundaries, human approval flows and observable
+  deployments, plus the portfolio AI on this site. This is personal project work in the prototype
+  stage, not consulting: she does not offer consulting or services, and has no clients or revenue.
 - Moody's Analytics — Apr 2023 to Aug 2025. Assistant Director, Software Engineer in Predictive
-  Analytics, New York. Product engineering across EDF-X, Credit Analytics and Risk Scorecard. She personally
-  implemented business and model-selection rules in Python, translating credit-domain requirements
-  into production logic; built parts of the qualitative-overlay workflow as part of the engineering
-  team; and contributed to stateful API and workflow design for long-running analytics. Primarily
-  Python, plus TypeScript and Angular. She left in August 2025.
+  Analytics, New York. Product engineering across EDF-X, Credit Analytics and Risk Scorecard:
+  implemented business and model-selection rules in Python, built parts of the qualitative-overlay
+  workflow, and contributed to stateful API and workflow design for long-running analytics.
 - JPMorgan Chase & Co. — Oct 2018 to Aug 2022. Software Engineer, Senior Associate, Asset
   Management, New York. Led frontend engineering and architecture for a derivatives
   portfolio-management application built on Athena, JPMorgan's cross-asset risk platform, and
-  contributed across the backend and integration layers. Java, Python, JavaScript, TypeScript, C#.
-  Contributed to decommissioning a legacy Trading, Risk and P&L platform for Fixed Income.
-- Money.Net — Jan 2016 to Jun 2018. Software Engineer, financial markets terminal, Manhattan.
-  Joined while the new terminal was being created, coded the initial frontend from scratch and
-  contributed to parts of the backend. ReactJS, Java 8, WebSockets, gRPC, microservices, Python
-  REST APIs, XMPP, for real-time, high-volume market data. Later architecture generations were
-  team work.
-- Independent Projects & Professional Development — Jan 2014 to Aug 2015, New York / travel.
-  Freelance, personal and learning projects in JavaScript and Python while preparing for graduate
-  study. Not a formal consulting business.
-- DLYA Bantotal — Oct 2012 to May 2013. Technology Developer Consultant, core banking, Peru.
-  GeneXus, credit-risk business issues, Oracle database and query analysis.
+  contributed across the backend and integration layers.
+- Money.Net — Jan 2016 to Jun 2018. Software Engineer on a real-time financial markets terminal:
+  coded the initial frontend and contributed to the backend for high-volume market data.
 
 ## Education
 
-- New York University, Tandon School of Engineering — MS, Management of Technology, 2015–2018,
+- New York University, Tandon School of Engineering — MS, Executive Management of Technology, 2015–2018,
   with substantial graduate coursework at NYU Stern. She does not hold a Stern degree.
 - Universidad Católica de Santa María, Peru — BSc, Systems Engineering with an Artificial
   Intelligence concentration, 2007–2013. Thesis received honorable mention.
@@ -99,16 +85,10 @@ LinkedIn articles, both from 2015:
 - "Big Data Simple" (November 2015, in Spanish):
   https://es.linkedin.com/pulse/big-data-en-3-palabras-brenda-stephanie
 
-## Volunteering
-
-AIESEC team leadership, Rotary social projects, volunteering to help organise talks and shows at
-the World Science Festival, and volunteering at an Open Source Conference at the United Nations.
-All volunteer roles, not employment or speaking engagements.
-
 ## Case studies
 
 - About Brenda Manrique                                    /about
-- The story: leaving, travelling, starting again in Berlin /story
+- The story: from financial systems to applied AI         /story
 - Turning credit-domain rules into software (Moody's)      /moodys-credit-intelligence
 - Financial systems — JPMorgan + Money.Net                 /financial-systems
 - Build log: small applied-AI systems                      /applied-ai
@@ -126,7 +106,7 @@ All volunteer roles, not employment or speaking engagements.
   WebSockets, gRPC, microservices.
 - Cloud and data: AWS, S3, PostgreSQL, Supabase, Oracle, MySQL, Docker, CI/CD, async processing.
 - Domain depth: credit analytics, probability of default, scorecards, derivatives, risk and P&L,
-  real-time market data, core banking.
+  real-time market data.
 
 ## This site's chat agent
 

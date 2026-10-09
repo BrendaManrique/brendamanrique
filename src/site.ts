@@ -31,11 +31,3 @@ export const AVATAR_ALT = 'Portrait of Brenda Manrique'
  * GitHub links — the chat agent and every CTA must respect this.
  */
 export const HAS_PUBLIC_EMAIL = false
-
-/**
- * Set once per session when a non-Spanish browser is redirected from "/" to
- * "/en" (see useBrowserLanguageRedirect in App.tsx). Read by the language
- * banner too: English has already been offered, so a visitor who walks back to
- * Spanish has chosen it and should not be asked again.
- */
-export const LANG_REDIRECT_KEY = 'lang-redirected'

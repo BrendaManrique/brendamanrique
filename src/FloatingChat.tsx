@@ -215,11 +215,6 @@ export default function FloatingChat({ lang }: FloatingChatProps) {
 
   const isMobile = useIsMobile();
 
-  // Emit chatToggle event for ambient music ducking
-  useEffect(() => {
-    window.dispatchEvent(new CustomEvent('chatToggle', { detail: { open: isOpen } }));
-  }, [isOpen]);
-
   const userMessageCount = messages.filter((m) => m.role === 'user').length;
 
   // Prefer the server's number; fall back to counting this session's questions

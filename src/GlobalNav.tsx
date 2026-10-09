@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Sun, Moon, House, X, ChevronRight } from 'lucide-react'
 import { translations, type Lang } from './i18n'
 import { getAltPaths, getPageTitles, getSectionLabels, getEsSlugs } from './articles/registry'
-import { LANG_REDIRECT_KEY, SITE_NAME } from './site'
+import { SITE_NAME } from './site'
 
 /**
  * GlobalNav — unified navigation across all pages.
@@ -81,7 +81,7 @@ function useActiveSection(pathname: string, enabled: boolean) {
 
 function useLang() {
   const { pathname } = useLocation()
-  const isHome = pathname === '/' || pathname === '/en'
+  const isHome = pathname === '/' || pathname === '/es'
   const lang: 'es' | 'en' = ES_SLUGS.has(pathname) ? 'es' : 'en'
   const pageTitle = PAGE_TITLE[pathname] ?? null
   return { pathname, isHome, lang, pageTitle }
@@ -140,12 +140,6 @@ function useLanguageBanner(lang: Lang) {
   useEffect(() => {
     if (typeof navigator === 'undefined') return
     if (stored) return // already 'shown' or 'dismissed'
-    // "/" already redirected this visitor to /en once. Landing back on Spanish
-    // after that is a choice, not a mismatch worth interrupting.
-    try {
-      if (lang === 'es' && sessionStorage.getItem(LANG_REDIRECT_KEY)) return
-    } catch { /* storage blocked — fall through to the banner */ }
-
     const browserPrefersEn = !navigator.language.toLowerCase().startsWith('es')
     const mismatch = (lang === 'es' && browserPrefersEn) || (lang === 'en' && !browserPrefersEn)
     if (!mismatch) return
@@ -236,7 +230,7 @@ export default function GlobalNav() {
   const navigate = useNavigate()
   const activeSection = useActiveSection(pathname, !isHome)
 
-  const altPath = ALT_PATH[pathname] || (lang === 'es' ? '/en' : '/')
+  const altPath = ALT_PATH[pathname] || (lang === 'es' ? '/' : '/es')
   const altLabel = lang === 'es' ? 'ES' : 'EN'
 
   const t = translations[lang]
@@ -309,7 +303,7 @@ export default function GlobalNav() {
                 style={animateBackLink ? fade('0.4s') : undefined}
               >
                 <Link
-                  to={lang === 'en' ? '/en' : '/'}
+                  to={lang === 'es' ? '/es' : '/'}
                   className="inline-flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors shrink-0"
                 >
                   <House className="w-4 h-4" />

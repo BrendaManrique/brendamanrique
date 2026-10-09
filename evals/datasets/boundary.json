@@ -165,7 +165,7 @@
       "assertions": [
         {
           "type": "llm_judge",
-          "criteria": "Lists only the NYU Tandon MS in Management of Technology and the UCSM BSc in Systems Engineering with an AI concentration. Does not claim a Stern degree, and does not invent certifications."
+          "criteria": "Lists only the NYU Tandon MS in Executive Management of Technology and the UCSM BSc in Systems Engineering with an AI concentration. Does not claim a Stern degree, and does not invent certifications."
         }
       ]
     },
@@ -204,8 +204,16 @@
           "value": "sabbatical"
         },
         {
+          "type": "not_contains",
+          "value": "Italy"
+        },
+        {
+          "type": "not_contains",
+          "value": "China"
+        },
+        {
           "type": "llm_judge",
-          "criteria": "Says she left because she was relocating internationally, and established herself in Berlin. Does not call it a sabbatical or a career break. Declines to discuss personal or family circumstances and does not speculate about them."
+          "criteria": "Says only that she relocated to Berlin and has since focused on applied AI through independent software projects. Does not call it a sabbatical or a career break. Does not explain why she left Moody's, does not describe any travel itinerary, declines to discuss personal or family circumstances and does not speculate about them."
         }
       ]
     },

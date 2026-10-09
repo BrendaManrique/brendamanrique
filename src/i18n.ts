@@ -22,10 +22,8 @@ export const translations = {
     // crawlers and the pre-hydration render see, so it matches heroRole.
     greetingRoles: [
       'Ingeniera de software senior',
-      'Constructora de sistemas de IA agéntica',
       'Applied AI Engineer',
       'Ingeniera full-stack',
-      'Ingeniera de sistemas financieros',
     ],
     heroLine: 'Construyo sistemas fiables para finanzas, analítica e IA aplicada.',
     pillLabels: ['Backend', 'Sistemas financieros', 'IA aplicada'],
@@ -56,7 +54,7 @@ export const translations = {
       context: 'Primero entender el proceso. +Después construir el sistema+.',
       reflections: ['Funciona. De verdad funciona.', '...¿y ahora qué?'],
       hookParagraphs: [
-        ['En 2025 dejé Moody\'s y me mudé a Berlín *para aprender el nuevo stack de IA construyendo con él.*'],
+        ['Tras trasladarme a Berlín, empecé a usar proyectos independientes para explorar la IA aplicada *construyendo con ella.*'],
         [
           'Las herramientas son nuevas. La disciplina no:',
           'entender cómo ocurre realmente el trabajo y luego +convertirlo en software en el que se pueda confiar+.',
@@ -77,12 +75,12 @@ export const translations = {
       lead: 'El hilo conductor es el trabajo de sistemas: convertir procesos financieros y operativos complicados en software en el que se pueda confiar.',
       items: [
         {
-          company: 'Proyectos independientes de software e IA',
+          company: 'Proyectos independientes de ingeniería de software e IA',
           role: 'Ingeniera de software independiente',
           period: 'Ago 2025 — Presente',
           location: 'Berlín, Alemania',
           summary:
-            'Tras dejar Moody\'s y mudarme de país hasta instalarme en Berlín, empecé a centrarme en la IA aplicada y en proyectos de software propios.',
+            'Tras trasladarme a Berlín, empecé a centrarme más a fondo en la IA aplicada con proyectos de software independientes.',
           highlights: [
             'Diseño y construyo sistemas pequeños de IA aplicada con Python, FastAPI, Postgres/Supabase, recuperación, integraciones de herramientas, flujos de aprobación humana y despliegues observables.',
             'El agente de chat de este sitio está en producción: RAG híbrido, evals en CI, guardrails y trazas.',
@@ -137,7 +135,7 @@ export const translations = {
           company: 'Proyectos independientes y desarrollo profesional',
           role: 'Desarrollo freelance y proyectos propios',
           period: 'Ene 2014 — Ago 2015',
-          location: 'Nueva York / viajes',
+          location: 'Nueva York',
           highlights: [
             'Proyectos freelance, personales y de aprendizaje en JavaScript y Python, mientras preparaba el posgrado y la transición a Nueva York.',
           ],
@@ -189,7 +187,7 @@ export const translations = {
         },
       ],
       closing:
-        'Después de mudarme a Berlín y dedicar mi periodo sabático a construir proyectos independientes de software e IA, ahora quiero llevar esa experiencia a un buen equipo de ingeniería.',
+        'Después de trasladarme a Berlín y construir proyectos independientes de software e IA, ahora quiero llevar esa experiencia a un buen equipo de ingeniería.',
     },
 
     earlierProjects: {
@@ -256,7 +254,7 @@ export const translations = {
       items: [
         {
           org: 'New York University · Tandon School of Engineering · Stern School of Business',
-          title: 'MS, Management of Technology',
+          title: 'MS, Executive Management of Technology',
           period: '2015–2018',
           desc: 'Gestión de proyectos, analítica de datos, contabilidad/finanzas y emprendimiento tecnológico, con una parte sustancial de los créditos cursada en NYU Stern.',
         },
@@ -379,10 +377,8 @@ export const translations = {
     heroRole: 'Senior Software Engineer',
     greetingRoles: [
       'Senior Software Engineer',
-      'Agentic AI Systems Builder',
       'Applied AI Engineer',
       'Full-Stack Engineer',
-      'Financial Systems Engineer',
     ],
     heroLine: 'Building reliable systems across finance, analytics and applied AI.',
     pillLabels: ['Backend', 'Financial Systems', 'Applied AI'],
@@ -413,7 +409,7 @@ export const translations = {
       context: 'Understand the process first. +Then build the system+.',
       reflections: ['It works. It actually works.', '...now what?'],
       hookParagraphs: [
-        ["In 2025 I left Moody's and moved to Berlin *to learn the new AI stack by building with it.*"],
+        ['After relocating to Berlin, I started using independent projects to explore applied AI *by building with it.*'],
         [
           'The tools are new. The discipline is not:',
           'learn how the work actually happens, then +turn it into software people can rely on+.',
@@ -439,7 +435,7 @@ export const translations = {
           period: 'Aug 2025 — Present',
           location: 'Berlin, Germany',
           summary:
-            "Following an international relocation and settling in Berlin, I began focusing more deeply on applied AI and independent software projects.",
+            'After relocating to Berlin, I began focusing more deeply on applied AI through independent software projects.',
           highlights: [
             'Designing and building small applied-AI systems using Python, FastAPI, Postgres/Supabase, retrieval, tool integrations, approval flows and observable deployments.',
             'The chat agent on this site is in production: hybrid RAG, CI-gated evals, guardrails and tracing.',
@@ -494,7 +490,7 @@ export const translations = {
           company: 'Independent Projects & Professional Development',
           role: 'Freelance and personal projects',
           period: 'Jan 2014 — Aug 2015',
-          location: 'New York / travel',
+          location: 'New York',
           highlights: [
             'Completed freelance, personal and learning projects in JavaScript and Python while preparing for graduate study and transitioning to New York.',
           ],
@@ -546,7 +542,7 @@ export const translations = {
         },
       ],
       closing:
-        "After relocating to Berlin and spending my sabbatical building independent software and AI projects, I'm now looking to bring that experience into a strong engineering team.",
+        "After relocating to Berlin and building independent software and AI projects, I'm now looking to bring that experience into a strong engineering team.",
     },
 
     earlierProjects: {
@@ -613,7 +609,7 @@ export const translations = {
       items: [
         {
           org: 'New York University · Tandon School of Engineering · Stern School of Business',
-          title: 'MS, Management of Technology',
+          title: 'MS, Executive Management of Technology',
           period: '2015–2018',
           desc: 'Project management, data analytics, accounting/finance and technology entrepreneurship, with substantial graduate coursework at NYU Stern.',
         },

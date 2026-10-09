@@ -485,28 +485,28 @@ export const articleRegistry: ArticleConfig[] = [
     titles: { es: 'Historia', en: 'Story' },
     seo: {
       es: {
-        title: 'Irme, cambiar de país y volver a empezar',
+        title: 'De los sistemas financieros a la IA aplicada',
         description:
-          'Por qué dejó Moody\'s en 2025, la mudanza internacional hasta Berlín y el trabajo de IA aplicada que hace ahora.',
+          'Del trabajo en sistemas financieros a los proyectos independientes de IA aplicada que construye ahora en Berlín.',
       },
       en: {
-        title: 'Leaving, moving countries, starting again',
+        title: 'From financial systems to applied AI',
         description:
-          'Why she left Moody\'s in 2025, the international move to Berlin, and the applied-AI work she does now.',
+          'From financial systems work to the independent applied-AI projects she builds now in Berlin.',
       },
     },
     sectionLabels: {
       es: {
         'systems-work': 'Antes',
-        'the-turn': 'Dejar Moody\'s',
-        'build-phase': 'Volver a Empezar',
+        'the-turn': 'Berlín',
+        'build-phase': 'Construir con IA',
         now: 'Ahora',
         faq: 'FAQ',
       },
       en: {
         'systems-work': 'Before',
-        'the-turn': 'Leaving Moody\'s',
-        'build-phase': 'Starting Again',
+        'the-turn': 'Berlin',
+        'build-phase': 'Building with AI',
         now: 'Now',
         faq: 'FAQ',
       },
@@ -520,7 +520,7 @@ export const articleRegistry: ArticleConfig[] = [
     seoMeta: {
       datePublished: '2026-09-01',
       dateModified: '2026-09-30',
-      keywords: ['career transition', 'international relocation', 'leaving Moody\'s', 'relocating to Berlin', 'independent software engineer', 'applied AI', 'systems engineering career', 'senior software engineer', 'Berlin', 'independent projects'],
+      keywords: ['career transition', 'relocation', 'independent software engineer', 'applied AI', 'systems engineering career', 'senior software engineer', 'Berlin', 'independent projects', 'financial systems', 'RAG'],
       articleType: 'Article',
       articleTags: 'story,career,relocation,applied AI',
       images: [OG_IMAGE],
@@ -535,8 +535,8 @@ export const articleRegistry: ArticleConfig[] = [
 // Derived maps for GlobalNav and routing
 export function getAltPaths(): Record<string, string> {
   const map: Record<string, string> = {
-    '/': '/en',
-    '/en': '/',
+    '/': '/es',
+    '/es': '/',
     '/sobre-mi': '/about',
     '/about': '/sobre-mi',
     '/privacidad': '/privacy',
@@ -551,8 +551,8 @@ export function getAltPaths(): Record<string, string> {
 
 export function getPageTitles(): Record<string, string> {
   const map: Record<string, string> = {
-    '/': 'Portfolio de Brenda',
-    '/en': "Brenda's Portfolio",
+    '/': "Brenda's Portfolio",
+    '/es': 'Portfolio de Brenda',
     '/sobre-mi': 'Sobre Mí',
     '/about': 'About',
   }
@@ -574,7 +574,7 @@ export function getSectionLabels(): Record<string, Record<string, string>> {
 
 /** All ES slugs (for lang detection: if pathname matches an ES slug → lang is 'es') */
 export function getEsSlugs(): Set<string> {
-  const slugs = new Set<string>(['/', '/privacidad', '/sobre-mi'])
+  const slugs = new Set<string>(['/es', '/privacidad', '/sobre-mi'])
   for (const article of articleRegistry) {
     slugs.add(`/${article.slugs.es}`)
   }

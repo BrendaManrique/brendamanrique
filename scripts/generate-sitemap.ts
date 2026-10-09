@@ -72,19 +72,19 @@ function urlBlock(u: SitemapUrl): string {
 const base = SITE_URL
 const urls: SitemapUrl[] = []
 
-// Home ES + EN
+// Home EN (/) + ES (/es)
 urls.push({
   loc: `${base}/`,
-  hreflangEs: `${base}/`,
-  hreflangEn: `${base}/en`,
+  hreflangEs: `${base}/es`,
+  hreflangEn: `${base}/`,
   xDefault: `${base}/`,
   lastmod: homeLastmod,
   priority: '1.0',
 })
 urls.push({
-  loc: `${base}/en`,
-  hreflangEs: `${base}/`,
-  hreflangEn: `${base}/en`,
+  loc: `${base}/es`,
+  hreflangEs: `${base}/es`,
+  hreflangEn: `${base}/`,
   xDefault: `${base}/`,
   lastmod: homeLastmod,
   priority: '0.9',

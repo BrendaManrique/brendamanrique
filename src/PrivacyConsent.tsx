@@ -63,8 +63,8 @@ export default function PrivacyConsent() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
             transition={{ duration: 0.2 }}
-            // Sits above the music (bottom-left) and chat (bottom-right)
-            // buttons, and under an open chat panel.
+            // Sits above the chat (bottom-right) button, and under an open
+            // chat panel.
             className="fixed z-40 left-4 right-4 sm:right-auto sm:max-w-sm bg-card text-card-foreground border border-border/60 rounded-2xl shadow-xl p-4"
             style={{
               bottom: 'calc(max(1.5rem, env(safe-area-inset-bottom, 0px) + 0.5rem) + 4.5rem)',

@@ -55,7 +55,7 @@ export default async function handler(req) {
   await initTracing()
   let root = null
   // Hoisted so the catch below can still answer in the visitor's language.
-  let offlineLang = 'es'
+  let offlineLang = 'en'
   let offlineQuestion = ''
 
   // Malformed bodies (bots, scanners, hand-rolled curls) are the caller's
@@ -72,7 +72,7 @@ export default async function handler(req) {
   }
 
   try {
-    const { messages, lang = 'es', sessionId, currentPage } = payload
+    const { messages, lang = 'en', sessionId, currentPage } = payload
     offlineLang = lang
     offlineQuestion = messages?.filter?.(m => m.role === 'user').pop()?.content || ''
 

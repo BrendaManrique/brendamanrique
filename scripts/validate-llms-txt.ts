@@ -43,7 +43,7 @@ const PROOF_POINTS: ProofPoint[] = [
   // -- Experience (i18n.ts → experience) --
   {
     source: 'i18n.ts → experience',
-    terms: ["Moody's Analytics", 'JPMorgan', 'Money.Net', 'DLYA Bantotal', 'EDF-X', 'Athena'],
+    terms: ["Moody's Analytics", 'JPMorgan', 'Money.Net', 'EDF-X', 'Athena'],
   },
   {
     source: 'i18n.ts → education',
@@ -102,10 +102,6 @@ const PROOF_POINTS: ProofPoint[] = [
   {
     source: 'truth boundaries → employer confidentiality',
     terms: ['never internal', 'proprietary data flows'],
-  },
-  {
-    source: 'truth boundaries → no German fluency',
-    terms: ['does not work in German'],
   },
   {
     source: 'truth boundaries → no published email',
